@@ -15,7 +15,7 @@ ifeq ($(UNAME), Linux)
 PREFIX =
 POSTFIX =
 else
-PREFIX = cmd /c "
+PREFIX = cmd //c "
 POSTFIX = "
 endif
 
@@ -24,7 +24,8 @@ SETUP_EVAL = -source $(ROOTDIR)/scripts/setup_trenz_breakout.tcl -log setup.log 
 all: setup_breakout
 	
 # Setup the Trenz/Zynq base project
-setup_breakout : 
+setup_breakout : .setup.done
+.setup.done :
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
 	@echo "    Running Trenz TE0703 setup"
 	mkdir -p work
