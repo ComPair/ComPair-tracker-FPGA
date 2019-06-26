@@ -4,7 +4,7 @@
 <!-- ##TE Last Modification:2016.10.05-->
 <!-- ##################################################################### -->
 <!-- ## replace part_name with correct FPGA PART from board.xml-->
-<part_info part_name="xc7z020clg484-1">
+<part_info part_name="xc7z020clg484-2">
   <pins>
     <!--insert ip pin settings and locations here, see ug895 or other board part files-->
     <pin index="0" name="JM1_31" loc="C22"/>
