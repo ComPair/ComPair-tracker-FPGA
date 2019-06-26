@@ -44,7 +44,7 @@
         <user_parameter  name="CONFIG.PCW_TTC0_PERIPHERAL_ENABLE" value="1"/>
         <user_parameter  name="CONFIG.PCW_TTC1_PERIPHERAL_ENABLE" value="1"/>
         <user_parameter  name="CONFIG.PCW_UIPARAM_DDR_MEMORY_TYPE" value="DDR 3"/>
-        <user_parameter  name="CONFIG.PCW_UIPARAM_DDR_PARTNO" value="MT41J64M16 JT-125G"/>
+        <user_parameter  name="CONFIG.PCW_UIPARAM_DDR_PARTNO" value="MT41J256M16 RE-125"/>
         <user_parameter  name="CONFIG.PCW_GPIO_MIO_GPIO_ENABLE" value="1"/>
         <user_parameter  name="CONFIG.PCW_ENET_RESET_ENABLE" value="0"/>
         <user_parameter  name="CONFIG.PCW_USB_RESET_ENABLE" value="0"/>
