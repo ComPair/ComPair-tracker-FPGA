@@ -20,6 +20,7 @@ set CORES_BASE [file normalize "$thisDir/../cores/"]
 
 set PROJECT_BASE [file normalize "$thisDir/../"]
 set BUILD_WORKSPACE [file normalize "$PROJECT_BASE/work"]
+set HDL_DIR [file normalize "$PROJECT_BASE/src/hdl"]
 
 puts "================================="
 puts "     PROJECT_BASE: $PROJECT_BASE"
@@ -66,6 +67,8 @@ set IP_PATH $PROJECT_BASE/ip_lib
 puts "INFO:Set IP path :" 
 set_property IP_REPO_PATHS $IP_PATH [current_fileset]
 ::update_ip_catalog
+
+add_files -norecurse $HDL_DIR/vata460p3_driver.vhd
 
 # Source the bd.tcl file to create the bd with custom ip module
 # first get the major.minor version of the tool - and source
@@ -116,3 +119,7 @@ set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.
 # If successful, "touch" a file so the make utility will know it's done
 touch {.setup.done}
 puts "Setup of the Trenz Board complete!"
+
+puts "Building onto BD..."
+source $thisDir/add_vata_to_bd.tcl
+puts "Setup complete."
