@@ -1,11 +1,7 @@
-## Commands used to add to block diagram...
-
-##set parentObj [get_bd_cells /]
-##if { $parentObj == "" } {
-##	catch {common::send_msg_id "BD_TCL_VATA" "ERROR" "Unable to find parent cell?!"}
-##	return
-##}
-##current_bd_instance $parentObj
+## This should add on the VATA driver to the base trenz block diagram.
+## For the most part, I have no idea what the options being fed to the commands mean;
+## these were all scraped from the Vivado GUI's tcl console while building
+## the block diagram by hand.
 
 ## Create GPIO
 startgroup
@@ -13,8 +9,6 @@ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_cfg_setget
 endgroup
 
 set_property -dict [list CONFIG.C_GPIO_WIDTH {1} CONFIG.C_GPIO2_WIDTH {1} CONFIG.C_IS_DUAL {1} CONFIG.C_ALL_OUTPUTS_2 {1} ] [get_bd_cells axi_gpio_cfg_setget]
-
-##set_property location {0.5 -200 326} [get_bd_cells axi_gpio_cfg_setget]
 
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/processing_system7_0/FCLK_CLK0 (100 MHz)} Clk_slave {Auto} Clk_xbar {Auto} Master {/processing_system7_0/M_AXI_GP0} Slave {/axi_gpio_cfg_setget/S_AXI} intc_ip {New AXI Interconnect} master_apm {0}}  [get_bd_intf_pins axi_gpio_cfg_setget/S_AXI]
 
@@ -56,6 +50,6 @@ connect_bd_net [get_bd_pins blk_mem_gen_0/clkb] [get_bd_pins processing_system7_
 connect_bd_net [get_bd_pins axi_gpio_cfg_setget/gpio_io_o] [get_bd_pins vata460p3_driver_0/set_config]
 connect_bd_net [get_bd_pins axi_gpio_cfg_setget/gpio2_io_o] [get_bd_pins vata460p3_driver_0/get_config]
 
-## Wrapt it up
+## Wrap it up
 validate_bd_design
 save_bd_design

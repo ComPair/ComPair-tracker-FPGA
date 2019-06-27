@@ -120,6 +120,7 @@ set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.
 touch {.setup.done}
 puts "Setup of the Trenz Board complete!"
 
-puts "Building onto BD..."
+puts "Adding VATA driver to BD..."
 source $thisDir/add_vata_to_bd.tcl
+
 puts "Setup complete."
