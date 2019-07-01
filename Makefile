@@ -24,8 +24,8 @@ SETUP_EVAL = -source $(ROOTDIR)/scripts/setup_trenz_breakout.tcl -log setup.log 
 all: setup_breakout
 	
 # Setup the Trenz/Zynq base project
-setup_breakout : .setup.done
-.setup.done :
+setup_breakout : .\work\.setup.done
+.\work\.setup.done :
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
 	@echo "    Running Trenz TE0703 setup"
 	mkdir -p work
