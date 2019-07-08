@@ -10,7 +10,7 @@ use IEEE.NUMERIC_STD.ALL;
 --library UNISIM;
 --use UNISIM.VComponents.all;
 
-entity vata460p3_driver is
+entity vata460p3_interface is
     Port ( clk        : in std_logic;
            set_config : in std_logic;
            get_config : in std_logic;
@@ -29,9 +29,9 @@ entity vata460p3_driver is
            bram_wea   : out std_logic_vector (3 downto 0) := (others => '0');
            -- driver_state_out is temporary, for debugging
            driver_state_out : out std_logic_vector (7 downto 0)); 
-end vata460p3_driver;
+end vata460p3_interface;
 
-architecture Behavioral of vata460p3_driver is
+architecture Behavioral of vata460p3_interface is
     signal driver_state       : std_logic_vector (7 downto 0) := x"00";
     signal mode               : std_logic_vector (2 downto 0) := "111";
     signal trigger_set_config : std_logic := '0';
