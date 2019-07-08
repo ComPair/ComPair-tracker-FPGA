@@ -13,9 +13,9 @@ set_property -dict [list CONFIG.C_GPIO_WIDTH {1} CONFIG.C_GPIO2_WIDTH {1} CONFIG
 apply_bd_automation -rule xilinx.com:bd_rule:axi4 -config { Clk_master {/processing_system7_0/FCLK_CLK0 (100 MHz)} Clk_slave {Auto} Clk_xbar {Auto} Master {/processing_system7_0/M_AXI_GP0} Slave {/axi_gpio_cfg_setget/S_AXI} intc_ip {New AXI Interconnect} master_apm {0}}  [get_bd_intf_pins axi_gpio_cfg_setget/S_AXI]
 
 ## Create VATA460.3 Driver
-create_bd_cell -type module -reference vata460p3_driver vata460p3_driver_0
+create_bd_cell -type module -reference vata460p3_interface vata460p3_interface_0
 ## Connect CLK
-connect_bd_net [get_bd_pins vata460p3_driver_0/clk] [get_bd_pins processing_system7_0/FCLK_CLK0]
+connect_bd_net [get_bd_pins vata460p3_interface_0/clk] [get_bd_pins processing_system7_0/FCLK_CLK0]
 
 ## Add BRAM
 startgroup
@@ -39,16 +39,16 @@ set_property range 4K [get_bd_addr_segs {processing_system7_0/Data/SEG_axi_bram_
 set_property range 4K [get_bd_addr_segs {processing_system7_0/Data/SEG_axi_gpio_cfg_setget_Reg}]
 
 ## Connect VATA460.3 driver to BRAM
-connect_bd_net [get_bd_pins vata460p3_driver_0/addr] [get_bd_pins blk_mem_gen_0/addrb]
-connect_bd_net [get_bd_pins vata460p3_driver_0/dwrite] [get_bd_pins blk_mem_gen_0/dinb]
-connect_bd_net [get_bd_pins vata460p3_driver_0/dread] [get_bd_pins blk_mem_gen_0/doutb]
-connect_bd_net [get_bd_pins vata460p3_driver_0/bram_en] [get_bd_pins blk_mem_gen_0/enb]
-connect_bd_net [get_bd_pins vata460p3_driver_0/bram_wea] [get_bd_pins blk_mem_gen_0/web]
+connect_bd_net [get_bd_pins vata460p3_interface_0/addr] [get_bd_pins blk_mem_gen_0/addrb]
+connect_bd_net [get_bd_pins vata460p3_interface_0/dwrite] [get_bd_pins blk_mem_gen_0/dinb]
+connect_bd_net [get_bd_pins vata460p3_interface_0/dread] [get_bd_pins blk_mem_gen_0/doutb]
+connect_bd_net [get_bd_pins vata460p3_interface_0/bram_en] [get_bd_pins blk_mem_gen_0/enb]
+connect_bd_net [get_bd_pins vata460p3_interface_0/bram_wea] [get_bd_pins blk_mem_gen_0/web]
 connect_bd_net [get_bd_pins blk_mem_gen_0/clkb] [get_bd_pins processing_system7_0/FCLK_CLK0]
 
 ## Connect GPIO to VATA driver
-connect_bd_net [get_bd_pins axi_gpio_cfg_setget/gpio_io_o] [get_bd_pins vata460p3_driver_0/set_config]
-connect_bd_net [get_bd_pins axi_gpio_cfg_setget/gpio2_io_o] [get_bd_pins vata460p3_driver_0/get_config]
+connect_bd_net [get_bd_pins axi_gpio_cfg_setget/gpio_io_o] [get_bd_pins vata460p3_interface_0/set_config]
+connect_bd_net [get_bd_pins axi_gpio_cfg_setget/gpio2_io_o] [get_bd_pins vata460p3_interface_0/get_config]
 
 ## Wrap it up
 validate_bd_design
