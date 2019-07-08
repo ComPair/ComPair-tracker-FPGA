@@ -16,11 +16,10 @@ set thisDir [file dirname [info script]]
 # source common utilities
 source -notrace $thisDir/utils.tcl
 
-set CORES_BASE [file normalize "$thisDir/../cores/"]
 
 set PROJECT_BASE [file normalize "$thisDir/../"]
+set CORES_BASE [file normalize "$PROJECT_BASE/cores/"]
 set BUILD_WORKSPACE [file normalize "$PROJECT_BASE/work"]
-set HDL_DIR [file normalize "$PROJECT_BASE/src/hdl"]
 
 puts "================================="
 puts "     PROJECT_BASE: $PROJECT_BASE"
@@ -62,13 +61,15 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 
 puts "INFO: Project created: Trenz Zynq"
 
-set IP_PATH $PROJECT_BASE/ip_lib
+## ip_lib -> cores
+## set IP_PATH $PROJECT_BASE/ip_lib
+set IP_PATH $CORES_BASE
 
 puts "INFO:Set IP path :" 
 set_property IP_REPO_PATHS $IP_PATH [current_fileset]
 ::update_ip_catalog
 
-add_files -norecurse $HDL_DIR/vata460p3_driver.vhd
+add_files -norecurse $CORES_BASE/vata460p3/vata460p3_interface.vhd
 
 # Source the bd.tcl file to create the bd with custom ip module
 # first get the major.minor version of the tool - and source
