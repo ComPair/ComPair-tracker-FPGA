@@ -65,7 +65,6 @@ ipx::create_xgui_files [ipx::find_open_core user.org:user:vata_460p3_interface:1
 ipx::update_checksums [ipx::find_open_core user.org:user:vata_460p3_interface:1.0]
 ipx::save_core [ipx::find_open_core user.org:user:vata_460p3_interface:1.0]
 
-set_property ip_repo_paths $VATA_IFACE_REPO_DIR [current_fileset]
 update_ip_catalog
 
 ##open_bd_design {/home/lucas/fpga/xilinx/repos/ComPair-tracker-FPGA/work/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd}
