@@ -205,6 +205,16 @@ proc create_root_design { parentCell } {
   set PL_pin_P16 [ create_bd_port -dir I PL_pin_P16 ]
   set PL_pin_P22 [ create_bd_port -dir I PL_pin_P22 ]
 
+  ## VATA's
+  set P2_i1_GALAO [ create_bd_port -dir O P2_i1_GALAO ]
+  set P2_i3_GALAO [ create_bd_port -dir O P2_i3_GALAO ]
+  set P2_i4_GALAO [ create_bd_port -dir O P2_i4_GALAO ]
+  set P2_s0_GALAO [ create_bd_port -dir O P2_s0_GALAO ]
+  set P2_s1_GALAO [ create_bd_port -dir O P2_s1_GALAO ]
+  set P2_s2_GALAO [ create_bd_port -dir O P2_s2_GALAO ]
+  set P2_s_latch_GALAO [ create_bd_port -dir O P2_s_latch_GALAO ]
+  set P2_o5_GALAO [ create_bd_port -dir I P2_o5_GALAO ]
+
   # Create instance: SC0720_0, and set properties
   set SC0720_0 [ create_bd_cell -type ip -vlnv trenz.biz:user:SC0720:1.0 SC0720_0 ]
 
