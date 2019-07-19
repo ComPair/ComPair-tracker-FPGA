@@ -20,6 +20,7 @@ source -notrace $thisDir/utils.tcl
 set PROJECT_BASE [file normalize "$thisDir/../"]
 set CORES_BASE [file normalize "$PROJECT_BASE/cores/"]
 set BUILD_WORKSPACE [file normalize "$PROJECT_BASE/work"]
+set HDL_SRC_DIR [file normalize "$PROJECT_BASE/src/hdl"]
 
 puts "================================="
 puts "     PROJECT_BASE: $PROJECT_BASE"
@@ -69,7 +70,7 @@ puts "INFO:Set IP path :"
 set_property IP_REPO_PATHS $IP_PATH [current_fileset]
 ::update_ip_catalog
 
-add_files -norecurse $CORES_BASE/vata460p3/vata460p3_interface.vhd
+##add_files -norecurse $CORES_BASE/vata460p3/vata460p3_interface.vhd
 
 # Source the bd.tcl file to create the bd with custom ip module
 # first get the major.minor version of the tool - and source
@@ -117,11 +118,15 @@ add_files -fileset constrs_1 -norecurse [glob $PROJECT_BASE/src/breakout/*.xdc]
 # Change from "Out of Context" IP to "Global"
 set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd"]
 
-# If successful, "touch" a file so the make utility will know it's done
-touch {.setup.done}
 puts "Setup of the Trenz Board complete!"
+puts "Now building our crap:"
 
-puts "Adding VATA driver to BD..."
+puts "Creating VATA interface..."
+source $thisDir/create_vata_iface.tcl
+
+puts "Adding VATA interface to zynq.bd..."
 source $thisDir/add_vata_to_bd.tcl
 
+# If successful, "touch" a file so the make utility will know it's done
+touch {.setup.done}
 puts "Setup complete."
