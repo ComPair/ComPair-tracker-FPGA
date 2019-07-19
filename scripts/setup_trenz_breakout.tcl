@@ -114,7 +114,6 @@ set_property "file_type" "VHDL" $file_obj
 #add_files -fileset constrs_1 -norecurse [file normalize "$PROJECT_BASE/src/zybo/board_constraints.xdc"]
 add_files -fileset constrs_1 -norecurse [glob $PROJECT_BASE/src/breakout/*.xdc]
 
-
 # Change from "Out of Context" IP to "Global"
 set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd"]
 
@@ -126,6 +125,17 @@ source $thisDir/create_vata_iface.tcl
 
 puts "Adding VATA interface to zynq.bd..."
 source $thisDir/add_vata_to_bd.tcl
+
+## Next commands are cludge to fix error during implementation.
+## Error relates to zynq_bd missing some output files
+## vivado recommends synth_checkpoint_mode be set to `Singular` for zynq.bd to fix this (it does not),
+## but there is a command setting synth_checkpoint_mode to None just a few lines up...
+## need to look up what this command does.
+upgrade_ip -srcset zynq_bd -vlnv user.org:user:vata_460p3_interface:1.0 [get_ips zynq_bd_vata_460p3_interface_P2_0] -log ip_upgrade.log
+export_ip_user_files -of_objects [get_ips zynq_bd_vata_460p3_interface_P2_0] -no_script -sync -force -quiet
+generate_target all [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd]
+export_ip_user_files -of_objects [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd] -no_script -sync -force -quiet
+report_ip_status
 
 # If successful, "touch" a file so the make utility will know it's done
 touch {.setup.done}
