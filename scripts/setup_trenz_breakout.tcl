@@ -120,7 +120,7 @@ set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.
 puts "Setup of the Trenz Board complete!"
 puts "Now building our crap:"
 
-source $thisDir/connect_gpio_to_vata_ports.tcl
+#source $thisDir/connect_gpio_to_vata_ports.tcl
 
 ##puts "Creating VATA interface..."
 ##source $thisDir/create_vata_iface.tcl
