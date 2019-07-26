@@ -13,6 +13,11 @@
 # get the directory where this script resides
 set thisDir [file dirname [info script]]
 
+set TOP_PROJECT_NAME "zynq_bd_wrapper"
+
+#for now, keeping this as zynq_bd_wrapper since the existing project referenced it
+set EXPORTED_SDK_NAME "zynq_bd_wrapper"
+
 # source common utilities
 source -notrace $thisDir/utils.tcl
 
@@ -30,7 +35,11 @@ puts "          IP_BASE: $IP_BASE"
 # Create project
 open_project [file normalize "$BUILD_WORKSPACE/zynq/zynq.xpr"]
 
-open_bd_design [file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd"]
+#export to sdk - standard location
+file mkdir [file normalize "$BUILD_WORKSPACE/zynq/zynq.sdk"]
+file copy -force [file normalize "$BUILD_WORKSPACE/zynq/zynq.runs/impl_1/$TOP_PROJECT_NAME.sysdef"] [file normalize "$BUILD_WORKSPACE/zynq/zynq.sdk/$TOP_PROJECT_NAME.hdf"]
 
-write_bd_tcl [file normalize "$PROJECT_BASE/src/breakout/zynq_bd.tcl"] -force
-puts "Zybo Board design saved!"
+#export to sdk - alternate location for version control
+file mkdir [file normalize "$PROJECT_BASE/artifacts/$EXPORTED_SDK_NAME.sdk"]
+file copy -force [file normalize "$BUILD_WORKSPACE/zynq/zynq.runs/impl_1/$TOP_PROJECT_NAME.sysdef"] [file normalize "$PROJECT_BASE/artifacts/$EXPORTED_SDK_NAME.sdk/$EXPORTED_SDK_NAME.hdf"]
+puts "Hardware exported!"

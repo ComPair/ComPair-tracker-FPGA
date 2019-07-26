@@ -32,6 +32,17 @@ setup_breakout : .\work\.setup.done
 	echo $(PWD)
 	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_EVAL) -notrace $(POSTFIX)
 
+compile : .\work\.compile.done
+.\work\.compile.done : .\work\.setup.done
+	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/compile.tcl -log compile.log -jou compile.jou $(POSTFIX)
+
+
+	#This is export hardware files so they can be used in sdk
+export_hardware :
+	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/export_hardware.tcl -log export_hardware.log -jou export_hardware.jou -notrace $(POSTFIX)
+	exit 0
+
+
 # Launch the Vivado gui.
 launchgui :
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
