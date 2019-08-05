@@ -48,3 +48,10 @@ launchgui :
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
 	@echo "    Launching GUI..."
 	cd work; $(PREFIX) vivado zynq/zynq.xpr $(POSTFIX)
+
+
+# Remove the work directory. Cannot be undone!
+clean:
+	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+	@echo "    Removing working directory."
+	rm -rf work	
