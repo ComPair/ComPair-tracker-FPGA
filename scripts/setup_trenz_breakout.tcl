@@ -10,6 +10,17 @@
 #   Author:   G. Crum,  NASA/GSFC Code 587
 #
 
+## Determine which module we're building for
+## Build for 21FC3 by default
+set USE_1CFA "0"
+set TRENZ_MODULE "21FC3"
+foreach arg $argv {
+    if {[string equal [string compare $arg "use_1cfa"] "0"]} {
+        set USE_1CFA "1"
+        set TRENZ_MODULE "1CFA"
+    }
+}
+
 # get the directory where this script resides
 set thisDir [file dirname [info script]]
 
@@ -26,11 +37,16 @@ puts "================================="
 puts "     PROJECT_BASE: $PROJECT_BASE"
 puts "       CORES_BASE: $CORES_BASE"
 puts "  BUILD_WORKSPACE: $BUILD_WORKSPACE"
+puts "     TRENZ MODULE: $TRENZ_MODULE"
 puts "================================="
 
 set_param board.repoPaths $PROJECT_BASE/board_files/
 
-create_project -force zynq $BUILD_WORKSPACE/zynq -part xc7z020clg484-2
+if { $USE_1CFA } {
+    create_project -force zynq $BUILD_WORKSPACE/zynq -part xc7z020clg484-1
+} else {
+    create_project -force zynq $BUILD_WORKSPACE/zynq -part xc7z020clg484-2
+}
 
 # setup up custom ip repository location
 #set_property ip_repo_paths             \
@@ -46,8 +62,12 @@ set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [get_projects zynq]
-#set_property "board_part" "digilentinc.com:zybo-z7-20:part0:1.0" $obj
-set_property "board_part" "trenz.biz:te0720_2i:part0:1.0" $obj
+
+if { $USE_1CFA } {
+    set_property "board_part" "trenz.biz:te0720_1c:part0:1.0" $obj
+} else {
+    set_property "board_part" "trenz.biz:te0720_2i:part0:1.0" $obj
+}
 
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "generate_ip_upgrade_log" "0" $obj
