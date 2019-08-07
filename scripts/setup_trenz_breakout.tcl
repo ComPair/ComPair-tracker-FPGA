@@ -10,6 +10,17 @@
 #   Author:   G. Crum,  NASA/GSFC Code 587
 #
 
+## Determine which module we're building for
+## Build for 21FC3 by default
+set USE_1CFA "0"
+set TRENZ_MODULE "21FC3"
+foreach arg $argv {
+    if {[string equal [string compare $arg "use_1cfa"] "0"]} {
+        set USE_1CFA "1"
+        set TRENZ_MODULE "1CFA"
+    }
+}
+
 # get the directory where this script resides
 set thisDir [file dirname [info script]]
 
@@ -26,11 +37,16 @@ puts "================================="
 puts "     PROJECT_BASE: $PROJECT_BASE"
 puts "       CORES_BASE: $CORES_BASE"
 puts "  BUILD_WORKSPACE: $BUILD_WORKSPACE"
+puts "     TRENZ MODULE: $TRENZ_MODULE"
 puts "================================="
 
 set_param board.repoPaths $PROJECT_BASE/board_files/
 
-create_project -force zynq $BUILD_WORKSPACE/zynq -part xc7z020clg484-2
+if { $USE_1CFA } {
+    create_project -force zynq $BUILD_WORKSPACE/zynq -part xc7z020clg484-1
+} else {
+    create_project -force zynq $BUILD_WORKSPACE/zynq -part xc7z020clg484-2
+}
 
 # setup up custom ip repository location
 #set_property ip_repo_paths             \
@@ -46,8 +62,12 @@ set proj_dir [get_property directory [current_project]]
 
 # Set project properties
 set obj [get_projects zynq]
-#set_property "board_part" "digilentinc.com:zybo-z7-20:part0:1.0" $obj
-set_property "board_part" "trenz.biz:te0720_2i:part0:1.0" $obj
+
+if { $USE_1CFA } {
+    set_property "board_part" "trenz.biz:te0720_1c:part0:1.0" $obj
+} else {
+    set_property "board_part" "trenz.biz:te0720_2i:part0:1.0" $obj
+}
 
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "generate_ip_upgrade_log" "0" $obj
@@ -120,22 +140,24 @@ set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.
 puts "Setup of the Trenz Board complete!"
 puts "Now building our crap:"
 
-puts "Creating VATA interface..."
-source $thisDir/create_vata_iface.tcl
+#source $thisDir/connect_gpio_to_vata_ports.tcl
 
-puts "Adding VATA interface to zynq.bd..."
-source $thisDir/add_vata_to_bd.tcl
-
-## Next commands are cludge to fix error during implementation.
-## Error relates to zynq_bd missing some output files
-## vivado recommends synth_checkpoint_mode be set to `Singular` for zynq.bd to fix this (it does not),
-## but there is a command setting synth_checkpoint_mode to None just a few lines up...
-## need to look up what this command does.
-upgrade_ip -srcset zynq_bd -vlnv user.org:user:vata_460p3_interface:1.0 [get_ips zynq_bd_vata_460p3_interface_P2_0] -log ip_upgrade.log
-export_ip_user_files -of_objects [get_ips zynq_bd_vata_460p3_interface_P2_0] -no_script -sync -force -quiet
-generate_target all [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd]
-export_ip_user_files -of_objects [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd] -no_script -sync -force -quiet
-report_ip_status
+##puts "Creating VATA interface..."
+##source $thisDir/create_vata_iface.tcl
+##
+##puts "Adding VATA interface to zynq.bd..."
+##source $thisDir/add_vata_to_bd.tcl
+##
+#### Next commands are cludge to fix error during implementation.
+#### Error relates to zynq_bd missing some output files
+#### vivado recommends synth_checkpoint_mode be set to `Singular` for zynq.bd to fix this (it does not),
+#### but there is a command setting synth_checkpoint_mode to None just a few lines up...
+#### need to look up what this command does.
+##upgrade_ip -srcset zynq_bd -vlnv user.org:user:vata_460p3_interface:1.0 [get_ips zynq_bd_vata_460p3_interface_P2_0] -log ip_upgrade.log
+##export_ip_user_files -of_objects [get_ips zynq_bd_vata_460p3_interface_P2_0] -no_script -sync -force -quiet
+##generate_target all [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd]
+##export_ip_user_files -of_objects [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd] -no_script -sync -force -quiet
+##report_ip_status
 
 # If successful, "touch" a file so the make utility will know it's done
 touch {.setup.done}
