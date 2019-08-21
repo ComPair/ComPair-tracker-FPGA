@@ -33,9 +33,11 @@ entity vata_460p3_axi_interface_v2_0 is
         -- Temporary debug ports
         trigger_set_config_out : out std_logic;
         trigger_get_config_out : out std_logic;
+        cfg_reg_indx_out  : out std_logic_vector(9 downto 0);
         state_counter_out : out std_logic_vector(15 downto 0);
-        --cfg_reg_indx      : out std_logic_vector(9 downto 0);
         state_out         : out std_logic_vector(7 downto 0); 
+        cfg_reg_from_vata_out : out std_logic_vector(7 downto 0);
+        --next_cfg_bit_out  : out std_logic;
 		-- User ports ends
 
 		-- Do not modify the ports beyond this line
@@ -98,7 +100,7 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
 		);
 	end component vata_460p3_axi_interface_v1_0_S00_AXI;
 
-    component vata_460p3_axi_interface_fsm
+    component vata_460p3_axi_iface_fsm
         port (
             clk_100MHz         : in std_logic; -- 100 ns
             rst_n              : in std_logic;
@@ -117,8 +119,9 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
             bram_dwrite        : out std_logic_vector(31 downto 0);
             bram_wea           : out std_logic_vector (3 downto 0) := (others => '0');
             cfg_reg_from_ps    : in std_logic_vector(519 downto 0);
+            cfg_reg_indx_out   : out std_logic_vector(9 downto 0);
             state_counter_out  : out std_logic_vector(15 downto 0);
-            --cfg_reg_indx_out   : out std_logic_vector(9 downto 0);
+            cfg_reg_from_vata_out    : out std_logic_vector(7 downto 0);
             state_out          : out std_logic_vector(7 downto 0));
         end component;
 
@@ -166,7 +169,7 @@ begin
         );
 	-- Add user logic here
 
-    vata_fsm : vata_460p3_axi_interface_fsm
+    vata_fsm : vata_460p3_iface_fsm
         port map (
             clk_100MHz => s00_axi_aclk,
             rst_n => s00_axi_aresetn,
@@ -185,6 +188,8 @@ begin
             bram_dwrite => bram_dwrite,
             bram_wea => bram_wea,
             cfg_reg_from_ps => cfg_reg_from_ps,
+            cfg_reg_indx_out => cfg_reg_indx_out,
+            cfg_reg_from_vata_out => cfg_reg_from_vata_out,
             state_counter_out => state_counter_out,
             state_out => state_out
         );

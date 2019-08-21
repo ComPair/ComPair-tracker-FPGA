@@ -748,23 +748,23 @@ begin
 	end process;
 
 	-- Add user logic here
-    CONFIG_REG_FROM_PS(31 downto 0) <= slv_reg0;
-    CONFIG_REG_FROM_PS(63 downto 32) <= slv_reg1;
-    CONFIG_REG_FROM_PS(95 downto 64) <= slv_reg2;
-    CONFIG_REG_FROM_PS(127 downto 96) <= slv_reg3;
-    CONFIG_REG_FROM_PS(159 downto 128) <= slv_reg4;
-    CONFIG_REG_FROM_PS(191 downto 160) <= slv_reg5;
-    CONFIG_REG_FROM_PS(223 downto 192) <= slv_reg6;
-    CONFIG_REG_FROM_PS(255 downto 224) <= slv_reg7;
-    CONFIG_REG_FROM_PS(287 downto 256) <= slv_reg8;
-    CONFIG_REG_FROM_PS(319 downto 288) <= slv_reg9;
-    CONFIG_REG_FROM_PS(351 downto 320) <= slv_reg10;
-    CONFIG_REG_FROM_PS(383 downto 352) <= slv_reg11;
-    CONFIG_REG_FROM_PS(415 downto 384) <= slv_reg12;
-    CONFIG_REG_FROM_PS(447 downto 416) <= slv_reg13;
-    CONFIG_REG_FROM_PS(479 downto 448) <= slv_reg14;
-    CONFIG_REG_FROM_PS(511 downto 480) <= slv_reg15;
-    CONFIG_REG_FROM_PS(519 downto 512) <= slv_reg16(7 downto 0);
+    CONFIG_REG_FROM_PS(31 downto 0) <= slv_reg1;
+    CONFIG_REG_FROM_PS(63 downto 32) <= slv_reg2;
+    CONFIG_REG_FROM_PS(95 downto 64) <= slv_reg3;
+    CONFIG_REG_FROM_PS(127 downto 96) <= slv_reg4;
+    CONFIG_REG_FROM_PS(159 downto 128) <= slv_reg5;
+    CONFIG_REG_FROM_PS(191 downto 160) <= slv_reg6;
+    CONFIG_REG_FROM_PS(223 downto 192) <= slv_reg7;
+    CONFIG_REG_FROM_PS(255 downto 224) <= slv_reg8;
+    CONFIG_REG_FROM_PS(287 downto 256) <= slv_reg9;
+    CONFIG_REG_FROM_PS(319 downto 288) <= slv_reg10;
+    CONFIG_REG_FROM_PS(351 downto 320) <= slv_reg11;
+    CONFIG_REG_FROM_PS(383 downto 352) <= slv_reg12;
+    CONFIG_REG_FROM_PS(415 downto 384) <= slv_reg13;
+    CONFIG_REG_FROM_PS(447 downto 416) <= slv_reg14;
+    CONFIG_REG_FROM_PS(479 downto 448) <= slv_reg15;
+    CONFIG_REG_FROM_PS(511 downto 480) <= slv_reg16;
+    CONFIG_REG_FROM_PS(519 downto 512) <= slv_reg17(7 downto 0);
 	-- User logic ends
 
 end arch_imp;
