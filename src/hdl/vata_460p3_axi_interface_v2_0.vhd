@@ -14,6 +14,7 @@ entity vata_460p3_axi_interface_v2_0 is
 	port (
 		-- Users to add ports here
         trigger_in        : in std_logic;
+        trigger_out       : out std_logic;
         vata_s0           : out std_logic;
         vata_s1           : out std_logic;
         vata_s2           : out std_logic;
@@ -107,6 +108,7 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
             clk_100MHz         : in std_logic; -- 10 ns
             rst_n              : in std_logic;
             trigger_in         : in std_logic;
+            trigger_out        : out std_logic;
             get_config         : in std_logic;
             set_config         : in std_logic;
             cp_data_done       : in std_logic;
@@ -181,6 +183,7 @@ begin
             clk_100MHz        => s00_axi_aclk,
             rst_n             => s00_axi_aresetn,
             trigger_in        => trigger_in,
+            trigger_out       => trigger_out,
             set_config        => set_config,
             get_config        => get_config,
             cp_data_done      => cp_data_done,
@@ -204,11 +207,13 @@ begin
             state_out         => state_out
         );
 
-    -- Upon writing to 0th addr, trigger set or get config
+    -- Below is the process that interprets writes to the 0th axi register
+    -- to determine whether to send some initiating signal.
+    -- Upon writing to 0th addr, trigger the following actions:
     -- If writing 0, trigger set config.
     -- If writing 1, trigger get config.
     -- If writing 2, trigger cp_data_done.
-    trigger_proc: process (s00_axi_aresetn, s00_axi_aclk)
+    write_reg0_proc : process (s00_axi_aresetn, s00_axi_aclk)
     begin
         if s00_axi_aresetn = '0' then
             set_config      <= '0';
@@ -240,7 +245,7 @@ begin
             end if;
             last_axi_wready <= axi_wready_buf;
         end if;
-    end process trigger_proc;
+    end process write_reg0_proc;
 
     set_config_out   <= set_config;
     get_config_out   <= get_config;
