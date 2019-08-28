@@ -1,12 +1,14 @@
--- Simulation should run for ~355us
+-- Simulation should run for ~140us
+-- This should check if we are shifting the register correctly
+-- after receiving the stop bit.
 library ieee;
 use ieee.STD_LOGIC_UNSIGNED.all;
 use ieee.std_logic_1164.all;
 
-entity vata_fsm_daq_tb is
-end vata_fsm_daq_tb;
+entity vata_fsm_daq_v2_tb is
+end vata_fsm_daq_v2_tb;
 
-architecture TB_ARCH of vata_fsm_daq_tb is
+architecture TB_ARCH of vata_fsm_daq_v2_tb is
     -- Component declaration of the tested unit
     component vata_460p3_iface_fsm
         port (
@@ -37,7 +39,7 @@ architecture TB_ARCH of vata_fsm_daq_tb is
     end component;
 
     constant Tpd : time := 10.0 ns; -- 100 MHz
-    constant hold_time : std_logic_vector(15 downto 0) := x"000A"; -- 10 clock cycle hold
+    constant hold_time : std_logic_vector(15 downto 0) := x"000A"; -- 10 clock cycle hold???
     constant RO_WAIT_FOR_CP_DATA_DONE : std_logic_vector(7 downto 0) := x"40";
 
     signal clk               : std_logic;
@@ -89,7 +91,7 @@ begin
     trigger_proc : process
     begin
         trigger_in <= '0';
-        wait for 5 * Tpd; -- wait for resets to finish
+        wait for 5.5 * Tpd; -- wait for resets to finish
         trigger_in <= '1';
         wait for 100 ns;
         trigger_in <= '0';
@@ -131,9 +133,10 @@ begin
                     end if;
                 when x"03" =>
                     if last_vata_i1 = '0' and vata_i1 = '1' then
-                        if vata_out_count = 378 then
+                        if vata_out_count = 31 then
                             vata_o5 <= '1';
-                            vata_out_state <= x"04";
+                            vata_out_count <= 32;
+                            vata_out_state <= x"0A";
                         else
                             vata_out_count <= vata_out_count + 1;
                             vata_out_state <= x"03";
@@ -141,12 +144,22 @@ begin
                     else
                         vata_out_state <= x"03";
                     end if;
+                when x"0A" =>
+                    --if last_vata_i1 = '0' and vata_i1 = '1' then
+                    if state_out = x"32" then
+                        vata_o5 <= '0';
+                        vata_out_state <= x"04";
+                    else
+                        vata_o5 <= '1';
+                        vata_out_count <= 32;
+                        vata_out_state <= x"0A";
+                    end if;
                 when x"04" =>
                     if bram_wea = x"F" then
                         vata_o5 <= '0';
                         vata_out_state <= x"05";
                     else
-                        vata_o5 <= '1';
+                        vata_o5 <= '0';
                         vata_out_state <= x"04";
                     end if;
                 when x"05" =>
@@ -177,9 +190,9 @@ begin
 
     vata_o6_proc : process (vata_out_state, vata_out_count)
     begin
-        if vata_out_state = x"03" then
+        if vata_out_state = x"03" or vata_out_state = x"0A" then
             if vata_out_count = 1 or vata_out_count = 3 or vata_out_count = 5 or vata_out_count = 7 or
-                    vata_out_count = 378 or vata_out_count = 376 or vata_out_count = 374 then
+                    vata_out_count = 32 or vata_out_count = 30 or vata_out_count = 28 then
                 vata_o6 <= '1';
             else
                 vata_o6 <= '0';
