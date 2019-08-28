@@ -13,6 +13,7 @@ architecture TB_ARCH of vata_fsm_daq_tb is
             clk_100MHz         : in std_logic; -- 100 ns
             rst_n              : in std_logic;
             trigger_in         : in std_logic;
+            trigger_out        : out std_logic;
             get_config         : in std_logic;
             set_config         : in std_logic;
             cp_data_done       : in std_logic;
@@ -43,6 +44,7 @@ architecture TB_ARCH of vata_fsm_daq_tb is
     signal clk               : std_logic;
     signal rst_n             : std_logic := '1';
     signal trigger_in        : std_logic := '0';
+    signal trigger_out       : std_logic;
     signal cp_data_done      : std_logic := '0';
     signal vata_s0           : std_logic;
     signal vata_s1           : std_logic;
@@ -133,13 +135,23 @@ begin
                     if last_vata_i1 = '0' and vata_i1 = '1' then
                         if vata_out_count = 378 then
                             vata_o5 <= '1';
-                            vata_out_state <= x"04";
+                            vata_out_count <= 379;
+                            vata_out_state <= x"0A";
                         else
                             vata_out_count <= vata_out_count + 1;
                             vata_out_state <= x"03";
                         end if;
                     else
                         vata_out_state <= x"03";
+                    end if;
+                when x"0A" =>
+                    if state_out = x"32" or state_out = x"33" then
+                        vata_o5 <= '0';
+                        vata_out_state <= x"04";
+                    else
+                        vata_o5 <= '1';
+                        vata_out_count <= 379;
+                        vata_out_state <= x"0A";
                     end if;
                 when x"04" =>
                     if bram_wea = x"F" then
@@ -177,9 +189,9 @@ begin
 
     vata_o6_proc : process (vata_out_state, vata_out_count)
     begin
-        if vata_out_state = x"03" then
+        if vata_out_state = x"03" or vata_out_state = x"0A" then
             if vata_out_count = 1 or vata_out_count = 3 or vata_out_count = 5 or vata_out_count = 7 or
-                    vata_out_count = 378 or vata_out_count = 376 or vata_out_count = 374 then
+                    vata_out_count = 379 or vata_out_count = 377 or vata_out_count = 375 then
                 vata_o6 <= '1';
             else
                 vata_o6 <= '0';
@@ -194,6 +206,7 @@ begin
             clk_100MHz        => clk,
             rst_n             => rst_n,
             trigger_in        => trigger_in,
+            trigger_out       => trigger_out,
             set_config        => '0',
             get_config        => '0',
             cp_data_done      => cp_data_done,

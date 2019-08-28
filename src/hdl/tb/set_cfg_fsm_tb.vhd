@@ -14,6 +14,7 @@ architecture TB_ARCH of set_cfg_fsm_tb is
             clk_100MHz         : in std_logic; -- 100 ns
             rst_n              : in std_logic;
             trigger_in         : in std_logic;
+            trigger_out        : out std_logic;
             get_config         : in std_logic;
             set_config         : in std_logic;
             cp_data_done       : in std_logic;
@@ -107,6 +108,7 @@ begin
             clk_100MHz        => clk,
             rst_n             => rst_n,
             trigger_in        => '0',
+            trigger_out       => open,
             set_config        => set_config,
             get_config        => get_config,
             cp_data_done      => '0',

@@ -7,6 +7,7 @@ entity vata_460p3_iface_fsm is
                 clk_100MHz         : in std_logic; -- 10 ns
                 rst_n              : in std_logic;
                 trigger_in         : in std_logic;
+                trigger_out        : out std_logic;
                 get_config         : in std_logic;
                 set_config         : in std_logic;
                 cp_data_done       : in std_logic;
@@ -493,10 +494,12 @@ begin
     begin
         vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0'; vata_s_latch <= '0';
         bram_wea <= (others => '0'); bram_uaddr <= (others => '0'); bram_dwrite <= (others => '0');
+        trigger_out <= '0';
         case (current_state) is
             when IDLE =>
                 vata_mode <= "010"; vata_s_latch <= '0';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
+                trigger_out <= vata_o6;
             ---- Set config states ----
             when SC_SET_MODE_M1 =>
                 vata_mode <= "000"; vata_s_latch <= '0';
@@ -536,10 +539,10 @@ begin
                 vata_mode <= "001"; vata_s_latch <= '0';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
             when GC_LATCH_MODE_M2 =>
-                vata_mode <= "001";
+                vata_mode <= "001"; vata_s_latch <= '1';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
             when GC_LOWER_LATCH_M2 =>
-                vata_mode <= "001";
+                vata_mode <= "001"; vata_s_latch <= '0';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
             when GC_SET_DATA_I3 =>
                 vata_mode <= "001";
