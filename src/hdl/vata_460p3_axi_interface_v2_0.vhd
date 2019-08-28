@@ -38,7 +38,7 @@ entity vata_460p3_axi_interface_v2_0 is
         reg_indx_out      : out std_logic_vector(9 downto 0);
         state_counter_out : out std_logic_vector(15 downto 0);
         state_out         : out std_logic_vector(7 downto 0); 
-        reg_from_vata_out : out std_logic_vector(7 downto 0);
+        reg_from_vata_out : out std_logic_vector(378 downto 0);
 		-- User ports ends
 
 		-- Do not modify the ports beyond this line
@@ -102,7 +102,7 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
 		);
 	end component vata_460p3_axi_interface_v1_0_S00_AXI;
 
-    component vata_460p3_axi_iface_fsm
+    component vata_460p3_iface_fsm
         port (
             clk_100MHz         : in std_logic; -- 10 ns
             rst_n              : in std_logic;
@@ -124,9 +124,9 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
             bram_dwrite        : out std_logic_vector(31 downto 0);
             bram_wea           : out std_logic_vector (3 downto 0) := (others => '0');
             cfg_reg_from_ps    : in std_logic_vector(519 downto 0);
-            reg_indx_out       : out std_logic_vector(9 downto 0);
             state_counter_out  : out std_logic_vector(15 downto 0);
-            reg_from_vata_out  : out std_logic_vector(7 downto 0);
+            reg_indx_out       : out std_logic_vector(9 downto 0);
+            reg_from_vata_out  : out std_logic_vector(378 downto 0);
             state_out          : out std_logic_vector(7 downto 0));
         end component;
 
@@ -189,9 +189,9 @@ begin
             vata_s1           => vata_s1,
             vata_s2           => vata_s2,
             vata_s_latch      => vata_s_latch,
-            vata_i1_out       => vata_i1,
-            vata_i3_out       => vata_i3,
-            vata_i4_out       => vata_i4,
+            vata_i1           => vata_i1,
+            vata_i3           => vata_i3,
+            vata_i4           => vata_i4,
             vata_o5           => vata_o5,
             vata_o6           => vata_o6,
             bram_addr         => bram_addr,
