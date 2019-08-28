@@ -15,6 +15,7 @@ architecture TB_ARCH of vata_fsm_daq_v2_tb is
             clk_100MHz         : in std_logic; -- 100 ns
             rst_n              : in std_logic;
             trigger_in         : in std_logic;
+            trigger_out        : out std_logic;
             get_config         : in std_logic;
             set_config         : in std_logic;
             cp_data_done       : in std_logic;
@@ -45,6 +46,7 @@ architecture TB_ARCH of vata_fsm_daq_v2_tb is
     signal clk               : std_logic;
     signal rst_n             : std_logic := '1';
     signal trigger_in        : std_logic := '0';
+    signal trigger_out       : std_logic;
     signal cp_data_done      : std_logic := '0';
     signal vata_s0           : std_logic;
     signal vata_s1           : std_logic;
@@ -145,7 +147,6 @@ begin
                         vata_out_state <= x"03";
                     end if;
                 when x"0A" =>
-                    --if last_vata_i1 = '0' and vata_i1 = '1' then
                     if state_out = x"32" then
                         vata_o5 <= '0';
                         vata_out_state <= x"04";
@@ -207,6 +208,7 @@ begin
             clk_100MHz        => clk,
             rst_n             => rst_n,
             trigger_in        => trigger_in,
+            trigger_out       => trigger_out,
             set_config        => '0',
             get_config        => '0',
             cp_data_done      => cp_data_done,
