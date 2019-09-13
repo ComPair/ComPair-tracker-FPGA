@@ -529,7 +529,7 @@ begin
             when IDLE =>
                 vata_mode <= "010"; vata_s_latch <= '0';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
-                FEE_hit <= vata_o6;
+                FEE_hit <= not vata_o6;
             ---- Set config states ----
             when SC_SET_MODE_M1 =>
                 vata_mode <= "000"; vata_s_latch <= '0';
@@ -903,7 +903,7 @@ begin
                 reg_from_vata(0) <= vata_o5;
                 reg_from_vata(519 downto 1) <= reg_from_vata(519 downto 1);
             elsif read_o6 = '1' then
-                reg_from_vata(378) <= vata_o6;
+                reg_from_vata(378) <= not vata_o6;
                 reg_from_vata(519 downto 379) <= reg_from_vata(519 downto 379);
                 reg_from_vata(377 downto 0) <= reg_from_vata(377 downto 0);
             elsif reg_clr = '1' then
