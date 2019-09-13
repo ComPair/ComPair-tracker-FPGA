@@ -33,4 +33,4 @@ open_project [file normalize "$BUILD_WORKSPACE/zynq/zynq.xpr"]
 open_bd_design [file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd"]
 
 write_bd_tcl [file normalize "$PROJECT_BASE/src/breakout/zynq_bd.tcl"] -force
-puts "Zybo Board design saved!"
+puts "Trenz Board design saved!"

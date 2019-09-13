@@ -6,8 +6,14 @@ entity vata_460p3_iface_fsm is
         port (
                 clk_100MHz         : in std_logic; -- 10 ns
                 rst_n              : in std_logic;
-                trigger_in         : in std_logic;
-                trigger_out        : out std_logic;
+                trigger_ack        : in std_logic;
+                trigger_ena        : in std_logic;
+                FEE_hit            : out std_logic;
+                FEE_ready          : out std_logic;
+                FEE_busy           : out std_logic;
+                FEE_spare          : out std_logic;
+                event_id_latch     : in std_logic;
+                event_id_data      : in std_logic;
                 get_config         : in std_logic;
                 set_config         : in std_logic;
                 cp_data_done       : in std_logic;
@@ -77,32 +83,33 @@ architecture arch_imp of vata_460p3_iface_fsm is
     constant ACQ_LOWER_I1             : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"27";
     constant ACQ_SET_MODE_M4          : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"28";
     constant CONV_LATCH_M4            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"29";
-    constant CONV_LOWER_I4            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2A";
-    constant CONV_CLK_HI              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2B";
-    constant CONV_CLK_LO              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2C";
-    constant CONV_SET_MODE_M5         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2D";
-    constant RO_LATCH_MODE_M5         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2E";
-    constant RO_CLK_HI                : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2F";
-    constant RO_READ_O6               : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"30";
-    constant RO_CLK_LO                : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"31";
-    constant RO_SHIFT_DATA            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"32";
-    constant RO_WBRAM_12              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"33";
-    constant RO_WBRAM_11              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"34";
-    constant RO_WBRAM_10              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"35";
-    constant RO_WBRAM_09              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"36";
-    constant RO_WBRAM_08              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"37";
-    constant RO_WBRAM_07              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"38";
-    constant RO_WBRAM_06              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"39";
-    constant RO_WBRAM_05              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3A";
-    constant RO_WBRAM_04              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3B";
-    constant RO_WBRAM_03              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3C";
-    constant RO_WBRAM_02              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3D";
-    constant RO_WBRAM_01              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3E";
-    constant RO_WBRAM_00              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3F";
-    constant RO_WAIT_FOR_CP_DATA_DONE : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"40";
-    constant RO_CLR_BRAM_00           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"41";
-    constant RO_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"42";
-    constant RO_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"43";
+    constant CONV_RAISE_I3            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2A";
+    constant CONV_LOWER_I4            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2B";
+    constant CONV_CLK_HI              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2C";
+    constant CONV_CLK_LO              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2D";
+    constant CONV_SET_MODE_M5         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2E";
+    constant RO_LATCH_MODE_M5         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2F";
+    constant RO_CLK_HI                : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"30";
+    constant RO_READ_O6               : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"31";
+    constant RO_CLK_LO                : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"32";
+    constant RO_SHIFT_DATA            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"33";
+    constant RO_WBRAM_12              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"34";
+    constant RO_WBRAM_11              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"35";
+    constant RO_WBRAM_10              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"36";
+    constant RO_WBRAM_09              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"37";
+    constant RO_WBRAM_08              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"38";
+    constant RO_WBRAM_07              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"39";
+    constant RO_WBRAM_06              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3A";
+    constant RO_WBRAM_05              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3B";
+    constant RO_WBRAM_04              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3C";
+    constant RO_WBRAM_03              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3D";
+    constant RO_WBRAM_02              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3E";
+    constant RO_WBRAM_01              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3F";
+    constant RO_WBRAM_00              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"40";
+    constant RO_WAIT_FOR_CP_DATA_DONE : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"41";
+    constant RO_CLR_BRAM_00           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"42";
+    constant RO_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"43";
+    constant RO_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"44";
 
     signal current_state     : std_logic_vector(STATE_BITWIDTH-1 downto 0) := IDLE;
     signal next_state        : std_logic_vector(STATE_BITWIDTH-1 downto 0) := IDLE;
@@ -124,8 +131,15 @@ architecture arch_imp of vata_460p3_iface_fsm is
     signal shift_reg_right_1 : std_logic := '0';
     signal reg_clr           : std_logic := '0';
 
-    signal trigger_acq       : std_logic;
-    signal bram_uaddr        : unsigned(31 downto 0);
+    signal event_id_reg      : unsigned(31 downto 0);
+    signal counter_from_trigger_ena : unsigned(15 downto 0);
+    signal clr_counter_from_trigger_ena : std_logic := '0';
+    signal trigger_ack_recvd : std_logic;
+
+    signal trigger_acq            : std_logic;
+    signal last_trigger_en        : std_logic := '0';
+    signal rising_edge_trigger_en : std_logic := '0';
+    signal bram_uaddr             : unsigned(31 downto 0);
 
 begin
 
@@ -140,24 +154,27 @@ begin
 
     process (rst_n, current_state, trigger_acq, set_config, get_config, cp_data_done, state_counter)
     begin
-        state_counter_clr <= '0';
-        dec_reg_indx      <= '0';
-        inc_reg_indx      <= '0';
-        rst_reg_indx_519  <= '0';
-        rst_reg_indx_0    <= '0';
-        shift_reg_left_1  <= '0';
-        shift_reg_right_1 <= '0';
-        reg_clr           <= '0';
-        read_o5           <= '0';
-        read_o6           <= '0';
+        state_counter_clr            <= '0';
+        dec_reg_indx                 <= '0';
+        inc_reg_indx                 <= '0';
+        rst_reg_indx_519             <= '0';
+        rst_reg_indx_0               <= '0';
+        shift_reg_left_1             <= '0';
+        shift_reg_right_1            <= '0';
+        reg_clr                      <= '0';
+        read_o5                      <= '0';
+        read_o6                      <= '0';
+        clr_counter_from_trigger_ena <= '0';
         if rst_n = '0' then
             state_counter_clr <= '1';
             next_state <= IDLE;
         else
             case (current_state) is
                 when IDLE =>
-                    if trigger_acq = '1' then
+                    if rising_edge_trigger_en = '1' then
+                    --if trigger_acq = '1' then
                         state_counter_clr <= '1';
+                        clr_counter_from_trigger_ena <= '1';
                         next_state <= ACQ_CLR_BRAM_00;
                     elsif set_config = '1' then
                         state_counter_clr <= '1';
@@ -327,7 +344,7 @@ begin
                     state_counter_clr <= '1';
                     next_state <= ACQ_DELAY;
                 when ACQ_DELAY =>
-                    if state_counter >= unsigned(hold_time) then -- to_unsigned(1, state_counter'length) then
+                    if state_counter >= unsigned(hold_time) then
                         state_counter_clr <= '1';
                         next_state <= ACQ_HOLD;
                     else
@@ -341,25 +358,38 @@ begin
                         next_state <= ACQ_HOLD;
                     end if;
                 when ACQ_LOWER_I1 =>
-                    if state_counter >= to_unsigned(14, state_counter'length) then -- 150ns
+                    -- XXX NOTE: THERE IS A DELAY BETWEEN LOWERING HOLD AND STARTING CONVERSION!!!!
+                    -- XXX UNSURE IF THIS SHOULD BE AS SHORT AS POSSIBLE???
+                    if state_counter >= to_unsigned(1, state_counter'length) then -- 20ns
                         state_counter_clr <= '1';
                         next_state <= ACQ_SET_MODE_M4;
                     else
                         next_state <= ACQ_LOWER_I1;
                     end if;
                 when ACQ_SET_MODE_M4 =>
-                    if state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
-                        state_counter_clr <= '1';
-                        next_state <= CONV_LATCH_M4;
-                    else
-                        next_state <= ACQ_SET_MODE_M4;
-                    end if;
+                    state_counter_clr <= '1';
+                    next_state <= CONV_LATCH_M4;
+                    --if state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
+                    --    state_counter_clr <= '1';
+                    --    next_state <= CONV_LATCH_M4;
+                    --else
+                    --    next_state <= ACQ_SET_MODE_M4;
+                    --end if;
                 when CONV_LATCH_M4 =>
+                    state_counter_clr <= '1';
+                    next_state <= CONV_RAISE_I3;
+                    --if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                    --    state_counter_clr <= '1';
+                    --    next_state <= CONV_LOWER_I4;
+                    --else
+                    --    next_state <= CONV_LATCH_M4;
+                    --end if;
+                when CONV_RAISE_I3 =>
                     if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
-                        state_counter_clr <= '1';
-                        next_state <= CONV_LOWER_I4;
+		        state_counter_clr <= '1';
+		        next_state <= CONV_LOWER_I4;
                     else
-                        next_state <= CONV_LATCH_M4;
+                        next_state <= CONV_RAISE_I3;
                     end if;
                 when CONV_LOWER_I4 =>
                     if state_counter >= to_unsigned(14, state_counter'length) then -- 150ns
@@ -462,7 +492,7 @@ begin
                     next_state <= RO_WAIT_FOR_CP_DATA_DONE;
                 when RO_WAIT_FOR_CP_DATA_DONE =>
                     -- XXX INCLUDE TIMEOUT HERE!!! XXX --
-                    if cp_data_done = '1' then
+                    if cp_data_done = '1' or state_counter >= to_unsigned(1000, state_counter'length) then -- HARD CODED TIMEOUT 10 us!
                         next_state <= RO_CLR_BRAM_00;
                     else
                         next_state <= RO_WAIT_FOR_CP_DATA_DONE;
@@ -494,12 +524,12 @@ begin
     begin
         vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0'; vata_s_latch <= '0';
         bram_wea <= (others => '0'); bram_uaddr <= (others => '0'); bram_dwrite <= (others => '0');
-        trigger_out <= '0';
+        FEE_hit <= '0';
         case (current_state) is
             when IDLE =>
                 vata_mode <= "010"; vata_s_latch <= '0';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
-                trigger_out <= vata_o6;
+                FEE_hit <= not vata_o6;
             ---- Set config states ----
             when SC_SET_MODE_M1 =>
                 vata_mode <= "000"; vata_s_latch <= '0';
@@ -681,7 +711,10 @@ begin
             ----Data conversion modes-------------------
             when CONV_LATCH_M4 =>
                 vata_mode <= "011"; vata_s_latch <= '1';
-                vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '1'; -- i3 goes hi here in timing diagram
+                vata_i1   <= '0'; vata_i3 <= '0'; vata_i4 <= '1'; -- i3 goes hi here in timing diagram
+            when CONV_RAISE_I3 =>
+                vata_mode <= "011"; vata_s_latch <= '1';
+                vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '1';
             when CONV_LOWER_I4 =>
                 vata_mode <= "011"; vata_s_latch <= '0';
                 vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
@@ -801,10 +834,10 @@ begin
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_SET_MODE_M3 =>
                 vata_mode <= "010"; vata_s_latch <= '0';
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
             when RO_LATCH_MODE_M3 =>
                 vata_mode <= "010"; vata_s_latch <= '1';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
+                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
             when others =>
                 vata_mode <= vata_mode; vata_s_latch <= '0';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
@@ -821,6 +854,19 @@ begin
                 state_counter <= (others => '0');
             else
                 state_counter <= state_counter + to_unsigned(1, state_counter'length);
+            end if;
+        end if;
+    end process;
+
+    process (rst_n, clk_100MHz)
+    begin
+        if rst_n = '0' then
+            counter_from_trigger_ena <= (others => '0');
+        elsif rising_edge(clk_100MHz) then
+            if clr_counter_from_trigger_ena = '1' then
+	        counter_from_trigger_ena <= (others => '0');
+            else
+                counter_from_trigger_ena <= counter_from_trigger_ena + to_unsigned(1, counter_from_trigger_ena'length);
             end if;
         end if;
     end process;
@@ -857,7 +903,7 @@ begin
                 reg_from_vata(0) <= vata_o5;
                 reg_from_vata(519 downto 1) <= reg_from_vata(519 downto 1);
             elsif read_o6 = '1' then
-                reg_from_vata(378) <= vata_o6;
+                reg_from_vata(378) <= not vata_o6;
                 reg_from_vata(519 downto 379) <= reg_from_vata(519 downto 379);
                 reg_from_vata(377 downto 0) <= reg_from_vata(377 downto 0);
             elsif reg_clr = '1' then
@@ -868,12 +914,28 @@ begin
         end if;
     end process;
 
+    process (rst_n, clk_100MHz)
+    begin
+        if rst_n = '0' then
+            last_trigger_en <= '0';
+        elsif rising_edge(clk_100MHz) then
+            if last_trigger_en = '0' and trigger_ena = '1' then
+                rising_edge_trigger_en <= '1';
+            else
+                rising_edge_trigger_en <= '0';
+            end if;
+            last_trigger_en <= trigger_ena;
+        end if;
+    end process;
+           
+
     vata_s0 <= vata_mode(0);
     vata_s1 <= vata_mode(1);
     vata_s2 <= vata_mode(2);
 
     bram_addr   <= std_logic_vector(bram_uaddr);
-    trigger_acq <= trigger_in or vata_o6;
+    --trigger_acq <= trigger_ena or vata_o6;
+    trigger_acq <= trigger_ena;
 
     -- DEBUG --
     state_counter_out <= std_logic_vector(state_counter);

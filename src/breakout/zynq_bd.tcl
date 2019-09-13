@@ -1,6 +1,6 @@
 
 ################################################################
-# This is a generated script based on design: zsys
+# This is a generated script based on design: zynq_bd
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -35,7 +35,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 ################################################################
 
 # To test this script, run the following commands from Vivado Tcl console:
-# source zsys_script.tcl
+# source zynq_bd_script.tcl
 
 # If there is no project opened, this script will create a
 # project, but make sure you do not have an existing project
@@ -126,6 +126,9 @@ if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 trenz.biz:user:SC0720:1.0\
 xilinx.com:ip:processing_system7:5.5\
+xilinx.com:ip:proc_sys_reset:5.0\
+nasa.gov:user:vata_460p3_axi_interface:2.0\
+xilinx.com:ip:blk_mem_gen:8.4\
 xilinx.com:ip:vio:3.0\
 xilinx.com:ip:xlconcat:2.1\
 "
@@ -195,6 +198,14 @@ proc create_root_design { parentCell } {
   set FIXED_IO [ create_bd_intf_port -mode Master -vlnv xilinx.com:display_processing_system7:fixedio_rtl:1.0 FIXED_IO ]
 
   # Create ports
+  set P2_i1_GALAO [ create_bd_port -dir O P2_i1_GALAO ]
+  set P2_i3_GALAO [ create_bd_port -dir O P2_i3_GALAO ]
+  set P2_i4_GALAO [ create_bd_port -dir O P2_i4_GALAO ]
+  set P2_o5_GALAO [ create_bd_port -dir I P2_o5_GALAO ]
+  set P2_s0_GALAO [ create_bd_port -dir O P2_s0_GALAO ]
+  set P2_s1_GALAO [ create_bd_port -dir O P2_s1_GALAO ]
+  set P2_s2_GALAO [ create_bd_port -dir O P2_s2_GALAO ]
+  set P2_s_latch_GALAO [ create_bd_port -dir O P2_s_latch_GALAO ]
   set PL_pin_K16 [ create_bd_port -dir I PL_pin_K16 ]
   set PL_pin_K19 [ create_bd_port -dir I PL_pin_K19 ]
   set PL_pin_K20 [ create_bd_port -dir O PL_pin_K20 ]
@@ -204,16 +215,6 @@ proc create_root_design { parentCell } {
   set PL_pin_N22 [ create_bd_port -dir O PL_pin_N22 ]
   set PL_pin_P16 [ create_bd_port -dir I PL_pin_P16 ]
   set PL_pin_P22 [ create_bd_port -dir I PL_pin_P22 ]
-
-  ## VATA's
-  set P2_i1_GALAO [ create_bd_port -dir O P2_i1_GALAO ]
-  set P2_i3_GALAO [ create_bd_port -dir O P2_i3_GALAO ]
-  set P2_i4_GALAO [ create_bd_port -dir O P2_i4_GALAO ]
-  set P2_s0_GALAO [ create_bd_port -dir O P2_s0_GALAO ]
-  set P2_s1_GALAO [ create_bd_port -dir O P2_s1_GALAO ]
-  set P2_s2_GALAO [ create_bd_port -dir O P2_s2_GALAO ]
-  set P2_s_latch_GALAO [ create_bd_port -dir O P2_s_latch_GALAO ]
-  set P2_o5_GALAO [ create_bd_port -dir I P2_o5_GALAO ]
 
   # Create instance: SC0720_0, and set properties
   set SC0720_0 [ create_bd_cell -type ip -vlnv trenz.biz:user:SC0720:1.0 SC0720_0 ]
@@ -626,6 +627,21 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_WDT_WDT_IO {EMIO} \
  ] $processing_system7_0
 
+  # Create instance: ps7_0_axi_periph, and set properties
+  set ps7_0_axi_periph [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 ps7_0_axi_periph ]
+  set_property -dict [ list \
+   CONFIG.NUM_MI {1} \
+ ] $ps7_0_axi_periph
+
+  # Create instance: rst_ps7_0_100M, and set properties
+  set rst_ps7_0_100M [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_ps7_0_100M ]
+
+  # Create instance: vata_460p3_axi_inter_0, and set properties
+  set vata_460p3_axi_inter_0 [ create_bd_cell -type ip -vlnv nasa.gov:user:vata_460p3_axi_interface:2.0 vata_460p3_axi_inter_0 ]
+
+  # Create instance: vata_460p3_axi_inter_0_bram, and set properties
+  set vata_460p3_axi_inter_0_bram [ create_bd_cell -type ip -vlnv xilinx.com:ip:blk_mem_gen:8.4 vata_460p3_axi_inter_0_bram ]
+
   # Create instance: vio_0, and set properties
   set vio_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:vio:3.0 vio_0 ]
   set_property -dict [ list \
@@ -642,8 +658,12 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
   connect_bd_intf_net -intf_net processing_system7_0_IIC_1 [get_bd_intf_pins SC0720_0/EMIO_I2C1] [get_bd_intf_pins processing_system7_0/IIC_1]
+  connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins ps7_0_axi_periph/S00_AXI]
+  connect_bd_intf_net -intf_net ps7_0_axi_periph_M00_AXI [get_bd_intf_pins ps7_0_axi_periph/M00_AXI] [get_bd_intf_pins vata_460p3_axi_inter_0/s00_axi]
+  connect_bd_intf_net -intf_net vata_460p3_axi_inter_0_bram_rtl_bus [get_bd_intf_pins vata_460p3_axi_inter_0/bram_rtl_bus] [get_bd_intf_pins vata_460p3_axi_inter_0_bram/BRAM_PORTA]
 
   # Create port connections
+  connect_bd_net -net P2_o5_GALAO_1 [get_bd_ports P2_o5_GALAO] [get_bd_pins vata_460p3_axi_inter_0/vata_o5]
   connect_bd_net -net PHY_LEDs [get_bd_pins vio_0/probe_in0] [get_bd_pins xlconcat_0/dout]
   connect_bd_net -net PL_pin_K16_1 [get_bd_ports PL_pin_K16] [get_bd_pins SC0720_0/PL_pin_K16]
   connect_bd_net -net PL_pin_K19_1 [get_bd_ports PL_pin_K19] [get_bd_pins SC0720_0/PL_pin_K19]
@@ -657,15 +677,24 @@ proc create_root_design { parentCell } {
   connect_bd_net -net SC0720_0_PL_pin_K20 [get_bd_ports PL_pin_K20] [get_bd_pins SC0720_0/PL_pin_K20]
   connect_bd_net -net SC0720_0_PL_pin_L16 [get_bd_ports PL_pin_L16] [get_bd_pins SC0720_0/PL_pin_L16]
   connect_bd_net -net SC0720_0_PL_pin_N22 [get_bd_ports PL_pin_N22] [get_bd_pins SC0720_0/PL_pin_N22]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins vio_0/clk]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_100M/slowest_sync_clk] [get_bd_pins vata_460p3_axi_inter_0/s00_axi_aclk] [get_bd_pins vio_0/clk]
+  connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_100M/ext_reset_in]
+  connect_bd_net -net rst_ps7_0_100M_peripheral_aresetn [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn] [get_bd_pins vata_460p3_axi_inter_0/s00_axi_aresetn]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_i1 [get_bd_ports P2_i1_GALAO] [get_bd_pins vata_460p3_axi_inter_0/vata_i1]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_i3 [get_bd_ports P2_i3_GALAO] [get_bd_pins vata_460p3_axi_inter_0/vata_i3]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_i4 [get_bd_ports P2_i4_GALAO] [get_bd_pins vata_460p3_axi_inter_0/vata_i4]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_s0 [get_bd_ports P2_s0_GALAO] [get_bd_pins vata_460p3_axi_inter_0/vata_s0]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_s1 [get_bd_ports P2_s1_GALAO] [get_bd_pins vata_460p3_axi_inter_0/vata_s1]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_s2 [get_bd_ports P2_s2_GALAO] [get_bd_pins vata_460p3_axi_inter_0/vata_s2]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_s_latch [get_bd_ports P2_s_latch_GALAO] [get_bd_pins vata_460p3_axi_inter_0/vata_s_latch]
 
   # Create address segments
+  create_bd_addr_seg -range 0x00010000 -offset 0x43C00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs vata_460p3_axi_inter_0/s00_axi/reg0] SEG_vata_460p3_axi_inter_0_reg0
 
 
   # Restore current instance
   current_bd_instance $oldCurInst
 
-  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -677,4 +706,6 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
+
+common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

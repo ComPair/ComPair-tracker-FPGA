@@ -13,8 +13,14 @@ entity vata_460p3_axi_interface_v2_0 is
 	);
 	port (
 		-- Users to add ports here
-        trigger_in        : in std_logic;
-        trigger_out       : out std_logic;
+        trigger_ack       : in std_logic;
+        trigger_ena       : in std_logic;
+        FEE_hit           : out std_logic;
+        FEE_ready         : out std_logic;
+        FEE_busy          : out std_logic;
+        FEE_spare         : out std_logic;
+        event_id_latch    : in std_logic;
+        event_id_data     : in std_logic;
         vata_s0           : out std_logic;
         vata_s1           : out std_logic;
         vata_s2           : out std_logic;
@@ -107,8 +113,14 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
         port (
             clk_100MHz         : in std_logic; -- 10 ns
             rst_n              : in std_logic;
-            trigger_in         : in std_logic;
-            trigger_out        : out std_logic;
+            trigger_ack        : in std_logic;
+            trigger_ena        : in std_logic;
+            FEE_hit            : out std_logic;
+            FEE_ready          : out std_logic;
+            FEE_busy           : out std_logic;
+            FEE_spare          : out std_logic;
+            event_id_latch     : in std_logic;
+            event_id_data      : in std_logic;
             get_config         : in std_logic;
             set_config         : in std_logic;
             cp_data_done       : in std_logic;
@@ -182,10 +194,16 @@ begin
         port map (
             clk_100MHz        => s00_axi_aclk,
             rst_n             => s00_axi_aresetn,
-            trigger_in        => trigger_in,
-            trigger_out       => trigger_out,
-            set_config        => set_config,
+            trigger_ack       => trigger_ack,
+            trigger_ena       => trigger_ena,
+            FEE_hit           => FEE_hit,
+            FEE_ready         => FEE_ready,
+            FEE_busy          => FEE_busy,
+            FEE_spare         => FEE_spare,
+            event_id_latch    => event_id_latch,
+            event_id_data     => event_id_data,
             get_config        => get_config,
+            set_config        => set_config,
             cp_data_done      => cp_data_done,
             hold_time         => hold_time,
             vata_s0           => vata_s0,
