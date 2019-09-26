@@ -16,13 +16,15 @@ architecture TB_ARCH of event_id_s2p_tb is
             event_id_data  : in std_logic;
             event_id_latch : in std_logic;
             event_id_out   : out std_logic_vector(EVENT_ID_WIDTH-1 downto 0));
-    end event_id_s2p;
+    end component event_id_s2p;
 
     constant EVENT_ID_WIDTH : integer := 32;
+
     constant Tpd : time := 10.0 ns; -- 100 MHz
 
     constant event_id_in : std_logic_vector(EVENT_ID_WIDTH-1 downto 0) := x"12345678";
 
+    signal clk : std_logic;
     signal rst_n : std_logic := '1';
     signal trigger_ack : std_logic := '0';
     signal event_id_data : std_logic;

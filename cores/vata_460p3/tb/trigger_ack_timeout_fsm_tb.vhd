@@ -18,16 +18,16 @@ architecture TB_ARCH of trigger_ack_timeout_fsm_tb is
             abort_daq    : out std_logic);
     end component trigger_ack_timeout_fsm;
 
-    constant COUNTER_WIDTH : integer := 16;
+    constant COUNTER_WIDTH: integer := 16;
+    constant EVENT_ID_WIDTH : integer := 32;
     constant TIMEOUT: integer := 10;
     constant Tpd : time := 10.0 ns; -- 100 MHz
 
+    signal clk : std_logic;
     signal rst_n : std_logic := '1';
     signal trigger_ena : std_logic := '0';
     signal trigger_ack : std_logic := '0';
-    signal event_id_data : std_logic;
-    signal event_id_latch : std_logic := '0';
-    signal event_id_out : std_logic_vector(EVENT_ID_WIDTH-1 downto 0);
+    signal abort_daq : std_logic;
 
 begin
 
@@ -66,9 +66,9 @@ begin
         wait for 1 * Tpd;
         trigger_ena <= '0';
         wait for 5 * Tpd;
-        trigger_ack <= '1'
+        trigger_ack <= '1';
         wait for 1 * Tpd;
-        trigger_ack <= '0'
+        trigger_ack <= '0';
         wait for 10 * Tpd;
 
         -- Try and trigger abort_daq
@@ -79,20 +79,9 @@ begin
         wait;
     end process;
 
-    UUT : event_id_s2p
-        generic map (
-            EVENT_ID_WIDTH => EVENT_ID_WIDTH)
-        port map (
-            clk => clk,
-            rst_n => rst_n,
-            trigger_ack => trigger_ack,
-            event_id_data => event_id_data,
-            event_id_latch => event_id_latch,
-            event_id_out => event_id_out);
-
     UUT : trigger_ack_timeout_fsm
         generic map (
-            COUNTER_WIDTH => COUNTER_WIDTH
+            COUNTER_WIDTH => COUNTER_WIDTH,
             TIMEOUT       => TIMEOUT)
         port map (
             clk_100MHz  => clk,
