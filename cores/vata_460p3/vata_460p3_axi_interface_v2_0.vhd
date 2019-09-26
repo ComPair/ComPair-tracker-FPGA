@@ -46,6 +46,8 @@ entity vata_460p3_axi_interface_v2_0 is
         state_counter_out : out std_logic_vector(15 downto 0);
         state_out         : out std_logic_vector(7 downto 0); 
         reg_from_vata_out : out std_logic_vector(378 downto 0);
+        event_id_out      : out std_logic_vector(31 downto 0);
+        abort_daq         : out std_logic;
 		-- User ports ends
 
 		-- Do not modify the ports beyond this line
@@ -138,9 +140,12 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
             bram_dwrite        : out std_logic_vector(31 downto 0);
             bram_wea           : out std_logic_vector (3 downto 0) := (others => '0');
             cfg_reg_from_ps    : in std_logic_vector(519 downto 0);
+            -- DEBUG --
             state_counter_out  : out std_logic_vector(15 downto 0);
             reg_indx_out       : out std_logic_vector(9 downto 0);
             reg_from_vata_out  : out std_logic_vector(378 downto 0);
+            event_id_out_debug : out std_logic_vector(31 downto 0);
+            abort_daq_debug    : out std_logic;
             state_out          : out std_logic_vector(7 downto 0));
         end component;
 
@@ -222,6 +227,8 @@ begin
             reg_indx_out      => reg_indx_out,
             reg_from_vata_out => reg_from_vata_out,
             state_counter_out => state_counter_out,
+            event_id_out_debug => event_id_out,
+            abort_daq_debug   => abort_daq,
             state_out         => state_out
         );
 
