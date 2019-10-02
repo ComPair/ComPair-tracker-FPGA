@@ -1,0 +1,56 @@
+first_bit,name,description,number_bits
+1,"internal_cal_dac","7-bit Cal DAC
+ C_cal0 [LSB] is the first bit into the Cal DAC register, C_cal6 is the last bit into the Cal DAC register.
+ 0fC to ±90fC (LSB = ~0.70fC)",7
+8,noname,Reserved,1
+9,noname,Reserved,1
+10,All2,Set high when RO_all is high,1
+11,Reserved,Bits reserved for future use,3
+14,Iramp_f3,Increases the ramp speed for the ADC. Set high (Iramp_f3 and Iramp_f2) to increase the speed by a factor 4 from default (to 25μs).,1
+15,Iramp_fb,Decreases the ramp speed for the ADC. Set high to lower the speed.,1
+16,Iramp_f2,Increase the ramp speed for the ADC. Set high to increase the speed by a factor 2 from the default (to 50μs).,1
+17,CM_thr_dis,Set high to disable that the digital threshold is adjusted according to the measured common mode,1
+18,RO_all,Set high to read out all channels (with All2),1
+19,Ck_en,Set high to enable the internal clock generator,1
+20,Prebi_hp,Set high to enable low noise mode,1
+21,Cal_gen_on,Set high to turn on the internal calibration pulse generator,1
+22,Slew_on_b,"Slew rate limited fast shaper for positive charges. Default enabled, set high to disable.",1
+23,Nside,Polarity for trigger and threshold generation. Set high for negative input charge.,1
+24,CC_on,Enable leakage current compensation,1
+25,Test_on,Enable cal-pulse testing,1
+26,Low_gain,Not in use,1
+27,NegQ,ADC signal polarity. Set high for negative input charge.,1
+28,Reserved,This bit is reserved for future functionality,1
+29,ADC_on_b,Enable/disable ADC. Set high to power down the ADCs.,1
+30,VA_RO,Enable VA-type analog read-out with the reduced pin interface,1
+31,Reserved,This bit is reserved for future functionality,1
+32,Ileak_offset,Turns on the per channel positive leakage current constant current source,1
+33,ADC_test1,Set high to override the input to the dummy-channel ADC through the pad ADC_input_dumch,1
+34,ADC_test2,Set high to override the Vramp-input to the dummy-channel ADC through the pad Vramp_dumch,1
+35,Del_reg,"Digital delay register for the dummy channel. The ADC value is delayed with a 6-bit delay register. Download the number of clock cycles to delay the ADC counter sampling [LSB, …, MSB].",6
+41,Del_reg,"6-bit digital delay register for all 32 channels, functionality as for the dummy channel",192
+233,Dis_chan,To disable the reference channel from participating in CM detection,1
+234,Dis_chan,To disable the channel from participating in CM detection. The bit also disables the channel from readout.,32
+266,DTHR,"The 10-bit digital threshold [LSB, ..., MSB]",10
+276,Channel disable,"Channel disable mask [ch0, …, ch31]",32
+308,Channel trim DACs 4x32,"Threshold fine trim DACs for all channels [LSB, ..., MSB].
+ Relationship between the DAC bits and the resulting threshold voltage offset in the channels: Bit1  Bit2  Bit3  Bit4  Offset (mV)",128
+436,Test enable,Test enable mask. Set one bit high to apply test-charge to the respective channel input.,32
+468,Shabi_lg,,1
+469,Pos_Il_1,Positive leakage current offset for all channels: +20 pA,1
+470,Pos_Il_2,Positive leakage current offset for all channels: +40 pA,1
+471,Vthr DAC,Trigger threshold DAC. This threshold is common for all channels.,5
+476,"Bias DAC, ifp",,4
+480,"Bias DAC, Iramp","Controls the time for the ADC ramp voltage to increase by 1V (typical value to cover 90fC). If the control bit “Iramp_fb” is set, all the numbers below are doubled (2 x default). If the control bit “Iramp_f2” is set, all the numbers below are 1/2 x default. If the control bits “Iramp_f2” and “Iramp_f3” are set, all the numbers below are 1/4 x default. Bit1  Bit2  Bit3  Bit4  Time to ramp by 1V",4
+484,"Bias DAC, ck_bi",,4
+488,"Bias DAC, twbi",Adjusts the trigger width of the internal mono-stables,3
+491,"Bias DAC, sha_bias",,3
+494,"Bias DAC, ifss",,3
+497,"Bias DAC, ifsf",,3
+500,"Bias DAC, vrc",,3
+503,"Bias DAC, sbi",,3
+506,"Bias DAC, pre_bias","The table below shows the relationship between DAC values and pre_bias when the control bit prebi_hpis low (default). If prebi_hpis high, the pre_bias increases by 400μA. Bit1  Bit2  Bit3  Current (A)",3
+509,"Bias DAC, ibuf",,3
+512,"Bias DAC, obi",,3
+515,"Bias DAC, Ioffset",Controls the offset of the ADC ramp voltage. The table below shows the relationship between DAC values and the resulting ramp voltage offset. The bit NegQ changes the polarity of the offset. Bit1  Bit2  Bit3  Offset (mV),3
+518,"Bias DAC, disc3_bi",,3
