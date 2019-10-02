@@ -73,12 +73,13 @@ class vata460_config_register:
         all_regs = ""
         for key in self.config_dict.keys():
             all_regs += "Register {0:s}\n\n".format(self.config_dict[key].__str__())
-            
+        
+        all_regs += "--------------\n" + self.make_binary_str()
         return all_regs
 
     def make_binary_mask(self, channel):
         #This value represents the mask in binary.
-        return 2**(channel -1)
+        return 2**(channel)
     
     def get_register(self, index):
         if index not in self.indices:
@@ -149,7 +150,7 @@ class vata460_config_register:
 
         return
         
-    def set_readout_all(self, cfg_register, readout_all = True):
+    def set_readout_all(self, readout_all = True):
         for i in [9, 17]:
             self.set_register_value(i, int(readout_all))      
 
@@ -180,7 +181,6 @@ class vata460_config_register:
             self.set_register_value(i, int(bin_val, 2))
 
         return 
-
 
 def main():
     '''
