@@ -26,7 +26,7 @@ def write_bit(mm, bit_loc, bit_value):
     if bit_value == 1:
         new_val = cur_val | (1<<bit_offset)
     else:
-        new_val = cur_val & (1<<bit_offset)
+        new_val = cur_val & ~(1<<bit_offset)
         if new_val < 0:
             new_val += (1<<8)
     mm[byte_loc] = struct.pack("B", new_val)
