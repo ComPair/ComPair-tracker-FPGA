@@ -4,41 +4,81 @@ use ieee.numeric_std.all;
 
 entity vata_460p3_iface_fsm is
         port (
-                clk_100MHz         : in std_logic; -- 10 ns
-                rst_n              : in std_logic;
-                trigger_ack        : in std_logic;
-                trigger_ena        : in std_logic;
-                FEE_hit            : out std_logic;
-                FEE_ready          : out std_logic;
-                FEE_busy           : out std_logic;
-                FEE_spare          : out std_logic;
-                event_id_latch     : in std_logic;
-                event_id_data      : in std_logic;
-                get_config         : in std_logic;
-                set_config         : in std_logic;
-                cp_data_done       : in std_logic;
-                hold_time          : in std_logic_vector(15 downto 0); -- in clock cycles
-                vata_s0            : out std_logic;
-                vata_s1            : out std_logic;
-                vata_s2            : out std_logic;
-                vata_s_latch       : out std_logic;
-                vata_i1            : out std_logic;
-                vata_i3            : out std_logic;
-                vata_i4            : out std_logic;
-                vata_o5            : in std_logic;
-                vata_o6            : in std_logic;
-                bram_addr          : out std_logic_vector(31 downto 0);
-                bram_dwrite        : out std_logic_vector(31 downto 0);
-                bram_wea           : out std_logic_vector (3 downto 0) := (others => '0');
-                cfg_reg_from_ps    : in std_logic_vector(519 downto 0);
+                clk_100MHz            : in std_logic; -- 10 ns
+                rst_n                 : in std_logic;
+                trigger_ack           : in std_logic;
+                trigger_ena           : in std_logic;
+                trigger_ena_ena       : in std_logic;
+                trigger_ena_force     : in std_logic;
+                FEE_hit               : out std_logic;
+                FEE_ready             : out std_logic;
+                FEE_busy              : out std_logic;
+                FEE_spare             : out std_logic;
+                event_id_latch        : in std_logic;
+                event_id_data         : in std_logic;
+                get_config            : in std_logic;
+                set_config            : in std_logic;
+                cal_pulse_trigger_in  : in std_logic;
+                cp_data_done          : in std_logic;
+                hold_time             : in std_logic_vector(15 downto 0); -- in clock cycles
+                vata_s0               : out std_logic;
+                vata_s1               : out std_logic;
+                vata_s2               : out std_logic;
+                vata_s_latch          : out std_logic;
+                vata_i1               : out std_logic;
+                vata_i3               : out std_logic;
+                vata_i4               : out std_logic;
+                vata_o5               : in std_logic;
+                vata_o6               : in std_logic;
+                cal_pulse_trigger_out : out std_logic;
+                bram_addr             : out std_logic_vector(31 downto 0);
+                bram_dwrite           : out std_logic_vector(31 downto 0);
+                bram_wea              : out std_logic_vector (3 downto 0) := (others => '0');
+                cfg_reg_from_ps       : in std_logic_vector(519 downto 0);
                 -- DEBUG --
-                state_counter_out  : out std_logic_vector(15 downto 0);
-                reg_indx_out       : out std_logic_vector(9 downto 0);
-                reg_from_vata_out  : out std_logic_vector(378 downto 0);
-                state_out          : out std_logic_vector(7 downto 0));
+                state_counter_out     : out std_logic_vector(15 downto 0);
+                reg_indx_out          : out std_logic_vector(9 downto 0);
+                reg_from_vata_out     : out std_logic_vector(378 downto 0);
+                event_id_out_debug    : out std_logic_vector(31 downto 0);
+                abort_daq_debug       : out std_logic;
+                state_out             : out std_logic_vector(7 downto 0));
     end vata_460p3_iface_fsm;
 
 architecture arch_imp of vata_460p3_iface_fsm is
+    component trigger_ack_timeout_fsm is
+        generic (
+            COUNTER_WIDTH : integer := 16;
+            TIMEOUT : integer := 1000);
+        port (
+            clk_100MHz : in std_logic;
+            rst_n : in std_logic;
+            trigger_ena : in std_logic;
+            trigger_ack : in std_logic;
+            abort_daq : out std_logic);
+    end component trigger_ack_timeout_fsm;
+
+    component event_id_s2p is
+        generic (
+            EVENT_ID_WIDTH : integer := 32);
+        port (
+            clk : in std_logic;
+            rst_n : in std_logic;
+            trigger_ack : in std_logic;
+            event_id_data : in std_logic;
+            event_id_latch : in std_logic;
+            event_id_out : out std_logic_vector(EVENT_ID_WIDTH-1 downto 0));
+    end component event_id_s2p;
+
+    component cal_pulse is
+        generic (
+            CAL_PULSE_NHOLD : integer := 320;
+            COUNTER_WIDTH           : integer := 4);
+        port (
+            clk                   : in std_logic;
+            rst_n                 : in std_logic;
+            cal_pulse_trigger_in  : in std_logic;
+            cal_pulse_trigger_out : out std_logic);
+        end component cal_pulse; 
 
     constant STATE_BITWIDTH : integer := 8;
     constant IDLE                     : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"00";
@@ -111,6 +151,8 @@ architecture arch_imp of vata_460p3_iface_fsm is
     constant RO_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"43";
     constant RO_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"44";
 
+    constant EVENT_ID_WIDTH : integer := 32;
+
     signal current_state     : std_logic_vector(STATE_BITWIDTH-1 downto 0) := IDLE;
     signal next_state        : std_logic_vector(STATE_BITWIDTH-1 downto 0) := IDLE;
     signal state_counter     : unsigned(15 downto 0) := (others => '0');
@@ -131,17 +173,54 @@ architecture arch_imp of vata_460p3_iface_fsm is
     signal shift_reg_right_1 : std_logic := '0';
     signal reg_clr           : std_logic := '0';
 
-    signal event_id_reg      : unsigned(31 downto 0);
-    signal counter_from_trigger_ena : unsigned(15 downto 0);
-    signal clr_counter_from_trigger_ena : std_logic := '0';
-    signal trigger_ack_recvd : std_logic;
+    signal event_id_out : std_logic_vector(EVENT_ID_WIDTH-1 downto 0);
+    signal abort_daq : std_logic;
+    --signal counter_from_trigger_ena : unsigned(15 downto 0);
+    --signal clr_counter_from_trigger_ena : std_logic := '0';
+    --signal trigger_ack_recvd : std_logic;
 
-    signal trigger_acq            : std_logic;
-    signal last_trigger_en        : std_logic := '0';
-    signal rising_edge_trigger_en : std_logic := '0';
+    signal trigger_acq            : std_logic := '0';
+    --signal last_trigger_en        : std_logic := '0';
+    --signal rising_edge_trigger_en : std_logic := '0';
     signal bram_uaddr             : unsigned(31 downto 0);
 
 begin
+
+    event_id_s2p_inst : event_id_s2p
+        generic map (
+            EVENT_ID_WIDTH => EVENT_ID_WIDTH)
+        port map (
+            clk            => clk_100MHz,
+            rst_n          => rst_n,
+            trigger_ack    => trigger_ack,
+            event_id_data  => event_id_data,
+            event_id_latch => event_id_latch,
+            event_id_out   => event_id_out
+    );
+
+    trigger_ack_timeout_fsm_inst : trigger_ack_timeout_fsm
+        generic map (
+            COUNTER_WIDTH => 16,
+            TIMEOUT       => 1000)
+        port map (
+            clk_100MHz => clk_100MHz,
+            rst_n => rst_n,
+            trigger_ena => trigger_ena,
+            trigger_ack => trigger_ack,
+            abort_daq   => open 
+    );
+    abort_daq <= '0';
+
+    cal_pulse_inst : cal_pulse
+        generic map (
+            CAL_PULSE_NHOLD => 320,
+            COUNTER_WIDTH   => 9)
+        port map (
+            clk                   => clk_100MHz,
+            rst_n                 => rst_n,
+            cal_pulse_trigger_in  => cal_pulse_trigger_in,
+            cal_pulse_trigger_out => cal_pulse_trigger_out
+    );
 
     process (rst_n, clk_100MHz)
     begin
@@ -152,7 +231,7 @@ begin
         end if;
     end process;
 
-    process (rst_n, current_state, trigger_acq, set_config, get_config, cp_data_done, state_counter)
+    process (rst_n, current_state, trigger_ena, set_config, get_config, cp_data_done, state_counter)
     begin
         state_counter_clr            <= '0';
         dec_reg_indx                 <= '0';
@@ -164,17 +243,18 @@ begin
         reg_clr                      <= '0';
         read_o5                      <= '0';
         read_o6                      <= '0';
-        clr_counter_from_trigger_ena <= '0';
+        --clr_counter_from_trigger_ena <= '0';
         if rst_n = '0' then
             state_counter_clr <= '1';
             next_state <= IDLE;
         else
             case (current_state) is
                 when IDLE =>
-                    if rising_edge_trigger_en = '1' then
-                    --if trigger_acq = '1' then
+                    --if rising_edge_trigger_en = '1' then
+                    --if trigger_ena = '1' then
+                    if trigger_acq = '1' then
                         state_counter_clr <= '1';
-                        clr_counter_from_trigger_ena <= '1';
+                        --clr_counter_from_trigger_ena <= '1';
                         next_state <= ACQ_CLR_BRAM_00;
                     elsif set_config = '1' then
                         state_counter_clr <= '1';
@@ -344,14 +424,18 @@ begin
                     state_counter_clr <= '1';
                     next_state <= ACQ_DELAY;
                 when ACQ_DELAY =>
-                    if state_counter >= unsigned(hold_time) then
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= unsigned(hold_time) then
                         state_counter_clr <= '1';
                         next_state <= ACQ_HOLD;
                     else
                         next_state <= ACQ_DELAY;
                     end if;
                 when ACQ_HOLD =>
-                    if state_counter >= to_unsigned(34, state_counter'length) then -- 350ns
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(34, state_counter'length) then -- 350ns
                         state_counter_clr <= '1';
                         next_state <= ACQ_LOWER_I1;
                     else
@@ -360,15 +444,21 @@ begin
                 when ACQ_LOWER_I1 =>
                     -- XXX NOTE: THERE IS A DELAY BETWEEN LOWERING HOLD AND STARTING CONVERSION!!!!
                     -- XXX UNSURE IF THIS SHOULD BE AS SHORT AS POSSIBLE???
-                    if state_counter >= to_unsigned(1, state_counter'length) then -- 20ns
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(1, state_counter'length) then -- 20ns
                         state_counter_clr <= '1';
                         next_state <= ACQ_SET_MODE_M4;
                     else
                         next_state <= ACQ_LOWER_I1;
                     end if;
                 when ACQ_SET_MODE_M4 =>
-                    state_counter_clr <= '1';
-                    next_state <= CONV_LATCH_M4;
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    else
+                        state_counter_clr <= '1';
+                        next_state <= CONV_LATCH_M4;
+                    end if;
                     --if state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
                     --    state_counter_clr <= '1';
                     --    next_state <= CONV_LATCH_M4;
@@ -376,8 +466,12 @@ begin
                     --    next_state <= ACQ_SET_MODE_M4;
                     --end if;
                 when CONV_LATCH_M4 =>
-                    state_counter_clr <= '1';
-                    next_state <= CONV_RAISE_I3;
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    else
+                        state_counter_clr <= '1';
+                        next_state <= CONV_RAISE_I3;
+                    end if;
                     --if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                     --    state_counter_clr <= '1';
                     --    next_state <= CONV_LOWER_I4;
@@ -385,21 +479,27 @@ begin
                     --    next_state <= CONV_LATCH_M4;
                     --end if;
                 when CONV_RAISE_I3 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
-		        state_counter_clr <= '1';
-		        next_state <= CONV_LOWER_I4;
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                        state_counter_clr <= '1';
+                        next_state <= CONV_LOWER_I4;
                     else
                         next_state <= CONV_RAISE_I3;
                     end if;
                 when CONV_LOWER_I4 =>
-                    if state_counter >= to_unsigned(14, state_counter'length) then -- 150ns
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(14, state_counter'length) then -- 150ns
                         state_counter_clr <= '1';
                         next_state <= CONV_CLK_HI;
                     else
                         next_state <= CONV_LOWER_I4;
                     end if;
                 when CONV_CLK_HI =>
-                    if state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
                         state_counter_clr <= '1';
                         if vata_o5 = '1' then
                             next_state <= CONV_SET_MODE_M5;
@@ -410,14 +510,18 @@ begin
                         next_state <= CONV_CLK_HI;
                     end if;
                 when CONV_CLK_LO =>
-                    if state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
                         state_counter_clr <= '1';
                         next_state <= CONV_CLK_HI;
                     else
                         next_state <= CONV_CLK_LO;
                     end if;
                 when CONV_SET_MODE_M5 =>
-                    if state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
                         state_counter_clr <= '1';
                         next_state <= RO_LATCH_MODE_M5;
                     else
@@ -425,7 +529,9 @@ begin
                     end if;
                 when RO_LATCH_MODE_M5 =>
                     -- XXX UNSURE HOW LONG THIS DELAY IS IN THE TIMING DIAGRAM!!!!!
-                    if state_counter >= to_unsigned(39, state_counter'length) then -- 400ns
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(39, state_counter'length) then -- 400ns
                         state_counter_clr <= '1';
                         rst_reg_indx_0 <= '1';
                         next_state <= RO_CLK_HI;
@@ -433,7 +539,9 @@ begin
                         next_state <= RO_LATCH_MODE_M5;
                     end if;
                 when RO_CLK_HI =>
-                    if state_counter >= to_unsigned(24, state_counter'length) then -- 250ns
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(24, state_counter'length) then -- 250ns
                         state_counter_clr <= '1';
                         --shift_reg_right_1 <= '1';
                         next_state <= RO_READ_O6;
@@ -441,7 +549,9 @@ begin
                         next_state <= RO_CLK_HI;
                     end if;
                 when RO_READ_O6 =>
-                    if state_counter >= to_unsigned(7, state_counter'length) then -- 80ns
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(7, state_counter'length) then -- 80ns
                         state_counter_clr <= '1';
                         read_o6 <= '1';
                         inc_reg_indx <= '1';
@@ -450,7 +560,9 @@ begin
                         next_state <= RO_READ_O6;
                     end if;
                 when RO_CLK_LO =>
-                    if state_counter >= to_unsigned(32, state_counter'length) then -- 330ns
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(32, state_counter'length) then -- 330ns
                         state_counter_clr <= '1';
                         if vata_o5 = '1' then
                             if reg_indx = 379 then
@@ -468,12 +580,16 @@ begin
                         next_state <= RO_CLK_LO;
                     end if;
                 when RO_SHIFT_DATA =>
-                    inc_reg_indx <= '1';
-                    if reg_indx >= 379 then
-                        next_state <= RO_WBRAM_12;
+                    if abort_daq = '1' then
+                        next_state <= RO_SET_MODE_M3;
                     else
-                        shift_reg_right_1 <= '1';
-                        next_state <= RO_SHIFT_DATA;
+                        inc_reg_indx <= '1';
+                        if reg_indx >= 379 then
+                            next_state <= RO_WBRAM_12;
+                        else
+                            shift_reg_right_1 <= '1';
+                            next_state <= RO_SHIFT_DATA;
+                        end if;
                     end if;
                 when RO_WBRAM_12 => next_state <= RO_WBRAM_11;
                 when RO_WBRAM_11 => next_state <= RO_WBRAM_10;
@@ -820,7 +936,7 @@ begin
                 vata_mode   <= "100";
                 bram_wea    <= (others => '1');
                 bram_uaddr  <= to_unsigned(0, bram_uaddr'length);
-                bram_dwrite <= (others => '1'); -- Signify we finished writing data to ram
+                bram_dwrite <= event_id_out; -- Write the event id at this point
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WAIT_FOR_CP_DATA_DONE =>
                 vata_mode <= "100";
@@ -858,18 +974,18 @@ begin
         end if;
     end process;
 
-    process (rst_n, clk_100MHz)
-    begin
-        if rst_n = '0' then
-            counter_from_trigger_ena <= (others => '0');
-        elsif rising_edge(clk_100MHz) then
-            if clr_counter_from_trigger_ena = '1' then
-	        counter_from_trigger_ena <= (others => '0');
-            else
-                counter_from_trigger_ena <= counter_from_trigger_ena + to_unsigned(1, counter_from_trigger_ena'length);
-            end if;
-        end if;
-    end process;
+    --process (rst_n, clk_100MHz)
+    --begin
+    --    if rst_n = '0' then
+    --        counter_from_trigger_ena <= (others => '0');
+    --    elsif rising_edge(clk_100MHz) then
+    --        if clr_counter_from_trigger_ena = '1' then
+	--        counter_from_trigger_ena <= (others => '0');
+    --        else
+    --            counter_from_trigger_ena <= counter_from_trigger_ena + to_unsigned(1, counter_from_trigger_ena'length);
+    --        end if;
+    --    end if;
+    --end process;
 
     process (rst_n, clk_100MHz)
     begin
@@ -914,19 +1030,19 @@ begin
         end if;
     end process;
 
-    process (rst_n, clk_100MHz)
-    begin
-        if rst_n = '0' then
-            last_trigger_en <= '0';
-        elsif rising_edge(clk_100MHz) then
-            if last_trigger_en = '0' and trigger_ena = '1' then
-                rising_edge_trigger_en <= '1';
-            else
-                rising_edge_trigger_en <= '0';
-            end if;
-            last_trigger_en <= trigger_ena;
-        end if;
-    end process;
+    --process (rst_n, clk_100MHz)
+    --begin
+    --    if rst_n = '0' then
+    --        last_trigger_en <= '0';
+    --    elsif rising_edge(clk_100MHz) then
+    --        if last_trigger_en = '0' and trigger_ena = '1' then
+    --            rising_edge_trigger_en <= '1';
+    --        else
+    --            rising_edge_trigger_en <= '0';
+    --        end if;
+    --        last_trigger_en <= trigger_ena;
+    --    end if;
+    --end process;
            
 
     vata_s0 <= vata_mode(0);
@@ -934,8 +1050,7 @@ begin
     vata_s2 <= vata_mode(2);
 
     bram_addr   <= std_logic_vector(bram_uaddr);
-    --trigger_acq <= trigger_ena or vata_o6;
-    trigger_acq <= trigger_ena;
+    trigger_acq <= (trigger_ena_force) or (trigger_ena_ena and trigger_ena);
 
     -- DEBUG --
     state_counter_out <= std_logic_vector(state_counter);
@@ -943,5 +1058,8 @@ begin
 
     reg_indx_out      <= std_logic_vector(to_unsigned(reg_indx, reg_indx_out'length));
     reg_from_vata_out <= std_logic_vector(reg_from_vata(378 downto 0));
+    event_id_out_debug <= event_id_out;
+    abort_daq_debug <= abort_daq;
 
 end arch_imp;
+-- vim: set ts=4 sw=4 sts=4 et:
