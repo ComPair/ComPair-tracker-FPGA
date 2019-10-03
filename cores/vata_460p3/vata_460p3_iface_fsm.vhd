@@ -4,40 +4,44 @@ use ieee.numeric_std.all;
 
 entity vata_460p3_iface_fsm is
         port (
-                clk_100MHz         : in std_logic; -- 10 ns
-                rst_n              : in std_logic;
-                trigger_ack        : in std_logic;
-                trigger_ena        : in std_logic;
-                FEE_hit            : out std_logic;
-                FEE_ready          : out std_logic;
-                FEE_busy           : out std_logic;
-                FEE_spare          : out std_logic;
-                event_id_latch     : in std_logic;
-                event_id_data      : in std_logic;
-                get_config         : in std_logic;
-                set_config         : in std_logic;
-                cp_data_done       : in std_logic;
-                hold_time          : in std_logic_vector(15 downto 0); -- in clock cycles
-                vata_s0            : out std_logic;
-                vata_s1            : out std_logic;
-                vata_s2            : out std_logic;
-                vata_s_latch       : out std_logic;
-                vata_i1            : out std_logic;
-                vata_i3            : out std_logic;
-                vata_i4            : out std_logic;
-                vata_o5            : in std_logic;
-                vata_o6            : in std_logic;
-                bram_addr          : out std_logic_vector(31 downto 0);
-                bram_dwrite        : out std_logic_vector(31 downto 0);
-                bram_wea           : out std_logic_vector (3 downto 0) := (others => '0');
-                cfg_reg_from_ps    : in std_logic_vector(519 downto 0);
+                clk_100MHz            : in std_logic; -- 10 ns
+                rst_n                 : in std_logic;
+                trigger_ack           : in std_logic;
+                trigger_ena           : in std_logic;
+                trigger_ena_ena       : in std_logic;
+                trigger_ena_force     : in std_logic;
+                FEE_hit               : out std_logic;
+                FEE_ready             : out std_logic;
+                FEE_busy              : out std_logic;
+                FEE_spare             : out std_logic;
+                event_id_latch        : in std_logic;
+                event_id_data         : in std_logic;
+                get_config            : in std_logic;
+                set_config            : in std_logic;
+                cal_pulse_trigger_in  : in std_logic;
+                cp_data_done          : in std_logic;
+                hold_time             : in std_logic_vector(15 downto 0); -- in clock cycles
+                vata_s0               : out std_logic;
+                vata_s1               : out std_logic;
+                vata_s2               : out std_logic;
+                vata_s_latch          : out std_logic;
+                vata_i1               : out std_logic;
+                vata_i3               : out std_logic;
+                vata_i4               : out std_logic;
+                vata_o5               : in std_logic;
+                vata_o6               : in std_logic;
+                cal_pulse_trigger_out : out std_logic;
+                bram_addr             : out std_logic_vector(31 downto 0);
+                bram_dwrite           : out std_logic_vector(31 downto 0);
+                bram_wea              : out std_logic_vector (3 downto 0) := (others => '0');
+                cfg_reg_from_ps       : in std_logic_vector(519 downto 0);
                 -- DEBUG --
-                state_counter_out  : out std_logic_vector(15 downto 0);
-                reg_indx_out       : out std_logic_vector(9 downto 0);
-                reg_from_vata_out  : out std_logic_vector(378 downto 0);
-                event_id_out_debug : out std_logic_vector(31 downto 0);
-                abort_daq_debug    : out std_logic;
-                state_out          : out std_logic_vector(7 downto 0));
+                state_counter_out     : out std_logic_vector(15 downto 0);
+                reg_indx_out          : out std_logic_vector(9 downto 0);
+                reg_from_vata_out     : out std_logic_vector(378 downto 0);
+                event_id_out_debug    : out std_logic_vector(31 downto 0);
+                abort_daq_debug       : out std_logic;
+                state_out             : out std_logic_vector(7 downto 0));
     end vata_460p3_iface_fsm;
 
 architecture arch_imp of vata_460p3_iface_fsm is
@@ -64,6 +68,17 @@ architecture arch_imp of vata_460p3_iface_fsm is
             event_id_latch : in std_logic;
             event_id_out : out std_logic_vector(EVENT_ID_WIDTH-1 downto 0));
     end component event_id_s2p;
+
+    component cal_pulse is
+        generic (
+            CAL_PULSE_NHOLD : integer := 320;
+            COUNTER_WIDTH           : integer := 4);
+        port (
+            clk                   : in std_logic;
+            rst_n                 : in std_logic;
+            cal_pulse_trigger_in  : in std_logic;
+            cal_pulse_trigger_out : out std_logic);
+        end component cal_pulse; 
 
     constant STATE_BITWIDTH : integer := 8;
     constant IDLE                     : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"00";
@@ -164,7 +179,7 @@ architecture arch_imp of vata_460p3_iface_fsm is
     --signal clr_counter_from_trigger_ena : std_logic := '0';
     --signal trigger_ack_recvd : std_logic;
 
-    --signal trigger_acq            : std_logic;
+    signal trigger_acq            : std_logic := '0';
     --signal last_trigger_en        : std_logic := '0';
     --signal rising_edge_trigger_en : std_logic := '0';
     signal bram_uaddr             : unsigned(31 downto 0);
@@ -192,7 +207,19 @@ begin
             rst_n => rst_n,
             trigger_ena => trigger_ena,
             trigger_ack => trigger_ack,
-            abort_daq   => abort_daq
+            abort_daq   => open 
+    );
+    abort_daq <= '0';
+
+    cal_pulse_inst : cal_pulse
+        generic map (
+            CAL_PULSE_NHOLD => 320,
+            COUNTER_WIDTH   => 9)
+        port map (
+            clk                   => clk_100MHz,
+            rst_n                 => rst_n,
+            cal_pulse_trigger_in  => cal_pulse_trigger_in,
+            cal_pulse_trigger_out => cal_pulse_trigger_out
     );
 
     process (rst_n, clk_100MHz)
@@ -224,7 +251,8 @@ begin
             case (current_state) is
                 when IDLE =>
                     --if rising_edge_trigger_en = '1' then
-                    if trigger_ena = '1' then
+                    --if trigger_ena = '1' then
+                    if trigger_acq = '1' then
                         state_counter_clr <= '1';
                         --clr_counter_from_trigger_ena <= '1';
                         next_state <= ACQ_CLR_BRAM_00;
@@ -1022,8 +1050,7 @@ begin
     vata_s2 <= vata_mode(2);
 
     bram_addr   <= std_logic_vector(bram_uaddr);
-    --trigger_acq <= trigger_ena or vata_o6;
-    --trigger_acq <= trigger_ena;
+    trigger_acq <= (trigger_ena_force) or (trigger_ena_ena and trigger_ena);
 
     -- DEBUG --
     state_counter_out <= std_logic_vector(state_counter);

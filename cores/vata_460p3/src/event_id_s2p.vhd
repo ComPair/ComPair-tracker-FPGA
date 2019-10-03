@@ -44,12 +44,9 @@ begin
     begin
         if rst_n = '0' or trigger_data_clr = '1' then
             data <= (others => '0');
-            --event_id_out <= (others => '0');
         elsif rising_edge(event_id_latch) then
             data(EVENT_ID_WIDTH-1 downto 1) <= data(EVENT_ID_WIDTH-2 downto 0);
             data(0) <= event_id_data;
-            --event_id_out(EVENT_ID_WIDTH-1 downto 1) <= event_id_out(EVENT_ID_WIDTH-2 downto 0);
-            --event_id_out(0) <= event_id_data;
         end if;
     end process;
 
