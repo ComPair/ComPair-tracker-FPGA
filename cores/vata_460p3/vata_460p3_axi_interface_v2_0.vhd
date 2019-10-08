@@ -44,6 +44,18 @@ entity vata_460p3_axi_interface_v2_0 is
         cal_dac_spi_sclk      : out std_logic;
         cal_dac_spi_mosi      : out std_logic;
         cal_dac_spi_syncn     : out std_logic;
+        data_to_fifo          : out std_logic_vector(511 downto 0);
+        data_from_fifo        : in std_logic_vector(511 downto 0);
+        fifo_full             : in std_logic;
+        fifo_empty            : in std_logic;
+        fifo_wea              : out std_logic;
+        fifo_rd_en            : out std_logic;
+        tvalid                : out std_logic;
+        tlast                 : out std_logic;
+        tready                : in std_logic;
+        tdata                 : out std_logic_vector(31 downto 0);
+        cald                  : out std_logic;
+        caldb                 : out std_logic;
         -- Temporary debug ports
         set_config_out    : out std_logic;
         get_config_out    : out std_logic;
@@ -55,6 +67,7 @@ entity vata_460p3_axi_interface_v2_0 is
         state_out         : out std_logic_vector(7 downto 0); 
         reg_from_vata_out : out std_logic_vector(378 downto 0);
         event_id_out      : out std_logic_vector(31 downto 0);
+        trigger_acq_out       : out std_logic;
         abort_daq         : out std_logic;
         -- User ports ends
 
@@ -137,6 +150,7 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
             get_config         : in std_logic;
             set_config         : in std_logic;
             cal_pulse_trigger_in : in std_logic;
+            int_cal_trigger    : in std_logic;
             cp_data_done       : in std_logic;
             hold_time          : in std_logic_vector(15 downto 0);
             vata_s0            : out std_logic;
@@ -153,12 +167,25 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
             bram_dwrite        : out std_logic_vector(31 downto 0);
             bram_wea           : out std_logic_vector (3 downto 0) := (others => '0');
             cfg_reg_from_ps    : in std_logic_vector(519 downto 0);
+            fifo_full          : in std_logic;
+            fifo_empty         : in std_logic;
+            data_to_fifo       : out std_logic_vector(511 downto 0);
+            data_from_fifo     : in std_logic_vector(511 downto 0);
+            fifo_wea           : out std_logic;
+            fifo_rd_en         : out std_logic;
+            tvalid             : out std_logic;
+            tlast              : out std_logic;
+            tready             : in std_logic;
+            tdata              : out std_logic_vector(31 downto 0);
+            cald               : out std_logic;
+            caldb              : out std_logic;
             -- DEBUG --
             state_counter_out  : out std_logic_vector(15 downto 0);
             reg_indx_out       : out std_logic_vector(9 downto 0);
             reg_from_vata_out  : out std_logic_vector(378 downto 0);
             event_id_out_debug : out std_logic_vector(31 downto 0);
             abort_daq_debug    : out std_logic;
+            trigger_acq_out       : out std_logic;
             state_out          : out std_logic_vector(7 downto 0));
         end component;
 
@@ -183,6 +210,7 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
     signal set_config        : std_logic := '0';
     signal get_config        : std_logic := '0';
     signal set_cal_dac       : std_logic := '0';
+    signal int_cal_trigger   : std_logic := '0';
     signal cal_pulse_trigger : std_logic := '0';
     signal cp_data_done      : std_logic := '0';
     signal hold_time         : std_logic_vector(15 downto 0);
@@ -255,15 +283,29 @@ begin
             vata_o5           => vata_o5,
             vata_o6           => vata_o6,
             cal_pulse_trigger_out => cal_pulse_trigger_out,
+            int_cal_trigger   => int_cal_trigger,
             bram_addr         => bram_addr,
             bram_dwrite       => bram_dwrite,
             bram_wea          => bram_wea,
             cfg_reg_from_ps   => cfg_reg_from_ps,
+            fifo_full         => fifo_full,
+            fifo_empty        => fifo_empty,
+            data_to_fifo      => data_to_fifo,
+            data_from_fifo    => data_from_fifo,
+            fifo_wea          => fifo_wea,
+            fifo_rd_en        => fifo_rd_en,
+            tvalid            => tvalid,
+            tlast             => tlast,
+            tready            => tready,
+            tdata             => tdata,
+            cald              => cald,
+            caldb             => caldb,
             reg_indx_out      => reg_indx_out,
             reg_from_vata_out => reg_from_vata_out,
             state_counter_out => state_counter_out,
             event_id_out_debug => event_id_out,
             abort_daq_debug   => abort_daq,
+            trigger_acq_out   => trigger_acq_out,
             state_out         => state_out
         );
 
@@ -294,6 +336,7 @@ begin
             set_config        <= '0';
             get_config        <= '0';
             set_cal_dac       <= '0';
+            int_cal_trigger   <= '0';
             cal_pulse_trigger <= '0';
             cp_data_done      <= '0';
             last_axi_wready   <= '0';
@@ -307,6 +350,7 @@ begin
                     get_config        <= '0';
                     set_cal_dac       <= '0';
                     cal_pulse_trigger <= '0';
+                    int_cal_trigger   <= '0';
                     cp_data_done      <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(1, s00_axi_wdata'length)) then
                     -- Trigger get config
@@ -314,18 +358,31 @@ begin
                     get_config        <= '1';
                     set_cal_dac       <= '0';
                     cal_pulse_trigger <= '0';
+                    int_cal_trigger   <= '0';
                     cp_data_done      <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(2, s00_axi_wdata'length)) then
+                    -- Set the calibration dac value
                     set_config        <= '0';
                     get_config        <= '0';
                     set_cal_dac       <= '1';
                     cal_pulse_trigger <= '0';
+                    int_cal_trigger   <= '0';
                     cp_data_done      <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(3, s00_axi_wdata'length)) then
+                    -- Trigger the external calibration pulse
                     set_config        <= '0';
                     get_config        <= '0';
                     set_cal_dac       <= '0';
                     cal_pulse_trigger <= '1';
+                    int_cal_trigger   <= '0';
+                    cp_data_done      <= '0';
+                elsif s00_axi_wdata = std_logic_vector(to_unsigned(4, s00_axi_wdata'length)) then
+                    -- Toggle internal cald lines.
+                    set_config        <= '0';
+                    get_config        <= '0';
+                    set_cal_dac       <= '0';
+                    cal_pulse_trigger <= '0';
+                    int_cal_trigger   <= '1';
                     cp_data_done      <= '0';
                 else
                     -- Just assume anything else is that we're done copying data.
@@ -333,6 +390,7 @@ begin
                     get_config        <= '0';
                     set_cal_dac       <= '0';
                     cal_pulse_trigger <= '0';
+                    int_cal_trigger   <= '0';
                     cp_data_done      <= '1';
                 end if;
             else
@@ -340,6 +398,7 @@ begin
                 get_config        <= '0';
                 set_cal_dac       <= '0';
                 cal_pulse_trigger <= '0';
+                int_cal_trigger   <= '0';
                 cp_data_done      <= '0';
             end if;
             last_axi_wready <= axi_wready_buf;
