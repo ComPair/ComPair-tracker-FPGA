@@ -50,7 +50,7 @@ class register:
     
 class vata460_config_register:
     
-    def __init__(self):
+    def __init__(self, filename=None):
     
         data = pd.read_csv("vata460_config_register.csv")
         blacklist = [8, 9, 11, 28, 31]
@@ -68,6 +68,10 @@ class vata460_config_register:
                 
         self.config_dict = config_dict
         self.indices = indices
+        
+        #If we're passing a filename we will load the configuration register from it.
+        if filename is not None:
+            self.set_register_binary(self.load_binary_register(filename))
         
     def __str__(self):
         all_regs = ""
@@ -169,7 +173,10 @@ class vata460_config_register:
             
         return binary_str
             
-    def load_binary_register(self, binary_str, verbose=False):
+    def set_register_binary(self, binary_str, verbose=False):
+        '''
+        Set the registers given a binary string.
+        '''
         for i in self.indices:
             reg = self.get_register(i)
             bin_val = binary_str[i:i + len(reg)]
@@ -181,6 +188,40 @@ class vata460_config_register:
             self.set_register_value(i, int(bin_val, 2))
 
         return 
+    
+    def load_binary_register(self, filename):
+        '''
+        Load a register from a binary file and turn it into a string.
+        '''
+        with open(filename, 'rb') as f:
+            binary_cfg = f.read()
+
+        binary_str = ""
+        for b in binary_cfg:
+            binary_str += "{0:08b}".format(b)
+        
+        return binary_str
+        
+    
+    def write_binary_register(self, filename):
+        '''
+        Write a register to disk in binary.
+        '''
+
+        #Split configuration file into byte-sized chunks (ha!).
+        binstr_bytes = [binstr[i:i+8] for i in range(0, len(binstr), 8)]
+
+        #Cast these to integers and then into a byte array.
+        binstr_ints = [int(b, 2) for b in binstr_bytes]
+        binstr_bytes = bytearray(binstr_ints)
+        
+        with open(filename, 'wb') as f:
+            f.write(binstr_bytes)
+
+        return
+
+
+
 
 def main():
     '''
