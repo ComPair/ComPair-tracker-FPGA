@@ -19,6 +19,7 @@ entity vata_460p3_iface_fsm is
                 get_config            : in std_logic;
                 set_config            : in std_logic;
                 cal_pulse_trigger_in  : in std_logic;
+                int_cal_trigger       : in std_logic;
                 cp_data_done          : in std_logic;
                 hold_time             : in std_logic_vector(15 downto 0); -- in clock cycles
                 vata_s0               : out std_logic;
@@ -35,12 +36,25 @@ entity vata_460p3_iface_fsm is
                 bram_dwrite           : out std_logic_vector(31 downto 0);
                 bram_wea              : out std_logic_vector (3 downto 0) := (others => '0');
                 cfg_reg_from_ps       : in std_logic_vector(519 downto 0);
+                fifo_full             : in std_logic;
+                fifo_empty            : in std_logic;
+                data_to_fifo          : out std_logic_vector(511 downto 0);
+                data_from_fifo        : in std_logic_vector(511 downto 0);
+                fifo_wea              : out std_logic;
+                fifo_rd_en            : out std_logic;
+                tvalid                : out std_logic;
+                tlast                 : out std_logic;
+                tready                : in std_logic;
+                tdata                 : out std_logic_vector(31 downto 0);
+                cald                  : out std_logic;
+                caldb                 : out std_logic;
                 -- DEBUG --
                 state_counter_out     : out std_logic_vector(15 downto 0);
                 reg_indx_out          : out std_logic_vector(9 downto 0);
                 reg_from_vata_out     : out std_logic_vector(378 downto 0);
                 event_id_out_debug    : out std_logic_vector(31 downto 0);
                 abort_daq_debug       : out std_logic;
+                trigger_acq_out       : out std_logic;
                 state_out             : out std_logic_vector(7 downto 0));
     end vata_460p3_iface_fsm;
 
@@ -71,7 +85,7 @@ architecture arch_imp of vata_460p3_iface_fsm is
 
     component cal_pulse is
         generic (
-            CAL_PULSE_NHOLD : integer := 320;
+            CAL_PULSE_NHOLD : integer := 200;
             COUNTER_WIDTH           : integer := 4);
         port (
             clk                   : in std_logic;
@@ -79,6 +93,30 @@ architecture arch_imp of vata_460p3_iface_fsm is
             cal_pulse_trigger_in  : in std_logic;
             cal_pulse_trigger_out : out std_logic);
         end component cal_pulse; 
+
+    component fifo_to_stream is
+        port (
+             clk :      in std_logic;
+             rst_n      : in std_logic;
+             fifo_empty : in STD_LOGIC;
+             data_in    : in STD_LOGIC_VECTOR (511 downto 0);
+             rd_en      : out STD_LOGIC;
+             tvalid     : out std_logic;
+             tlast      : out std_logic;
+             tready     : in std_logic;
+             tdata      : out std_logic_vector(31 downto 0));
+    end component fifo_to_stream;
+
+    component int_cal_toggle is
+        port (
+            clk             : in std_logic;
+            rst_n           : in std_logic;
+            int_cal_trigger : in std_logic;
+            cald            : out std_logic;
+            caldb           : out std_logic);
+    end component int_cal_toggle;
+            
+            
 
     constant STATE_BITWIDTH : integer := 8;
     constant IDLE                     : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"00";
@@ -184,6 +222,8 @@ architecture arch_imp of vata_460p3_iface_fsm is
     --signal rising_edge_trigger_en : std_logic := '0';
     signal bram_uaddr             : unsigned(31 downto 0);
 
+    signal clk_counter : unsigned(63 downto 0) := (others => '0');
+
 begin
 
     event_id_s2p_inst : event_id_s2p
@@ -213,7 +253,7 @@ begin
 
     cal_pulse_inst : cal_pulse
         generic map (
-            CAL_PULSE_NHOLD => 320,
+            CAL_PULSE_NHOLD => 200,
             COUNTER_WIDTH   => 9)
         port map (
             clk                   => clk_100MHz,
@@ -221,6 +261,27 @@ begin
             cal_pulse_trigger_in  => cal_pulse_trigger_in,
             cal_pulse_trigger_out => cal_pulse_trigger_out
     );
+        
+    fifo_to_stream_inst : fifo_to_stream
+        port map (
+            clk        => clk_100MHz,
+            rst_n      => rst_n,
+            fifo_empty => fifo_empty,
+            data_in    => data_from_fifo,
+            rd_en      => fifo_rd_en,
+            tvalid     => tvalid,
+            tlast      => tlast,
+            tready     => tready,
+            tdata      => tdata
+    );
+
+    int_cal_toggle_inst : int_cal_toggle
+        port map (
+            clk => clk_100MHz,
+            rst_n => rst_n,
+            int_cal_trigger => int_cal_trigger,
+            cald  => cald,
+            caldb => caldb);
 
     process (rst_n, clk_100MHz)
     begin
@@ -641,6 +702,8 @@ begin
         vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0'; vata_s_latch <= '0';
         bram_wea <= (others => '0'); bram_uaddr <= (others => '0'); bram_dwrite <= (others => '0');
         FEE_hit <= '0';
+        data_to_fifo <= (others => '0');
+        fifo_wea <= '0';
         case (current_state) is
             when IDLE =>
                 vata_mode <= "010"; vata_s_latch <= '0';
@@ -937,6 +1000,13 @@ begin
                 bram_wea    <= (others => '1');
                 bram_uaddr  <= to_unsigned(0, bram_uaddr'length);
                 bram_dwrite <= event_id_out; -- Write the event id at this point
+                if fifo_full = '0' then
+                    data_to_fifo(511 downto 480) <= event_id_out;
+                    data_to_fifo(479 downto 416) <= std_logic_vector(clk_counter);
+                    data_to_fifo(415 downto 379) <= (others => '0');
+                    data_to_fifo(378 downto 0) <= std_logic_vector(reg_from_vata(378 downto 0));
+                    fifo_wea <= '1';
+                end if;
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WAIT_FOR_CP_DATA_DONE =>
                 vata_mode <= "100";
@@ -1030,6 +1100,15 @@ begin
         end if;
     end process;
 
+    process (rst_n, clk_100MHz)
+    begin
+        if rst_n = '0' then
+            clk_counter <= (others => '0');
+        elsif rising_edge(clk_100MHz) then
+            clk_counter <= clk_counter + to_unsigned(1, clk_counter'length);
+        end if;
+    end process;
+
     --process (rst_n, clk_100MHz)
     --begin
     --    if rst_n = '0' then
@@ -1056,10 +1135,11 @@ begin
     state_counter_out <= std_logic_vector(state_counter);
     state_out         <= current_state;
 
-    reg_indx_out      <= std_logic_vector(to_unsigned(reg_indx, reg_indx_out'length));
-    reg_from_vata_out <= std_logic_vector(reg_from_vata(378 downto 0));
+    reg_indx_out       <= std_logic_vector(to_unsigned(reg_indx, reg_indx_out'length));
+    reg_from_vata_out  <= std_logic_vector(reg_from_vata(378 downto 0));
     event_id_out_debug <= event_id_out;
-    abort_daq_debug <= abort_daq;
+    abort_daq_debug    <= abort_daq;
+    trigger_acq_out    <= trigger_acq;
 
 end arch_imp;
 -- vim: set ts=4 sw=4 sts=4 et:
