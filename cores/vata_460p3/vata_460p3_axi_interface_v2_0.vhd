@@ -65,7 +65,7 @@ entity vata_460p3_axi_interface_v2_0 is
         reg_indx_out      : out std_logic_vector(9 downto 0);
         state_counter_out : out std_logic_vector(15 downto 0);
         state_out         : out std_logic_vector(7 downto 0); 
-        reg_from_vata_out : out std_logic_vector(378 downto 0);
+        --reg_from_vata_out : out std_logic_vector(378 downto 0);
         event_id_out      : out std_logic_vector(31 downto 0);
         trigger_acq_out       : out std_logic;
         abort_daq         : out std_logic;
@@ -109,6 +109,7 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
             CONFIG_REG_FROM_PS : out std_logic_vector(519 downto 0);
             HOLD_TIME          : out std_logic_vector(15 downto 0);
             CAL_DAC            : out std_logic_vector(11 downto 0);
+            POWER_CYCLE_TIMER  : out std_logic_vector(31 downto 0);
             S_AXI_ACLK         : in std_logic;
             S_AXI_ARESETN      : in std_logic;
             S_AXI_AWADDR       : in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -182,7 +183,7 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
             -- DEBUG --
             state_counter_out  : out std_logic_vector(15 downto 0);
             reg_indx_out       : out std_logic_vector(9 downto 0);
-            reg_from_vata_out  : out std_logic_vector(378 downto 0);
+            --reg_from_vata_out  : out std_logic_vector(378 downto 0);
             event_id_out_debug : out std_logic_vector(31 downto 0);
             abort_daq_debug    : out std_logic;
             trigger_acq_out       : out std_logic;
@@ -203,19 +204,29 @@ architecture arch_imp of vata_460p3_axi_interface_v2_0 is
             spi_syncn         : out std_logic);
     end component;
 
+    component power_cycler is
+        port (
+            clk                 : in std_logic;
+            rst_n               : in std_logic;
+            trigger_power_cycle : in std_logic;
+            power_cycle_timer   : in std_logic_vector(31 downto 0);
+            vss_shutdown_n      : out std_logic);
+    end component;
+
     signal cfg_reg_from_ps : std_logic_vector(519 downto 0);
 
-    signal axi_wready_buf    : std_logic;
-    signal last_axi_wready   : std_logic := '0';
-    signal set_config        : std_logic := '0';
-    signal get_config        : std_logic := '0';
-    signal set_cal_dac       : std_logic := '0';
-    signal int_cal_trigger   : std_logic := '0';
-    signal cal_pulse_trigger : std_logic := '0';
-    signal cp_data_done      : std_logic := '0';
-    signal hold_time         : std_logic_vector(15 downto 0);
-    signal cal_dac           : std_logic_vector(11 downto 0);
-
+    signal axi_wready_buf        : std_logic;
+    signal last_axi_wready       : std_logic := '0';
+    signal set_config            : std_logic := '0';
+    signal get_config            : std_logic := '0';
+    signal set_cal_dac           : std_logic := '0';
+    signal int_cal_trigger       : std_logic := '0';
+    signal cal_pulse_trigger     : std_logic := '0';
+    signal cp_data_done          : std_logic := '0';
+    signal hold_time             : std_logic_vector(15 downto 0);
+    signal cal_dac               : std_logic_vector(11 downto 0);
+    signal trigger_power_cycle   : std_logic := '0';
+    signal power_cycle_timer     : std_logic_vector(31 downto 0);
     constant S00_AXI_AWADDR_0VAL : std_logic_vector(C_S00_AXI_ADDR_WIDTH-1 downto 0) := (others => '0');
 
 begin
@@ -230,6 +241,7 @@ begin
             CONFIG_REG_FROM_PS => cfg_reg_from_ps,
             HOLD_TIME          => hold_time,
             CAL_DAC            => cal_dac,
+            POWER_CYCLE_TIMER  => power_cycle_timer,
             S_AXI_ACLK         => s00_axi_aclk,
             S_AXI_ARESETN      => s00_axi_aresetn,
             S_AXI_AWADDR       => s00_axi_awaddr,
@@ -301,7 +313,7 @@ begin
             cald              => cald,
             caldb             => caldb,
             reg_indx_out      => reg_indx_out,
-            reg_from_vata_out => reg_from_vata_out,
+            --reg_from_vata_out => reg_from_vata_out,
             state_counter_out => state_counter_out,
             event_id_out_debug => event_id_out,
             abort_daq_debug   => abort_daq,
@@ -323,6 +335,14 @@ begin
                 spi_mosi          => cal_dac_spi_mosi,
                 spi_syncn         => cal_dac_spi_syncn);
 
+        power_cycler_inst : power_cycler
+            port map (
+                clk                 => s00_axi_aclk,
+                rst_n               => s00_axi_aresetn,
+                trigger_power_cycle => trigger_power_cycle,
+                power_cycle_timer   => power_cycle_timer,
+                vss_shutdown_n      => vss_shutdown_n);
+
     -- Below is the process that interprets writes to the 0th axi register
     -- to determine whether to send some initiating signal.
     -- Upon writing to 0th addr, trigger the following actions:
@@ -333,91 +353,109 @@ begin
     write_reg0_proc : process (s00_axi_aresetn, s00_axi_aclk)
     begin
         if s00_axi_aresetn = '0' then
-            set_config        <= '0';
-            get_config        <= '0';
-            set_cal_dac       <= '0';
-            int_cal_trigger   <= '0';
-            cal_pulse_trigger <= '0';
-            cp_data_done      <= '0';
-            last_axi_wready   <= '0';
+            set_config          <= '0';
+            get_config          <= '0';
+            set_cal_dac         <= '0';
+            int_cal_trigger     <= '0';
+            cal_pulse_trigger   <= '0';
+            trigger_power_cycle <= '0';
+            cp_data_done        <= '0';
+            last_axi_wready     <= '0';
         elsif rising_edge(s00_axi_aclk) then
             if axi_wready_buf = '1' and last_axi_wready = '0' and 
                     s00_axi_awaddr = S00_AXI_AWADDR_0VAL then
                 -- We are writing to the 0th address! Do something!
                 if s00_axi_wdata = std_logic_vector(to_unsigned(0, s00_axi_wdata'length)) then
                     -- Trigger set config
-                    set_config        <= '1';
-                    get_config        <= '0';
-                    set_cal_dac       <= '0';
-                    cal_pulse_trigger <= '0';
-                    int_cal_trigger   <= '0';
-                    cp_data_done      <= '0';
+                    set_config          <= '1';
+                    get_config          <= '0';
+                    set_cal_dac         <= '0';
+                    cal_pulse_trigger   <= '0';
+                    int_cal_trigger     <= '0';
+                    trigger_power_cycle <= '0';
+                    cp_data_done        <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(1, s00_axi_wdata'length)) then
                     -- Trigger get config
-                    set_config        <= '0';
-                    get_config        <= '1';
-                    set_cal_dac       <= '0';
-                    cal_pulse_trigger <= '0';
-                    int_cal_trigger   <= '0';
-                    cp_data_done      <= '0';
+                    set_config          <= '0';
+                    get_config          <= '1';
+                    set_cal_dac         <= '0';
+                    cal_pulse_trigger   <= '0';
+                    int_cal_trigger     <= '0';
+                    trigger_power_cycle <= '0';
+                    cp_data_done        <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(2, s00_axi_wdata'length)) then
                     -- Set the calibration dac value
-                    set_config        <= '0';
-                    get_config        <= '0';
-                    set_cal_dac       <= '1';
-                    cal_pulse_trigger <= '0';
-                    int_cal_trigger   <= '0';
-                    cp_data_done      <= '0';
+                    set_config          <= '0';
+                    get_config          <= '0';
+                    set_cal_dac         <= '1';
+                    cal_pulse_trigger   <= '0';
+                    int_cal_trigger     <= '0';
+                    trigger_power_cycle <= '0';
+                    cp_data_done        <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(3, s00_axi_wdata'length)) then
                     -- Trigger the external calibration pulse
-                    set_config        <= '0';
-                    get_config        <= '0';
-                    set_cal_dac       <= '0';
-                    cal_pulse_trigger <= '1';
-                    int_cal_trigger   <= '0';
-                    cp_data_done      <= '0';
+                    set_config          <= '0';
+                    get_config          <= '0';
+                    set_cal_dac         <= '0';
+                    cal_pulse_trigger   <= '1';
+                    int_cal_trigger     <= '0';
+                    trigger_power_cycle <= '0';
+                    cp_data_done        <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(4, s00_axi_wdata'length)) then
                     -- Toggle internal cald lines.
-                    set_config        <= '0';
-                    get_config        <= '0';
-                    set_cal_dac       <= '0';
-                    cal_pulse_trigger <= '0';
-                    int_cal_trigger   <= '1';
-                    cp_data_done      <= '0';
+                    set_config          <= '0';
+                    get_config          <= '0';
+                    set_cal_dac         <= '0';
+                    cal_pulse_trigger   <= '0';
+                    int_cal_trigger     <= '1';
+                    trigger_power_cycle <= '0';
+                    cp_data_done        <= '0';
+                elsif s00_axi_wdata = std_logic_vector(to_unsigned(5, s00_axi_wdata'length)) then
+                    -- Power cycle with vss_shutdown
+                    set_config          <= '0';
+                    get_config          <= '0';
+                    set_cal_dac         <= '0';
+                    cal_pulse_trigger   <= '0';
+                    int_cal_trigger     <= '0';
+                    trigger_power_cycle <= '1';
+                    cp_data_done        <= '0';
                 else
                     -- Just assume anything else is that we're done copying data.
-                    set_config        <= '0';
-                    get_config        <= '0';
-                    set_cal_dac       <= '0';
-                    cal_pulse_trigger <= '0';
-                    int_cal_trigger   <= '0';
-                    cp_data_done      <= '1';
+                    set_config          <= '0';
+                    get_config          <= '0';
+                    set_cal_dac         <= '0';
+                    cal_pulse_trigger   <= '0';
+                    int_cal_trigger     <= '0';
+                    trigger_power_cycle <= '0';
+                    cp_data_done        <= '1';
                 end if;
             else
-                set_config        <= '0';
-                get_config        <= '0';
-                set_cal_dac       <= '0';
-                cal_pulse_trigger <= '0';
-                int_cal_trigger   <= '0';
-                cp_data_done      <= '0';
+                set_config          <= '0';
+                get_config          <= '0';
+                set_cal_dac         <= '0';
+                cal_pulse_trigger   <= '0';
+                int_cal_trigger     <= '0';
+                trigger_power_cycle <= '0';
+                cp_data_done        <= '0';
             end if;
             last_axi_wready <= axi_wready_buf;
         end if;
     end process write_reg0_proc;
 
+    
+    s00_axi_wready   <= axi_wready_buf;
+    bram_clk         <= s00_axi_aclk;
+    bram_en          <= '1';
+    bram_rst         <= not s00_axi_aresetn;
+
+    --vss_shutdown_n   <= '1';
+
+    -- Debugging
     cal_pulse_trigger_in_out <= cal_pulse_trigger;
     set_config_out   <= set_config;
     get_config_out   <= get_config;
     set_cal_dac_out  <= set_cal_dac;
     cp_data_done_out <= cp_data_done;
-
-    s00_axi_wready   <= axi_wready_buf;
-
-    bram_clk         <= s00_axi_aclk;
-    bram_en          <= '1';
-    bram_rst         <= not s00_axi_aresetn;
-
-    vss_shutdown_n   <= '1';
 
     -- User logic ends
 

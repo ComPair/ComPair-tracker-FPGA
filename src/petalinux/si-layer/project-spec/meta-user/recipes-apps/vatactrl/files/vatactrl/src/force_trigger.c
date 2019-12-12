@@ -39,6 +39,11 @@ int main(int argc, char **argv)
     u32 axi_span = highaddr - baseaddr + 1;
     u32 *paxi = mmap_addr(fd, baseaddr, axi_span);
 
+    if (paxi == NULL) {
+        fprintf(stderr, "Error mmaping address.\n");
+        return 1;
+    }
+
     unsigned int usecs;
     int retval = 0;
 

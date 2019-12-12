@@ -11,7 +11,8 @@ LIC_FILES_CHKSUM = "file://${COMMON_LICENSE_DIR}/MIT;md5=0835ade698e0bcf8506ecda
 SRC_URI = "file://vatactrl \
         "
 S = "${WORKDIR}/vatactrl"
-COMPAIR_TRACKER_FPGA_ROOT = "/home/lucas/fpga/ComPair-tracker-FPGA"
+##COMPAIR_TRACKER_FPGA_ROOT = "/home/lucas/fpga/ComPair-tracker-FPGA"
+COMPAIR_TRACKER_FPGA_ROOT = "/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA"
 
 CFLAGS_prepend = "-I ${S}/include -I${COMPAIR_TRACKER_FPGA_ROOT}/work/zynq/zynq.sdk/standalone_bsp_0/ps7_cortexa9_0/include"
 inherit autotools

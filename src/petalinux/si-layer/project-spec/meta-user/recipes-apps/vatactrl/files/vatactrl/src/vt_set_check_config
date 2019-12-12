@@ -1,0 +1,25 @@
+#!/bin/bash
+if [ -z $1 ]; then
+    echo "USAGE: $0 CONFIG-FILE"
+    exit 1	
+fi
+
+if [ ! -f $1 ]; then
+    echo "ERROR: file not found: $1"
+    exit 2
+fi
+
+vt_set_conf $1
+usleep 100000
+vt_get_conf tmp.conf
+
+if diff $1 tmp.conf; then
+    echo "Configuration set."
+else
+    echo "Configuration error."
+fi
+
+rm tmp.conf
+		
+
+## vim: set ts=4 sw=4 sts=4 et:

@@ -20,7 +20,7 @@
 
 #include "mmap_addr.h"
 
-#define SERVER   "192.168.1.11"
+#define SERVER   "10.10.0.200"
 #define PORT     5000 
 #define MAXLINE  1024 
 #define NDATA    128
@@ -118,7 +118,7 @@ int main(int argc, char **argv) {
     // Clear interrupts:
     pfifo[0] = 0xFFFFFFFF;
     // Start data acq:
-    pgpio[0] = 1;
+    //pgpio[0] = 1; // WHY WAS THIS ON???
     // Start sending the data!
     for (i=0; keep_running == 1; i++) {
         if ((nbyte = read_fifo(pfifo, data)) > 0) { 
