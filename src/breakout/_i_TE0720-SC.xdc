@@ -25,3 +25,4 @@ set_property IOSTANDARD LVCMOS33 [get_ports PL_pin_K19]
 set_property IOSTANDARD LVCMOS33 [get_ports PL_pin_K16]
 
 
+

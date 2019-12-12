@@ -1,0 +1,10 @@
+#!/bin/bash
+## Script to perform initial configuation of the asic
+##
+## Currently just sets the hold time to a default of 100 clock cycles
+## and turns on trigger-enable
+vt_set_hold_delay 100
+usleep 100000
+vt_trigger_enable
+
+## vim: set ts=3 sw=4 sts=4 et:

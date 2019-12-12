@@ -51,7 +51,7 @@ entity vata_460p3_iface_fsm is
                 -- DEBUG --
                 state_counter_out     : out std_logic_vector(15 downto 0);
                 reg_indx_out          : out std_logic_vector(9 downto 0);
-                reg_from_vata_out     : out std_logic_vector(378 downto 0);
+                --reg_from_vata_out     : out std_logic_vector(378 downto 0);
                 event_id_out_debug    : out std_logic_vector(31 downto 0);
                 abort_daq_debug       : out std_logic;
                 trigger_acq_out       : out std_logic;
@@ -241,15 +241,15 @@ begin
     trigger_ack_timeout_fsm_inst : trigger_ack_timeout_fsm
         generic map (
             COUNTER_WIDTH => 16,
-            TIMEOUT       => 1000)
+            TIMEOUT       => 50000)
         port map (
             clk_100MHz => clk_100MHz,
             rst_n => rst_n,
             trigger_ena => trigger_ena,
             trigger_ack => trigger_ack,
-            abort_daq   => open 
+            abort_daq   => abort_daq
     );
-    abort_daq <= '0';
+    -- abort_daq <= '0';
 
     cal_pulse_inst : cal_pulse
         generic map (
@@ -1136,7 +1136,7 @@ begin
     state_out         <= current_state;
 
     reg_indx_out       <= std_logic_vector(to_unsigned(reg_indx, reg_indx_out'length));
-    reg_from_vata_out  <= std_logic_vector(reg_from_vata(378 downto 0));
+    --reg_from_vata_out  <= std_logic_vector(reg_from_vata(378 downto 0));
     event_id_out_debug <= event_id_out;
     abort_daq_debug    <= abort_daq;
     trigger_acq_out    <= trigger_acq;

@@ -23,7 +23,7 @@
 #define BASEADDR XPAR_VATA_460P3_AXI_INTER_0_BASEADDR
 #define HIGHADDR XPAR_VATA_460P3_AXI_INTER_0_BASEADDR
 
-#define CFG_OFFSET 3
+#define CFG_OFFSET 4
 #define N_REG 17
 
 int main(int argc, char **argv)
