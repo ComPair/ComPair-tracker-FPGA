@@ -19,11 +19,7 @@
 #define AXI_BASEADDR XPAR_VATA_460P3_AXI_INTER_0_BASEADDR
 #define AXI_HIGHADDR XPAR_VATA_460P3_AXI_INTER_0_HIGHADDR
 
-#define BRAM_BASEADDR XPAR_BRAM_0_BASEADDR
-#define BRAM_HIGHADDR XPAR_BRAM_0_HIGHADDR
-
 #define N_REG 17
-
 
 int main(int argc, char **argv)
 {
@@ -47,16 +43,13 @@ int main(int argc, char **argv)
     u32 axi_span = AXI_HIGHADDR - AXI_BASEADDR + 1;
     u32 *paxi = mmap_addr(axi_fd, AXI_BASEADDR, axi_span);
 
-    u32 bram_span = BRAM_HIGHADDR - BRAM_BASEADDR + 1;
-    u32 *pbram = mmap_addr(axi_fd, BRAM_BASEADDR, bram_span);
-
     // Trigger get config:
     paxi[0] = 1;
 
     // Delay for 0.1 s (arbitrary)
     usleep(100000);
     // Copy the settings...
-    write(cfg_fd, (void *)pbram, N_REG * sizeof(u32));
+    write(cfg_fd, (void *)(paxi+32), N_REG * sizeof(u32));
     //write(cfg_fd, (void *)(paxi + 2), N_REG * sizeof(u32));
 
     if (munmap((void *)paxi, axi_span) != 0) {
@@ -65,14 +58,7 @@ int main(int argc, char **argv)
         close(cfg_fd);
         return 1;
     }
-    if (munmap((void *)pbram, bram_span) != 0) {
-        printf("ERROR: munmap() failed on BRAM\n");
-        close(axi_fd);
-        close(cfg_fd);
-        return 1;
-    }
-
-
+    
     close(axi_fd);
     close(cfg_fd);
 
