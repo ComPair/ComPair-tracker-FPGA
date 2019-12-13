@@ -2,18 +2,21 @@
 '''
 Handler module for easy generation of configuration registers.
 '''
-
 import pandas as pd
 import numpy as np
 
 class register:
     
-    def __init__(self, name, first_bit, length, description, value = 0):
+    def __init__(self, name, first_bit, length, description, value=0, little_endian=True):
         self.name = name
         self.first_bit = first_bit
         self.length = length
         self.value = value
         self.value_bin = "{0:b}".format(value)
+        self.little_endian = little_endian
+        if little_endian:
+            self.value_bin = self.value_bin[::-1]
+        
         
         if type(description) == str:
             self.description = description
@@ -46,11 +49,13 @@ class register:
         format_str = "{0:" + format_str + "b}"
         
         self.value_bin = format_str.format(value)
+        if self.little_endian:
+            self.value_bin = self.value_bin[::-1]
 
     
 class vata460_config_register:
     
-    def __init__(self, filename=None):
+    def __init__(self, filename=None, little_endian=True):
     
         data = pd.read_csv("vata460_config_register.csv")
         blacklist = [8, 9, 11, 28, 31]
@@ -61,7 +66,11 @@ class vata460_config_register:
 
         for i, d in data.iterrows():
             if int(d['first_bit']) not in blacklist:
-                config_dict[d['first_bit'] - 1] = register(d['name'], d['first_bit'] - 1, d['number_bits'], d['description'])
+                config_dict[d['first_bit'] - 1] = register(d['name'],
+                                                           d['first_bit'] - 1,
+                                                           d['number_bits'],
+                                                           d['description'],
+                                                           little_endian=little_endian)
                 indices += [d['first_bit'] -1]
             else:
                 continue
@@ -92,13 +101,13 @@ class vata460_config_register:
             return self.config_dict[index]
                 
     def set_register_value(self, register, value):
-        if register != 0:
-            self.config_dict[register].set_value(value)
-        else:
-            #Register zero is little-endian. 
-            self.config_dict[register].value = value
-            self.config_dict[register].value_bin = "{0:07b}".format(value)[::-1]
-            
+        self.config_dict[register].set_value(value)
+        ##if register != 0:
+        ##    self.config_dict[register].set_value(value)
+        ##else:
+        ##    #Register zero is little-endian. 
+        ##    self.config_dict[register].value = value
+        ##    self.config_dict[register].value_bin = "{0:07b}".format(value)[::-1]
         
     def set_internal_cal_dac(self, cal_dac):
         '''
@@ -131,7 +140,7 @@ class vata460_config_register:
         Set internal Vthr DAC.
         '''
         
-        if vthr < 2**5 -1 and vthr > 0:
+        if vthr < 2**5 -1 and vthr >= 0:
             self.set_register_value(470, vthr)
         else:
             raise ValueError("Vthr={0:d} is out of bounds [0, 31)".format(vthr))
@@ -202,14 +211,17 @@ class vata460_config_register:
         
         return binary_str
         
-    
-    def write_binary_register(self, filename):
-        '''
-        Write a register to disk in binary.
-        '''
-
+    def write_binary_register(self, filename, zeropad_32bit=False):
+        """
+        Write the full register to disk in binary.
+        * filename: where the configuration register is to be written
+        * zeropad_32bit: Whether to pad the tail of the file with zeros,
+          so that file length is multiple of 32 bits.
+        """
         #Split configuration file into byte-sized chunks (ha!).
-        binstr_bytes = [binstr[i:i+8] for i in range(0, len(binstr), 8)]
+        binstr = self.make_binary_str(verbose=False)
+        ## Perform byte-wise reordering here
+        binstr_bytes = [binstr[i:i+8][::-1] for i in range(0, len(binstr), 8)]
 
         #Cast these to integers and then into a byte array.
         binstr_ints = [int(b, 2) for b in binstr_bytes]
@@ -217,10 +229,11 @@ class vata460_config_register:
         
         with open(filename, 'wb') as f:
             f.write(binstr_bytes)
-
+            if zeropad_32bit:
+                n_bytes_add = 4 - (len(binstr_bytes) % 4)
+                for _ in range(n_bytes_add):
+                    f.write(b'\x00')
         return
-
-
 
 
 def main():
@@ -230,15 +243,27 @@ def main():
 
     reg = vata460_config_register()
     
-    reg.set_vthr(10)
-    reg.set_polarity(-1)
-    reg.set_test_channel(5)
-    reg.set_iramp_values(12, 1, 1, 1)
+    reg.set_vthr(8)
+    reg.set_register_value(24, 1) ## test enable
+    reg.set_polarity(1)
+    reg.set_test_channel(0)
+    reg.set_iramp_values(4, 0, 0, 0)
+
+    reg.set_register_value(475, 10)
+    reg.set_register_value(496, 1)
+    reg.set_register_value(499, 5)
+
     reg.set_readout_all(True)
+
     reg.make_binary_str()
 
     print(reg)
-    print(reg.make_binary_str())
+    #print(reg.make_binary_str())
+
+    return reg
 
 if __name__ =="__main__":
-    main()
+    reg = main()
+    reg.write_binary_register('test-cal-le-vthr8.dat', True)
+
+## vim: set ts=4 sw=4 sts=4 et:
