@@ -32,20 +32,12 @@ entity vata_460p3_iface_fsm is
                 vata_o5               : in std_logic;
                 vata_o6               : in std_logic;
                 cal_pulse_trigger_out : out std_logic;
-                bram_addr             : out std_logic_vector(31 downto 0);
-                bram_dwrite           : out std_logic_vector(31 downto 0);
-                bram_wea              : out std_logic_vector (3 downto 0) := (others => '0');
                 cfg_reg_from_ps       : in std_logic_vector(519 downto 0);
-                fifo_full             : in std_logic;
-                fifo_empty            : in std_logic;
-                data_to_fifo          : out std_logic_vector(511 downto 0);
-                data_from_fifo        : in std_logic_vector(511 downto 0);
-                fifo_wea              : out std_logic;
-                fifo_rd_en            : out std_logic;
-                tvalid                : out std_logic;
-                tlast                 : out std_logic;
-                tready                : in std_logic;
-                tdata                 : out std_logic_vector(31 downto 0);
+                cfg_reg_from_pl       : out std_logic_vector(519 downto 0);
+                data_tvalid           : out std_logic;
+                data_tlast            : out std_logic;
+                data_tready           : in std_logic;
+                data_tdata            : out std_logic_vector(31 downto 0);
                 cald                  : out std_logic;
                 caldb                 : out std_logic;
                 -- DEBUG --
@@ -94,18 +86,18 @@ architecture arch_imp of vata_460p3_iface_fsm is
             cal_pulse_trigger_out : out std_logic);
         end component cal_pulse; 
 
-    component fifo_to_stream is
-        port (
-             clk :      in std_logic;
-             rst_n      : in std_logic;
-             fifo_empty : in STD_LOGIC;
-             data_in    : in STD_LOGIC_VECTOR (511 downto 0);
-             rd_en      : out STD_LOGIC;
-             tvalid     : out std_logic;
-             tlast      : out std_logic;
-             tready     : in std_logic;
-             tdata      : out std_logic_vector(31 downto 0));
-    end component fifo_to_stream;
+    --component fifo_to_stream is
+    --    port (
+    --         clk :      in std_logic;
+    --         rst_n      : in std_logic;
+    --         fifo_empty : in STD_LOGIC;
+    --         data_in    : in STD_LOGIC_VECTOR (511 downto 0);
+    --         rd_en      : out STD_LOGIC;
+    --         tvalid     : out std_logic;
+    --         tlast      : out std_logic;
+    --         tready     : in std_logic;
+    --         tdata      : out std_logic_vector(31 downto 0));
+    --end component fifo_to_stream;
 
     component int_cal_toggle is
         port (
@@ -136,58 +128,39 @@ architecture arch_imp of vata_460p3_iface_fsm is
     constant GC_SHIFT_CFG_REG         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"0E";
     constant GC_READ_O5               : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"0F";
     constant GC_LOWER_CLOCK           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"10";
-    constant GC_WBRAM_00              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"11";
-    constant GC_WBRAM_01              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"12";
-    constant GC_WBRAM_02              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"13";
-    constant GC_WBRAM_03              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"14";
-    constant GC_WBRAM_04              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"15";
-    constant GC_WBRAM_05              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"16";
-    constant GC_WBRAM_06              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"17";
-    constant GC_WBRAM_07              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"18";
-    constant GC_WBRAM_08              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"19";
-    constant GC_WBRAM_09              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1A";
-    constant GC_WBRAM_10              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1B";
-    constant GC_WBRAM_11              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1C";
-    constant GC_WBRAM_12              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1D";
-    constant GC_WBRAM_13              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1E";
-    constant GC_WBRAM_14              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1F";
-    constant GC_WBRAM_15              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"20";
-    constant GC_WBRAM_16              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"21";
-    constant GC_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"22";
-    constant GC_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"23";
-    constant ACQ_CLR_BRAM_00          : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"24";
-    constant ACQ_DELAY                : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"25";
-    constant ACQ_HOLD                 : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"26";
-    constant ACQ_LOWER_I1             : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"27";
-    constant ACQ_SET_MODE_M4          : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"28";
-    constant CONV_LATCH_M4            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"29";
-    constant CONV_RAISE_I3            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2A";
-    constant CONV_LOWER_I4            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2B";
-    constant CONV_CLK_HI              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2C";
-    constant CONV_CLK_LO              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2D";
-    constant CONV_SET_MODE_M5         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2E";
-    constant RO_LATCH_MODE_M5         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2F";
-    constant RO_CLK_HI                : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"30";
-    constant RO_READ_O6               : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"31";
-    constant RO_CLK_LO                : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"32";
-    constant RO_SHIFT_DATA            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"33";
-    constant RO_WBRAM_12              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"34";
-    constant RO_WBRAM_11              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"35";
-    constant RO_WBRAM_10              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"36";
-    constant RO_WBRAM_09              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"37";
-    constant RO_WBRAM_08              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"38";
-    constant RO_WBRAM_07              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"39";
-    constant RO_WBRAM_06              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3A";
-    constant RO_WBRAM_05              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3B";
-    constant RO_WBRAM_04              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3C";
-    constant RO_WBRAM_03              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3D";
-    constant RO_WBRAM_02              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3E";
-    constant RO_WBRAM_01              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3F";
-    constant RO_WBRAM_00              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"40";
-    constant RO_WAIT_FOR_CP_DATA_DONE : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"41";
-    constant RO_CLR_BRAM_00           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"42";
-    constant RO_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"43";
-    constant RO_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"44";
+    constant GC_XFER_DATA             : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"11";
+    constant GC_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"12";
+    constant GC_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"13";
+    constant ACQ_DELAY                : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"14";
+    constant ACQ_HOLD                 : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"15";
+    constant ACQ_LOWER_I1             : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"16";
+    constant ACQ_SET_MODE_M4          : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"17";
+    constant CONV_LATCH_M4            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"18";
+    constant CONV_RAISE_I3            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"19";
+    constant CONV_LOWER_I4            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1A";
+    constant CONV_CLK_HI              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1B";
+    constant CONV_CLK_LO              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1C";
+    constant CONV_SET_MODE_M5         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1D";
+    constant RO_LATCH_MODE_M5         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1E";
+    constant RO_CLK_HI                : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"1F";
+    constant RO_READ_O6               : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"20";
+    constant RO_CLK_LO                : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"21";
+    constant RO_SHIFT_DATA            : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"22";
+    constant RO_WFIFO_00              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"23";
+    constant RO_WFIFO_01              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"24";
+    constant RO_WFIFO_02              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"25";
+    constant RO_WFIFO_03              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"26";
+    constant RO_WFIFO_04              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"27";
+    constant RO_WFIFO_05              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"28";
+    constant RO_WFIFO_06              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"29";
+    constant RO_WFIFO_07              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2A";
+    constant RO_WFIFO_08              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2B";
+    constant RO_WFIFO_09              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2C";
+    constant RO_WFIFO_10              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2D";
+    constant RO_WFIFO_11              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2E";
+    constant RO_WFIFO_12              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2F";
+    constant RO_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"30";
+    constant RO_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"31";
 
     constant EVENT_ID_WIDTH : integer := 32;
 
@@ -218,9 +191,6 @@ architecture arch_imp of vata_460p3_iface_fsm is
     --signal trigger_ack_recvd : std_logic;
 
     signal trigger_acq            : std_logic := '0';
-    --signal last_trigger_en        : std_logic := '0';
-    --signal rising_edge_trigger_en : std_logic := '0';
-    signal bram_uaddr             : unsigned(31 downto 0);
 
     signal clk_counter : unsigned(63 downto 0) := (others => '0');
 
@@ -247,9 +217,9 @@ begin
             rst_n => rst_n,
             trigger_ena => trigger_ena,
             trigger_ack => trigger_ack,
-            abort_daq   => abort_daq
+            abort_daq   => open
     );
-    -- abort_daq <= '0';
+    abort_daq <= '0';
 
     cal_pulse_inst : cal_pulse
         generic map (
@@ -262,19 +232,6 @@ begin
             cal_pulse_trigger_out => cal_pulse_trigger_out
     );
         
-    fifo_to_stream_inst : fifo_to_stream
-        port map (
-            clk        => clk_100MHz,
-            rst_n      => rst_n,
-            fifo_empty => fifo_empty,
-            data_in    => data_from_fifo,
-            rd_en      => fifo_rd_en,
-            tvalid     => tvalid,
-            tlast      => tlast,
-            tready     => tready,
-            tdata      => tdata
-    );
-
     int_cal_toggle_inst : int_cal_toggle
         port map (
             clk => clk_100MHz,
@@ -316,7 +273,7 @@ begin
                     if trigger_acq = '1' then
                         state_counter_clr <= '1';
                         --clr_counter_from_trigger_ena <= '1';
-                        next_state <= ACQ_CLR_BRAM_00;
+                        next_state <= ACQ_DELAY;
                     elsif set_config = '1' then
                         state_counter_clr <= '1';
                         next_state <= SC_SET_MODE_M1;
@@ -443,7 +400,8 @@ begin
                     if state_counter >= to_unsigned(499, state_counter'length) then -- 5us
                         state_counter_clr <= '1';
                         if reg_indx = 0 then
-                            next_state <= GC_WBRAM_00;
+                            --next_state <= GC_WBRAM_00;
+                            next_state <= GC_XFER_DATA;
                         else
                             dec_reg_indx <= '1';
                             next_state <= GC_SET_DATA_I3;
@@ -451,23 +409,8 @@ begin
                     else
                         next_state <= GC_LOWER_CLOCK;
                     end if;
-                when GC_WBRAM_00 => next_state <= GC_WBRAM_01;
-                when GC_WBRAM_01 => next_state <= GC_WBRAM_02;
-                when GC_WBRAM_02 => next_state <= GC_WBRAM_03;
-                when GC_WBRAM_03 => next_state <= GC_WBRAM_04;
-                when GC_WBRAM_04 => next_state <= GC_WBRAM_05;
-                when GC_WBRAM_05 => next_state <= GC_WBRAM_06;
-                when GC_WBRAM_06 => next_state <= GC_WBRAM_07;
-                when GC_WBRAM_07 => next_state <= GC_WBRAM_08;
-                when GC_WBRAM_08 => next_state <= GC_WBRAM_09;
-                when GC_WBRAM_09 => next_state <= GC_WBRAM_10;
-                when GC_WBRAM_10 => next_state <= GC_WBRAM_11;
-                when GC_WBRAM_11 => next_state <= GC_WBRAM_12;
-                when GC_WBRAM_12 => next_state <= GC_WBRAM_13;
-                when GC_WBRAM_13 => next_state <= GC_WBRAM_14;
-                when GC_WBRAM_14 => next_state <= GC_WBRAM_15;
-                when GC_WBRAM_15 => next_state <= GC_WBRAM_16;
-                when GC_WBRAM_16 => next_state <= GC_SET_MODE_M3;
+                when GC_XFER_DATA =>
+                    next_state <= GC_SET_MODE_M3;
                 when GC_SET_MODE_M3 =>
                     if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                         state_counter_clr <= '1';
@@ -481,9 +424,9 @@ begin
                     else
                         next_state <= GC_LATCH_MODE_M3;
                     end if;
-                when ACQ_CLR_BRAM_00 =>
-                    state_counter_clr <= '1';
-                    next_state <= ACQ_DELAY;
+                --when ACQ_CLR_BRAM_00 =>
+                --    state_counter_clr <= '1';
+                --    next_state <= ACQ_DELAY;
                 when ACQ_DELAY =>
                     if abort_daq = '1' then
                         next_state <= RO_SET_MODE_M3;
@@ -627,7 +570,7 @@ begin
                         state_counter_clr <= '1';
                         if vata_o5 = '1' then
                             if reg_indx = 379 then
-                                next_state <= RO_WBRAM_12;
+                                next_state <= RO_WFIFO_00;
                             else
                                 inc_reg_indx <= '1';
                                 shift_reg_right_1 <= '1';
@@ -646,35 +589,25 @@ begin
                     else
                         inc_reg_indx <= '1';
                         if reg_indx >= 379 then
-                            next_state <= RO_WBRAM_12;
+                            next_state <= RO_WFIFO_00;
                         else
                             shift_reg_right_1 <= '1';
                             next_state <= RO_SHIFT_DATA;
                         end if;
                     end if;
-                when RO_WBRAM_12 => next_state <= RO_WBRAM_11;
-                when RO_WBRAM_11 => next_state <= RO_WBRAM_10;
-                when RO_WBRAM_10 => next_state <= RO_WBRAM_09;
-                when RO_WBRAM_09 => next_state <= RO_WBRAM_08;
-                when RO_WBRAM_08 => next_state <= RO_WBRAM_07;
-                when RO_WBRAM_07 => next_state <= RO_WBRAM_06;
-                when RO_WBRAM_06 => next_state <= RO_WBRAM_05;
-                when RO_WBRAM_05 => next_state <= RO_WBRAM_04;
-                when RO_WBRAM_04 => next_state <= RO_WBRAM_03;
-                when RO_WBRAM_03 => next_state <= RO_WBRAM_02;
-                when RO_WBRAM_02 => next_state <= RO_WBRAM_01;
-                when RO_WBRAM_01 => next_state <= RO_WBRAM_00;
-                when RO_WBRAM_00 =>
-                    state_counter_clr <= '1';
-                    next_state <= RO_WAIT_FOR_CP_DATA_DONE;
-                when RO_WAIT_FOR_CP_DATA_DONE =>
-                    -- XXX INCLUDE TIMEOUT HERE!!! XXX --
-                    if cp_data_done = '1' or state_counter >= to_unsigned(1000, state_counter'length) then -- HARD CODED TIMEOUT 10 us!
-                        next_state <= RO_CLR_BRAM_00;
-                    else
-                        next_state <= RO_WAIT_FOR_CP_DATA_DONE;
-                    end if;
-                when RO_CLR_BRAM_00 =>
+                when RO_WFIFO_00 => next_state <= RO_WFIFO_01;
+                when RO_WFIFO_01 => next_state <= RO_WFIFO_02;
+                when RO_WFIFO_02 => next_state <= RO_WFIFO_03;
+                when RO_WFIFO_03 => next_state <= RO_WFIFO_04;
+                when RO_WFIFO_04 => next_state <= RO_WFIFO_05;
+                when RO_WFIFO_05 => next_state <= RO_WFIFO_06;
+                when RO_WFIFO_06 => next_state <= RO_WFIFO_07;
+                when RO_WFIFO_07 => next_state <= RO_WFIFO_08;
+                when RO_WFIFO_08 => next_state <= RO_WFIFO_09;
+                when RO_WFIFO_09 => next_state <= RO_WFIFO_10;
+                when RO_WFIFO_10 => next_state <= RO_WFIFO_11;
+                when RO_WFIFO_11 => next_state <= RO_WFIFO_12;
+                when RO_WFIFO_12 =>
                     state_counter_clr <= '1';
                     next_state <= RO_SET_MODE_M3;
                 when RO_SET_MODE_M3 =>
@@ -700,10 +633,11 @@ begin
     process (current_state)
     begin
         vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0'; vata_s_latch <= '0';
-        bram_wea <= (others => '0'); bram_uaddr <= (others => '0'); bram_dwrite <= (others => '0');
+        --cfg_tvalid <= '0'; cfg_tlast <= '0'; cfg_tdata <= (others => '0');
+        data_tvalid <= '0'; data_tlast <= '0'; data_tdata <= (others => '0');
         FEE_hit <= '0';
-        data_to_fifo <= (others => '0');
-        fifo_wea <= '0';
+        --data_to_fifo <= (others => '0');
+        --fifo_wea <= '0';
         case (current_state) is
             when IDLE =>
                 vata_mode <= "010"; vata_s_latch <= '0';
@@ -777,106 +711,110 @@ begin
                     vata_i3 <= reg_from_vata(1);
                 end if;
                 vata_i1 <= '0'; vata_i4 <= '0';
-            when GC_WBRAM_00 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= (others => '0');
-                bram_dwrite <= std_logic_vector(reg_from_vata(31 downto 0));
-            when GC_WBRAM_01 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(4, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(63 downto 32));
-            when GC_WBRAM_02 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(8, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(95 downto 64));
-            when GC_WBRAM_03 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(12, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(127 downto 96));
-            when GC_WBRAM_04 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(16, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(159 downto 128));
-            when GC_WBRAM_05 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(20, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(191 downto 160));
-            when GC_WBRAM_06 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(24, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(223 downto 192));
-            when GC_WBRAM_07 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(28, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(255 downto 224));
-            when GC_WBRAM_08 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(32, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(287 downto 256));
-            when GC_WBRAM_09 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(36, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(319 downto 288));
-            when GC_WBRAM_10 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(40, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(351 downto 320));
-            when GC_WBRAM_11 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(44, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(383 downto 352));
-            when GC_WBRAM_12 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(48, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(415 downto 384));
-            when GC_WBRAM_13 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(52, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(447 downto 416));
-            when GC_WBRAM_14 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(56, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(479 downto 448));
-            when GC_WBRAM_15 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(60, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(511 downto 480));
-            when GC_WBRAM_16 =>
-                vata_mode   <= "001";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(64, bram_uaddr'length);
-                bram_dwrite(7 downto 0) <= std_logic_vector(reg_from_vata(519 downto 512));
-                bram_dwrite(31 downto 8) <= (others => '0');
+            when GC_XFER_DATA =>
+                vata_mode <= "001";
+                cfg_reg_from_pl <= std_logic_vector(reg_from_vata);
+            --when GC_WBRAM_00 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= (others => '0');
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(31 downto 0));
+            --    cfg_reg_from_pl <= reg_from_vata;
+            --when GC_WBRAM_01 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(4, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(63 downto 32));
+            --when GC_WBRAM_02 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(8, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(95 downto 64));
+            --when GC_WBRAM_03 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(12, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(127 downto 96));
+            --when GC_WBRAM_04 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(16, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(159 downto 128));
+            --when GC_WBRAM_05 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(20, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(191 downto 160));
+            --when GC_WBRAM_06 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(24, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(223 downto 192));
+            --when GC_WBRAM_07 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(28, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(255 downto 224));
+            --when GC_WBRAM_08 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(32, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(287 downto 256));
+            --when GC_WBRAM_09 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(36, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(319 downto 288));
+            --when GC_WBRAM_10 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(40, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(351 downto 320));
+            --when GC_WBRAM_11 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(44, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(383 downto 352));
+            --when GC_WBRAM_12 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(48, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(415 downto 384));
+            --when GC_WBRAM_13 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(52, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(447 downto 416));
+            --when GC_WBRAM_14 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(56, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(479 downto 448));
+            --when GC_WBRAM_15 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(60, bram_uaddr'length);
+            --    bram_dwrite <= std_logic_vector(reg_from_vata(511 downto 480));
+            --when GC_WBRAM_16 =>
+            --    vata_mode   <= "001";
+            --    bram_wea    <= (others => '1');
+            --    bram_uaddr  <= to_unsigned(64, bram_uaddr'length);
+            --    bram_dwrite(7 downto 0) <= std_logic_vector(reg_from_vata(519 downto 512));
+            --    bram_dwrite(31 downto 8) <= (others => '0');
             when GC_SET_MODE_M3 =>
                 vata_mode <= "010"; vata_s_latch <= '0';
             when GC_LATCH_MODE_M3 =>
                 vata_mode <= "010"; vata_s_latch <= '1';
             ----Acquisition modes-----------------------
-            when ACQ_CLR_BRAM_00 =>
-                vata_mode   <= "010";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(0, bram_uaddr'length);
-                bram_dwrite <= (others => '0');
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
+            --when ACQ_CLR_BRAM_00 =>
+            --    vata_mode   <= "010";
+            --    --bram_wea    <= (others => '1');
+            --    --bram_uaddr  <= to_unsigned(0, bram_uaddr'length);
+            --    --bram_dwrite <= (others => '0');
+            --    vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
             when ACQ_DELAY =>
                 vata_mode <= "010"; 
-                bram_wea  <= (others => '0'); -- just in case?
+                --bram_wea  <= (others => '0'); -- just in case?
                 vata_i1   <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
             when ACQ_HOLD =>
                 vata_mode <= "010";
@@ -922,102 +860,79 @@ begin
             when RO_SHIFT_DATA =>
                 vata_mode <= "100";
                 vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_12 =>
+            when RO_WFIFO_00 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(48, bram_uaddr'length);
-                bram_dwrite(26 downto 0) <= std_logic_vector(reg_from_vata(378 downto 352));
-                bram_dwrite(31 downto 27) <= (others => '0');
+                data_tvalid <= '1';
+                data_tdata  <= event_id_out; -- Write event id at head of data packet
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_11 =>
+            when RO_WFIFO_01 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(44, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(351 downto 320));
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(31 downto 0));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_10 =>
+            when RO_WFIFO_02 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(40, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(319 downto 288));
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(63 downto 32));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_09 =>
+            when RO_WFIFO_03 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(36, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(287 downto 256));
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(95 downto 64));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_08 =>
+            when RO_WFIFO_04 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(32, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(255 downto 224));
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(127 downto 96));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_07 =>
+            when RO_WFIFO_05 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(28, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(223 downto 192));
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(159 downto 128));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_06 =>
+            when RO_WFIFO_06 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(24, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(191 downto 160));
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(191 downto 160));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_05 =>
+            when RO_WFIFO_07 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(20, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(159 downto 128));
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(223 downto 192));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_04 =>
+            when RO_WFIFO_08 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(16, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(127 downto 96));
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(255 downto 224));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_03 =>
+            when RO_WFIFO_09 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(12, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(95 downto 64));
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(287 downto 256));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_02 =>
+            when RO_WFIFO_10 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(8, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(63 downto 32));
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(319 downto 288));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_01 =>
+            when RO_WFIFO_11 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(4, bram_uaddr'length);
-                bram_dwrite <= std_logic_vector(reg_from_vata(31 downto 0));
+                data_tvalid  <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(351 downto 320));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WBRAM_00 =>
+            when RO_WFIFO_12 =>
                 vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(0, bram_uaddr'length);
-                bram_dwrite <= event_id_out; -- Write the event id at this point
-                if fifo_full = '0' then
-                    data_to_fifo(511 downto 480) <= event_id_out;
-                    data_to_fifo(479 downto 416) <= std_logic_vector(clk_counter);
-                    data_to_fifo(415 downto 379) <= (others => '0');
-                    data_to_fifo(378 downto 0) <= std_logic_vector(reg_from_vata(378 downto 0));
-                    fifo_wea <= '1';
-                end if;
+                data_tvalid               <= '1';
+                data_tdata(26 downto 0)   <= std_logic_vector(reg_from_vata(378 downto 352));
+                data_tdata(31 downto 27)  <= (others => '0');
+                data_tlast                <= '1';
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WAIT_FOR_CP_DATA_DONE =>
-                vata_mode <= "100";
-                bram_wea  <= (others => '0');
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_CLR_BRAM_00 =>
-                vata_mode   <= "100";
-                bram_wea    <= (others => '1');
-                bram_uaddr  <= to_unsigned(0, bram_uaddr'length);
-                bram_dwrite <= (others => '0');
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+            --when RO_CLR_BRAM_00 =>
+            --    vata_mode   <= "100";
+            --    --bram_wea    <= (others => '1');
+            --    --bram_uaddr  <= to_unsigned(0, bram_uaddr'length);
+            --    --bram_dwrite <= (others => '0');
+            --    vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_SET_MODE_M3 =>
                 vata_mode <= "010"; vata_s_latch <= '0';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
@@ -1027,7 +942,6 @@ begin
             when others =>
                 vata_mode <= vata_mode; vata_s_latch <= '0';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
-                bram_wea <= (others => '0'); bram_uaddr <= (others => '0'); bram_dwrite <= (others => '0');
         end case;
     end process;
 
@@ -1128,7 +1042,7 @@ begin
     vata_s1 <= vata_mode(1);
     vata_s2 <= vata_mode(2);
 
-    bram_addr   <= std_logic_vector(bram_uaddr);
+    --bram_addr   <= std_logic_vector(bram_uaddr);
     trigger_acq <= (trigger_ena_force) or (trigger_ena_ena and trigger_ena);
 
     -- DEBUG --
