@@ -7,7 +7,9 @@ use ieee.numeric_std.all;
 
 entity cal_pulse is
     generic (
-        C_S_AXI_DATA_WIDTH : integer := 32
+        C_S_AXI_DATA_WIDTH : integer := 32;
+        vata_trigger_pulse_width : integer := 5
+
         --CAL_PULSE_NHOLD : integer := 200; -- 2us with 100MHz clock
         --COUNTER_WIDTH   : integer := 9
        );
@@ -16,6 +18,7 @@ entity cal_pulse is
         rst_n                 : in std_logic := '0';
         --cal_pulse_trigger_in  : in std_logic;
     	cal_pulse_trigger_out : out std_logic := '0';
+    	vata_trigger_out      : out std_logic := '0';
     	
     	reg0 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); -- start
     	reg1 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); -- Pulse width
@@ -29,11 +32,15 @@ architecture arch_imp of cal_pulse is
     constant STATE_WIDTH   : integer := 1; -- very simple, on or off.
     constant IDLE          : std_logic_vector(STATE_WIDTH-1 downto 0) := "0";
     constant HOLD          : std_logic_vector(STATE_WIDTH-1 downto 0) := "1";
-    --constant COUNTER_LIMIT : unsigned(COUNTER_WIDTH-1 downto 0) := to_unsigned(CAL_PULSE_NHOLD-1, COUNTER_WIDTH);
+    --constant COUNTER_LIMIT : unsigned(COUNTER_WIDTH-1 downto 0) := to_unsigned(CAL_PULSE_NHOLD-1, COUNTER_WIDTH);    
     
-
-    signal cal_pulse_nhold : unsigned(C_S_AXI_DATA_WIDTH-1 downto 0);
+    signal cal_pulse_nhold       : unsigned(C_S_AXI_DATA_WIDTH-1 downto 0);
+    
+    signal vata_trig_delay : unsigned(C_S_AXI_DATA_WIDTH-1 downto 0);
     signal vata_trig_out_counter : unsigned(C_S_AXI_DATA_WIDTH-1 downto 0);
+    signal vata_trig_counter_clr : std_logic := '0';
+    signal vata_trig_counter_ena : std_logic := '0';
+    
     
     signal cal_pulse_trigger_in : std_logic := '0';
     
@@ -41,18 +48,19 @@ architecture arch_imp of cal_pulse is
     signal start_cal_pulse_hold : std_logic := '0';
     signal counter_clr          : std_logic := '0';
     signal counter_ena          : std_logic := '0';
-    signal counter              : unsigned(15 downto 0) := (others => '0');
+    signal counter              : unsigned(C_S_AXI_DATA_WIDTH-1 downto 0) := (others => '0');
     signal current_state        : std_logic_vector(STATE_WIDTH-1 downto 0) := (others => '0');
     signal next_state           : std_logic_vector(STATE_WIDTH-1 downto 0) := (others => '0');
 begin
-
+    
     p_PARSE_REG: process (clk)
     begin
         if rising_edge(clk) then
             cal_pulse_trigger_in <= reg0(0);        
             cal_pulse_nhold <= unsigned(reg1);
+            vata_trig_delay <= unsigned(reg3);
         end if;
-    end process;
+    end process;        
 
     process (rst_n, clk)
     begin
@@ -128,14 +136,34 @@ begin
         end if;
     end process p_COUNTER;
     
+    --Identical to above, but for a different counter.
     p_VATA_trig_out_counter : process (rst_n, clk)
     begin
          if rst_n = '0' then
             vata_trig_out_counter <= (others => '0');
         elsif rising_edge(clk) then
-            vata_trig_out_counter <= vata_trig_out_counter + to_unsigned(1, vata_trig_out_counter'length);
+            if vata_trig_counter_clr = '1' then
+                vata_trig_out_counter <= (others => '0');
+            elsif vata_trig_counter_ena = '1' then
+                vata_trig_out_counter <= vata_trig_out_counter + 1;
+            else
+                vata_trig_out_counter <= vata_trig_out_counter;
+            end if;
         end if;       
     end process p_VATA_trig_out_counter; 
+    
+    
+    trigger_VATA : process (vata_trig_out_counter)
+    begin
+        --variable pulse_width_ctr: integer range 0 to vata_trigger_pulse_width;
+        variable pulse_width_ctr : integer range 0 to 10;
+        
+        if vata_trig_out_counter >= vata_trig_delay then
+            vata_trig_counter_ena <= '0';
+            vata_trigger_out
+        end if;
+        
+    end process trigger_VATA;
 
 end arch_imp;
 -- vim: set ts=4 sw=4 sts=4 et:
