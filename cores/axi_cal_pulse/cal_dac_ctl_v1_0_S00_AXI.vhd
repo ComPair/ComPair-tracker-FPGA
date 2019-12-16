@@ -96,6 +96,7 @@ architecture arch_imp of cal_dac_ctl_v1_0_S00_AXI is
            clk                   : in std_logic;
            rst_n                 : in std_logic;
            cal_pulse_trigger_out : out std_logic;
+           vata_trigger_out      : out std_logic;
                        
     	   reg0 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
     	   reg1 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
@@ -440,6 +441,8 @@ begin
         port map (
             clk	=> S_AXI_ACLK,
             rst_n => S_AXI_ARESETN,
+            cal_pulse_trigger_out => cal_pulse_trigger_out,
+            vata_trigger_out => vata_trigger_out,
             reg0 => slv_reg0,
             reg1 => slv_reg1,
             reg2 => slv_reg2,
