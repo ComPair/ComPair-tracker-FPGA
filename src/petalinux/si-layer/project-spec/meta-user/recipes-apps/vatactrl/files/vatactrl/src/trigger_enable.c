@@ -1,9 +1,8 @@
 /*
  * trigger_enable
  *
- * Enable trigger acceptance by the ASIC
+ * Enable/disable trigger acceptance by the ASIC
  */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -15,41 +14,40 @@
 #include "xil_types.h"
 #include "xparameters.h"
 
-#include "mmap_addr.h"
-
-#define GPIO_BASEADDR XPAR_AXI_GPIO_TRIGGER_ENA_BASEADDR
-#define GPIO_HIGHADDR XPAR_AXI_GPIO_TRIGGER_ENA_BASEADDR
+#include "vata_util.h"
+#include "vata_constants.h"
 
 int main(int argc, char **argv)
 {
-    int axi_fd;
     u32 level;
-
     if (argc == 1) {
+        printf("USAGE: %s N-ASIC [0|1]\n", argv[0]);
+    }
+    if (argc == 2) {
         // Set trigger ena high by default:
         level = 1;
-    } else if (argc == 2) {
-        level = (u32)atoi(argv[1]);
+    } else if (argc == 3) {
+        level = (u32)atoi(argv[2]);
         if (level != 0 && level != 1) {
             printf("ERROR: must choose either 0 or 1.\n");
             return 1;
         }
     } else {
-        printf("USAGE: trigger_ena [0|1]\n");
+        printf("USAGE: %s N-ASIC [0|1]\n", argv[0]);
         return 1;
     }
 
-    if ( (axi_fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1) {
-        printf("ERROR: could not open /dev/mem.\n");
+    int axi_fd, err;
+    VataAddr vata_addr = args2vata_addr(argc, argv, &err);
+    if (err != 0) {
+        printf_args2vata_err(err);
         return 1;
     }
-
-    u32 gpio_span = GPIO_HIGHADDR - GPIO_BASEADDR + 1;
-    u32 *pgpio = mmap_addr(axi_fd, GPIO_BASEADDR, gpio_span);
-
+    
+    u32 *pgpio = mmap_vata_trigger_ena(&axi_fd, vata_addr);
     pgpio[0] = level;
 
-    if (munmap((void *)pgpio, gpio_span) != 0) {
+    if (unmmap_vata_trigger_ena(pgpio, vata_addr) != 0) {
         printf("ERROR: munmap() failed on GPIO\n");
         close(axi_fd);
         return 1;

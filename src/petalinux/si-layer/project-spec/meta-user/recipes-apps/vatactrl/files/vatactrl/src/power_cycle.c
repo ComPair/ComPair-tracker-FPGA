@@ -12,45 +12,39 @@
 #include "xil_types.h"
 #include "xparameters.h"
 
-#include "mmap_addr.h"
-
-#define BASEADDR XPAR_VATA_460P3_AXI_INTER_0_BASEADDR
-#define HIGHADDR XPAR_VATA_460P3_AXI_INTER_0_HIGHADDR
+#include "vata_util.h"
+#include "vata_constants.h"
 
 #define DEFAULT_CYCLE_TIME 100000000 // One second.
 
 int main(int argc, char **argv)
 {
+    int axi_fd, err;
+    VataAddr vata_addr = args2vata_addr(argc, argv, &err);
+    if (err != 0) {
+        printf_args2vata_err(err);
+        return 1;
+    }
+    
     u32 cycle_time;
-    if (argc == 2) {
-        cycle_time = (u32)atoi(argv[1]);
+    if (argc > 2) {
+        cycle_time = (u32)atoi(argv[2]);
     } else {
         cycle_time = DEFAULT_CYCLE_TIME;
     }
 
-    int fd;
+    u32 *paxi = mmap_vata_axi(&axi_fd, vata_addr);
 
-    if ( (fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1) {
-        printf("ERROR: could not open /dev/mem.\n");
-        return 1;
-    }
+    paxi[POWER_CYCLE_REG_OFFSET] = cycle_time;
+    paxi[0] = (u32)AXI0_CTRL_POWER_CYCLE; // trigger power cycle.
 
-    u32 baseaddr = BASEADDR;
-    u32 highaddr = HIGHADDR;
-    u32 axi_span = highaddr - baseaddr + 1;
-    u32 *paxi = mmap_addr(fd, baseaddr, axi_span);
-
-    paxi[3] = cycle_time;
-    paxi[0] = (u32)5; // trigger power cycle.
-
-    if (munmap((void *)paxi, axi_span) != 0) {
+    if (unmmap_vata_axi(paxi, vata_addr) != 0) {
         printf("ERROR: munmap() failed on AXI\n");
-        close(fd);
+        close(axi_fd);
         return 1;
     }
 
-    close(fd);
-
+    close(axi_fd);
     return 0;
 }
 // vim: set ts=4 sw=4 sts=4 et:
