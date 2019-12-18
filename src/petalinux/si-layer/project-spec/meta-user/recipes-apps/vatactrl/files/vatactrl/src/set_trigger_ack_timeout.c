@@ -1,5 +1,5 @@
-/* Set the calibration dac value
- * This sets the calibration dac pulse height.
+/* Set the trigger acknowledge timeout.
+ * Timeout of 0 disables the timeout function.
  */
 
 #include <stdio.h>
@@ -23,11 +23,7 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    u32 dac_val = (u32)atoi(argv[2]);
-    if (dac_val > MAX_CAL_DAC_VAL) {
-        fprintf(stderr, "ERROR: DAC value: %u. Max DAC value: %u\n", dac_val, MAX_CAL_DAC_VAL);
-        return 1;
-    }
+    u32 timeout = (u32)atoi(argv[2]);
 
     int axi_fd, err;
     VataAddr vata_addr = args2vata_addr(argc, argv, &err);
@@ -42,8 +38,8 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    paxi[CAL_DAC_REG_OFFSET] = dac_val; // Set dac value.
-    paxi[0] = (u32)AXI0_CTRL_SET_CAL_DAC; // Fire.
+    paxi[TRIGGER_ACK_TIMEOUT_REG_OFFSET] = timeout; // Set dac value.
+    // paxi[0] = (u32)AXI0_CTRL_SET_CAL_DAC; // Fire.
 
     if (unmmap_vata_axi(paxi, vata_addr) != 0) {
         fprintf(stderr, "ERROR: munmap() failed on AXI\n");

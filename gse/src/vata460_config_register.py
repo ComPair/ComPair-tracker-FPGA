@@ -243,11 +243,11 @@ def main():
 
     reg = vata460_config_register()
     
-    reg.set_vthr(8)
+    reg.set_vthr(15)
     reg.set_register_value(24, 1) ## test enable
     reg.set_polarity(1)
     reg.set_test_channel(0)
-    reg.set_iramp_values(4, 0, 0, 0)
+    reg.set_iramp_values(10, 0, 0, 0)
 
     reg.set_register_value(475, 10)
     reg.set_register_value(496, 1)
@@ -264,6 +264,7 @@ def main():
 
 if __name__ =="__main__":
     reg = main()
-    reg.write_binary_register('test-cal-le-vthr8.dat', True)
+    ##reg.write_binary_register('test-cal-le-vthr8.dat', True)
+    reg.write_binary_register('test-cal-vthr15-iramp10.dat', True)
 
 ## vim: set ts=4 sw=4 sts=4 et:

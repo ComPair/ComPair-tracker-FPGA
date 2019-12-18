@@ -10,6 +10,7 @@ entity vata_460p3_iface_fsm is
                 trigger_ena           : in std_logic;
                 trigger_ena_ena       : in std_logic;
                 trigger_ena_force     : in std_logic;
+                trigger_ack_timeout   : in std_logic_vector(31 downto 0);
                 FEE_hit               : out std_logic;
                 FEE_ready             : out std_logic;
                 FEE_busy              : out std_logic;
@@ -20,7 +21,6 @@ entity vata_460p3_iface_fsm is
                 set_config            : in std_logic;
                 cal_pulse_trigger_in  : in std_logic;
                 int_cal_trigger       : in std_logic;
-                cp_data_done          : in std_logic;
                 hold_time             : in std_logic_vector(15 downto 0); -- in clock cycles
                 vata_s0               : out std_logic;
                 vata_s1               : out std_logic;
@@ -43,24 +43,26 @@ entity vata_460p3_iface_fsm is
                 -- DEBUG --
                 state_counter_out     : out std_logic_vector(15 downto 0);
                 reg_indx_out          : out std_logic_vector(9 downto 0);
-                --reg_from_vata_out     : out std_logic_vector(378 downto 0);
                 event_id_out_debug    : out std_logic_vector(31 downto 0);
                 abort_daq_debug       : out std_logic;
                 trigger_acq_out       : out std_logic;
+                trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
+                trigger_ack_timeout_state   : out std_logic_vector(3 downto 0);
                 state_out             : out std_logic_vector(7 downto 0));
     end vata_460p3_iface_fsm;
 
 architecture arch_imp of vata_460p3_iface_fsm is
+
     component trigger_ack_timeout_fsm is
-        generic (
-            COUNTER_WIDTH : integer := 16;
-            TIMEOUT : integer := 1000);
         port (
-            clk_100MHz : in std_logic;
-            rst_n : in std_logic;
-            trigger_ena : in std_logic;
-            trigger_ack : in std_logic;
-            abort_daq : out std_logic);
+            clk_100MHz          : in std_logic;
+            rst_n               : in std_logic;
+            trigger_ena         : in std_logic;
+            trigger_ack         : in std_logic;
+            trigger_ack_timeout : in std_logic_vector(31 downto 0);
+            abort_daq           : out std_logic;
+            counter_out         : out std_logic_vector(31 downto 0);
+            state_out           : out std_logic_vector(3 downto 0));
     end component trigger_ack_timeout_fsm;
 
     component event_id_s2p is
@@ -86,19 +88,6 @@ architecture arch_imp of vata_460p3_iface_fsm is
             cal_pulse_trigger_out : out std_logic);
         end component cal_pulse; 
 
-    --component fifo_to_stream is
-    --    port (
-    --         clk :      in std_logic;
-    --         rst_n      : in std_logic;
-    --         fifo_empty : in STD_LOGIC;
-    --         data_in    : in STD_LOGIC_VECTOR (511 downto 0);
-    --         rd_en      : out STD_LOGIC;
-    --         tvalid     : out std_logic;
-    --         tlast      : out std_logic;
-    --         tready     : in std_logic;
-    --         tdata      : out std_logic_vector(31 downto 0));
-    --end component fifo_to_stream;
-
     component int_cal_toggle is
         port (
             clk             : in std_logic;
@@ -107,8 +96,6 @@ architecture arch_imp of vata_460p3_iface_fsm is
             cald            : out std_logic;
             caldb           : out std_logic);
     end component int_cal_toggle;
-            
-            
 
     constant STATE_BITWIDTH : integer := 8;
     constant IDLE                     : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"00";
@@ -186,9 +173,6 @@ architecture arch_imp of vata_460p3_iface_fsm is
 
     signal event_id_out : std_logic_vector(EVENT_ID_WIDTH-1 downto 0);
     signal abort_daq : std_logic;
-    --signal counter_from_trigger_ena : unsigned(15 downto 0);
-    --signal clr_counter_from_trigger_ena : std_logic := '0';
-    --signal trigger_ack_recvd : std_logic;
 
     signal trigger_acq            : std_logic := '0';
 
@@ -205,19 +189,21 @@ begin
             trigger_ack    => trigger_ack,
             event_id_data  => event_id_data,
             event_id_latch => event_id_latch,
-            event_id_out   => event_id_out
+            --event_id_out   => event_id_out
+            event_id_out   => open
     );
+    event_id_out <= x"A1B2C3D4";
 
     trigger_ack_timeout_fsm_inst : trigger_ack_timeout_fsm
-        generic map (
-            COUNTER_WIDTH => 16,
-            TIMEOUT       => 50000)
         port map (
-            clk_100MHz => clk_100MHz,
-            rst_n => rst_n,
-            trigger_ena => trigger_ena,
-            trigger_ack => trigger_ack,
-            abort_daq   => open
+            clk_100MHz          => clk_100MHz,
+            rst_n               => rst_n,
+            trigger_ena         => trigger_ena,
+            trigger_ack         => trigger_ack,
+            trigger_ack_timeout => trigger_ack_timeout,
+            abort_daq           => abort_daq_debug,
+            counter_out         => trigger_ack_timeout_counter,
+            state_out           => trigger_ack_timeout_state
     );
     abort_daq <= '0';
 
@@ -234,11 +220,11 @@ begin
         
     int_cal_toggle_inst : int_cal_toggle
         port map (
-            clk => clk_100MHz,
-            rst_n => rst_n,
+            clk             => clk_100MHz,
+            rst_n           => rst_n,
             int_cal_trigger => int_cal_trigger,
-            cald  => cald,
-            caldb => caldb);
+            cald            => cald,
+            caldb           => caldb);
 
     process (rst_n, clk_100MHz)
     begin
@@ -249,7 +235,7 @@ begin
         end if;
     end process;
 
-    process (rst_n, current_state, trigger_ena, set_config, get_config, cp_data_done, state_counter)
+    process (rst_n, current_state, trigger_ena, set_config, get_config, state_counter)
     begin
         state_counter_clr            <= '0';
         dec_reg_indx                 <= '0';
@@ -261,18 +247,14 @@ begin
         reg_clr                      <= '0';
         read_o5                      <= '0';
         read_o6                      <= '0';
-        --clr_counter_from_trigger_ena <= '0';
         if rst_n = '0' then
             state_counter_clr <= '1';
             next_state <= IDLE;
         else
             case (current_state) is
                 when IDLE =>
-                    --if rising_edge_trigger_en = '1' then
-                    --if trigger_ena = '1' then
                     if trigger_acq = '1' then
                         state_counter_clr <= '1';
-                        --clr_counter_from_trigger_ena <= '1';
                         next_state <= ACQ_DELAY;
                     elsif set_config = '1' then
                         state_counter_clr <= '1';
@@ -424,9 +406,6 @@ begin
                     else
                         next_state <= GC_LATCH_MODE_M3;
                     end if;
-                --when ACQ_CLR_BRAM_00 =>
-                --    state_counter_clr <= '1';
-                --    next_state <= ACQ_DELAY;
                 when ACQ_DELAY =>
                     if abort_daq = '1' then
                         next_state <= RO_SET_MODE_M3;
@@ -1052,7 +1031,7 @@ begin
     reg_indx_out       <= std_logic_vector(to_unsigned(reg_indx, reg_indx_out'length));
     --reg_from_vata_out  <= std_logic_vector(reg_from_vata(378 downto 0));
     event_id_out_debug <= event_id_out;
-    abort_daq_debug    <= abort_daq;
+    --abort_daq_debug    <= abort_daq;
     trigger_acq_out    <= trigger_acq;
 
 end arch_imp;
