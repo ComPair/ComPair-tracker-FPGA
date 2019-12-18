@@ -17,10 +17,11 @@ entity vata_460p3_axi_interface_v3_0_S00_AXI is
 	port (
 		-- Users to add ports here
 		CONFIG_REG_FROM_PS : out std_logic_vector(519 downto 0);
+		CONFIG_REG_FROM_PL : in std_logic_vector(519 downto 0);
 		HOLD_TIME	   : out std_logic_vector(15 downto 0);
 		CAL_DAC            : out std_logic_vector(11 downto 0);
 		POWER_CYCLE_TIMER  : out std_logic_vector(31 downto 0);
-		CONFIG_REG_FROM_PL : in std_logic_vector(519 downto 0);
+        TRIGGER_ACK_TIMEOUT : out std_logic_vector(31 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -1116,6 +1117,7 @@ begin
 	      when b"110000" =>
 	        reg_data_out(7 downto 0) <= CONFIG_REG_FROM_PL(519 downto 512);
 	        reg_data_out(31 downto 8) <= (others => '0');
+          -- End configuration register readout.
 	      when b"110001" =>
 	        reg_data_out <= slv_reg49;
 	      when b"110010" =>
@@ -1172,27 +1174,29 @@ begin
 
 	-- Add user logic here
 
-    HOLD_TIME <= slv_reg1(15 downto 0);
-    CAL_DAC   <= slv_reg2(11 downto 0);
-    POWER_CYCLE_TIMER <= slv_reg3;
+    CONFIG_REG_FROM_PS(31 downto 0)    <= slv_reg1;
+    CONFIG_REG_FROM_PS(63 downto 32)   <= slv_reg2;
+    CONFIG_REG_FROM_PS(95 downto 64)   <= slv_reg3;
+    CONFIG_REG_FROM_PS(127 downto 96)  <= slv_reg4;
+    CONFIG_REG_FROM_PS(159 downto 128) <= slv_reg5;
+    CONFIG_REG_FROM_PS(191 downto 160) <= slv_reg6;
+    CONFIG_REG_FROM_PS(223 downto 192) <= slv_reg7;
+    CONFIG_REG_FROM_PS(255 downto 224) <= slv_reg8;
+    CONFIG_REG_FROM_PS(287 downto 256) <= slv_reg9;
+    CONFIG_REG_FROM_PS(319 downto 288) <= slv_reg10;
+    CONFIG_REG_FROM_PS(351 downto 320) <= slv_reg11;
+    CONFIG_REG_FROM_PS(383 downto 352) <= slv_reg12;
+    CONFIG_REG_FROM_PS(415 downto 384) <= slv_reg13;
+    CONFIG_REG_FROM_PS(447 downto 416) <= slv_reg14;
+    CONFIG_REG_FROM_PS(479 downto 448) <= slv_reg15;
+    CONFIG_REG_FROM_PS(511 downto 480) <= slv_reg16;
+    CONFIG_REG_FROM_PS(519 downto 512) <= slv_reg17(7 downto 0);
 
-    CONFIG_REG_FROM_PS(31 downto 0)    <= slv_reg4;
-    CONFIG_REG_FROM_PS(63 downto 32)   <= slv_reg5;
-    CONFIG_REG_FROM_PS(95 downto 64)   <= slv_reg6;
-    CONFIG_REG_FROM_PS(127 downto 96)  <= slv_reg7;
-    CONFIG_REG_FROM_PS(159 downto 128) <= slv_reg8;
-    CONFIG_REG_FROM_PS(191 downto 160) <= slv_reg9;
-    CONFIG_REG_FROM_PS(223 downto 192) <= slv_reg10;
-    CONFIG_REG_FROM_PS(255 downto 224) <= slv_reg11;
-    CONFIG_REG_FROM_PS(287 downto 256) <= slv_reg12;
-    CONFIG_REG_FROM_PS(319 downto 288) <= slv_reg13;
-    CONFIG_REG_FROM_PS(351 downto 320) <= slv_reg14;
-    CONFIG_REG_FROM_PS(383 downto 352) <= slv_reg15;
-    CONFIG_REG_FROM_PS(415 downto 384) <= slv_reg16;
-    CONFIG_REG_FROM_PS(447 downto 416) <= slv_reg17;
-    CONFIG_REG_FROM_PS(479 downto 448) <= slv_reg18;
-    CONFIG_REG_FROM_PS(511 downto 480) <= slv_reg19;
-    CONFIG_REG_FROM_PS(519 downto 512) <= slv_reg20(7 downto 0);
+    HOLD_TIME <= slv_reg18(15 downto 0);
+    CAL_DAC   <= slv_reg19(11 downto 0);
+    POWER_CYCLE_TIMER <= slv_reg20;
+    TRIGGER_ACK_TIMEOUT <= slv_reg21;
+
 
 	-- User logic ends
 

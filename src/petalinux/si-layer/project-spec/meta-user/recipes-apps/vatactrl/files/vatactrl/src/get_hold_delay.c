@@ -1,4 +1,4 @@
-/* Get the hold delay in increments of 10ns
+/* Set the hold delay in increments of 10ns
  */
 
 #include <stdio.h>
@@ -12,37 +12,30 @@
 #include "xil_types.h"
 #include "xparameters.h"
 
-#include "mmap_addr.h"
-
-#define BASEADDR XPAR_VATA_460P3_AXI_INTER_0_BASEADDR
-#define HIGHADDR XPAR_VATA_460P3_AXI_INTER_0_HIGHADDR
+#include "vata_util.h"
+#include "vata_constants.h"
 
 int main(int argc, char **argv)
 {
 
-    //u32 hold_delay = (u32)atoi(argv[1]);
-
-    int fd;
-
-    if ( (fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1) {
-        printf("ERROR: could not open /dev/mem.\n");
+    int axi_fd, err;
+    VataAddr vata_addr = args2vata_addr(argc, argv, &err);
+    if (err != 0) {
+        printf_args2vata_err(err);
         return 1;
     }
 
-    u32 baseaddr = BASEADDR;
-    u32 highaddr = HIGHADDR;
-    u32 axi_span = highaddr - baseaddr + 1;
-    u32 *paxi = mmap_addr(fd, baseaddr, axi_span);
+    u32 *paxi = mmap_vata_axi(&axi_fd, vata_addr);
 
-    printf("Hold delay: %u ns\n", 10*paxi[1]);
+    printf("Hold time: %u\n", paxi[HOLD_TIME_REG_OFFSET]);
 
-    if (munmap((void *)paxi, axi_span) != 0) {
+    if (unmmap_vata_axi(paxi, vata_addr) != 0) {
         printf("ERROR: munmap() failed on AXI\n");
-        close(fd);
+        close(axi_fd);
         return 1;
     }
 
-    close(fd);
+    close(axi_fd);
 
     return 0;
 }

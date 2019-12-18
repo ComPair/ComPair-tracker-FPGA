@@ -13,36 +13,30 @@
 #include "xil_types.h"
 #include "xparameters.h"
 
-#include "mmap_addr.h"
-
-#define BASEADDR XPAR_VATA_460P3_AXI_INTER_0_BASEADDR
-#define HIGHADDR XPAR_VATA_460P3_AXI_INTER_0_HIGHADDR
+#include "vata_util.h"
+#include "vata_constants.h"
 
 
-int main()
+int main(int argc, char **argv)
 {
-
-    int fd;
-
-    if ( (fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1) {
-        printf("ERROR: could not open /dev/mem.\n");
+    int axi_fd, err;
+    VataAddr vata_addr = args2vata_addr(argc, argv, &err);
+    if (err != 0) {
+        printf_args2vata_err(err);
         return 1;
     }
+    u32 *paxi = mmap_vata_axi(&axi_fd, vata_addr);
 
-    u32 baseaddr = BASEADDR;
-    u32 highaddr = HIGHADDR;
-    u32 axi_span = highaddr - baseaddr + 1;
-    u32 *paxi = mmap_addr(fd, baseaddr, axi_span);
-
-    paxi[0] = 3;
+    paxi[0] = AXI0_CTRL_TRIGGER_EXT_CAL;
     
-    if (munmap((void *)paxi, axi_span) != 0) {
-        printf("ERROR: munmap() failed on AXI\n");
-        close(fd);
+    if (unmmap_vata_axi(paxi, vata_addr) != 0) {
+        fprintf(stderr, "ERROR: munmap() failed on AXI\n");
+        close(axi_fd);
         return 1;
     }
 
-    close(fd);
+    close(axi_fd);
 
     return 0;
 }
+// vim: set ts=4 sw=4 sts=4 et:

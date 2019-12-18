@@ -4,28 +4,30 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity trigger_ack_timeout_fsm is
-    generic (
-        COUNTER_WIDTH : integer := 16;
-        TIMEOUT       : integer := 1000); -- in multiples of clock period.
     port (
-        clk_100MHz   : in std_logic;
-        rst_n        : in std_logic;
-        trigger_ena  : in std_logic;
-        trigger_ack  : in std_logic;
-        abort_daq    : out std_logic);
+        clk_100MHz          : in std_logic;
+        rst_n               : in std_logic;
+        trigger_ena         : in std_logic;
+        trigger_ack         : in std_logic;
+        trigger_ack_timeout : in std_logic_vector(31 downto 0);
+        abort_daq           : out std_logic;
+        -- Debug ports:
+        counter_out         : out std_logic_vector(31 downto 0);
+        state_out           : out std_logic_vector(3 downto 0));
 end trigger_ack_timeout_fsm;
 
 architecture arch_imp of trigger_ack_timeout_fsm is
-    constant COUNTER_MAX : unsigned(COUNTER_WIDTH-1 downto 0) := to_unsigned(TIMEOUT, COUNTER_WIDTH);
+    --constant COUNTER_MAX : unsigned(31 downto 0) := to_unsigned(TIMEOUT, COUNTER_WIDTH);
     
     constant IDLE          : std_logic_vector(3 downto 0) := x"0";
     constant INC_COUNTER   : std_logic_vector(3 downto 0) := x"1";
     constant ACQ_OK        : std_logic_vector(3 downto 0) := x"2";
     constant ACQ_ABORT     : std_logic_vector(3 downto 0) := x"3";
+    constant ACK_ZEROS     : std_logic_vector(31 downto 0) := (others => '0');
 
     signal current_state : std_logic_vector(3 downto 0) := x"0";
     signal next_state : std_logic_vector(3 downto 0) := x"0";
-    signal counter : unsigned(COUNTER_WIDTH-1 downto 0) := (others => '0');
+    signal counter : unsigned(31 downto 0) := (others => '0');
     signal counter_clr : std_logic;
     signal counter_ena : std_logic;
 
@@ -48,14 +50,14 @@ begin
         else
             case (current_state) is
                 when IDLE =>
-                    if trigger_ena = '1' then
+                    if trigger_ena = '1' and trigger_ack_timeout /= ACK_ZEROS then
                         counter_clr <= '1';
                         next_state <= INC_COUNTER;
                     else
                         next_state <= IDLE;
                     end if;
                 when INC_COUNTER =>
-                    if counter >= COUNTER_MAX then
+                    if counter >= unsigned(trigger_ack_timeout) then
                         next_state <= ACQ_ABORT;
                     elsif trigger_ack = '1' then
                         next_state <= ACQ_OK;
@@ -104,4 +106,4 @@ begin
     end process;
 
 end arch_imp;
-
+-- vim: set ts=4 sw=4 sts=4 et:

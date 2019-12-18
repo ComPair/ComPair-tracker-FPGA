@@ -12,41 +12,37 @@
 #include "xil_types.h"
 #include "xparameters.h"
 
-#include "mmap_addr.h"
-
-#define BASEADDR XPAR_VATA_460P3_AXI_INTER_0_BASEADDR
-#define HIGHADDR XPAR_VATA_460P3_AXI_INTER_0_HIGHADDR
+#include "vata_util.h"
+#include "vata_constants.h"
 
 int main(int argc, char **argv)
 {
-    if (argc != 2) {
-        fprintf(stderr, "ERROR: usage: set_hold_delay HOLD-DELAY\n");
+    if (argc != 3) {
+        fprintf(stderr, "ERROR: usage: set_hold_delay N-ASIC HOLD-DELAY\n");
         return 1;
     }
 
-    u32 hold_delay = (u32)atoi(argv[1]);
-
-    int fd;
-
-    if ( (fd = open("/dev/mem", O_RDWR | O_SYNC)) == -1) {
-        printf("ERROR: could not open /dev/mem.\n");
+    int axi_fd, err;
+    VataAddr vata_addr = args2vata_addr(argc, argv, &err);
+    if (err != 0) {
+        printf_args2vata_err(err);
         return 1;
     }
 
-    u32 baseaddr = BASEADDR;
-    u32 highaddr = HIGHADDR;
-    u32 axi_span = highaddr - baseaddr + 1;
-    u32 *paxi = mmap_addr(fd, baseaddr, axi_span);
+    u32 hold_delay = (u32)atoi(argv[2]);
 
-    paxi[1] = hold_delay;
+    u32 *paxi = mmap_vata_axi(&axi_fd, vata_addr);
 
-    if (munmap((void *)paxi, axi_span) != 0) {
+    paxi[HOLD_TIME_REG_OFFSET] = hold_delay;
+
+    if (unmmap_vata_axi(paxi, vata_addr) != 0) {
         printf("ERROR: munmap() failed on AXI\n");
-        close(fd);
+        close(axi_fd);
         return 1;
     }
 
-    close(fd);
+    close(axi_fd);
 
     return 0;
 }
+// vim: set ts=4 sw=4 sts=4 et:

@@ -9,13 +9,11 @@ entity vata_460p3_axi_interface_v3_0 is
         -- User parameters ends
         -- Do not modify the parameters beyond this line
 
-
         -- Parameters of Axi Slave Bus Interface S00_AXI
         C_S00_AXI_DATA_WIDTH    : integer   := 32;
         C_S00_AXI_ADDR_WIDTH    : integer   := 8
     );
     port (
-        -- Users to add ports here
         -- Users to add ports here
         trigger_ack           : in std_logic;
         trigger_ena           : in std_logic;
@@ -55,13 +53,14 @@ entity vata_460p3_axi_interface_v3_0 is
         get_config_out    : out std_logic;
         set_cal_dac_out   : out std_logic;
         cal_pulse_trigger_in_out  : out std_logic;
-        cp_data_done_out  : out std_logic;
         reg_indx_out      : out std_logic_vector(9 downto 0);
         state_counter_out : out std_logic_vector(15 downto 0);
         state_out         : out std_logic_vector(7 downto 0);
         event_id_out      : out std_logic_vector(31 downto 0);
         trigger_acq_out   : out std_logic;
         abort_daq         : out std_logic;
+        trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
+        trigger_ack_timeout_state : out std_logic_vector(3 downto 0);
 
         -- User ports ends
         -- Do not modify the ports beyond this line
@@ -102,10 +101,11 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
         port (
         -- User defined ports
         CONFIG_REG_FROM_PS : out std_logic_vector(519 downto 0);
+        CONFIG_REG_FROM_PL : in std_logic_vector(519 downto 0);
         HOLD_TIME          : out std_logic_vector(15 downto 0);
         CAL_DAC            : out std_logic_vector(11 downto 0);
         POWER_CYCLE_TIMER  : out std_logic_vector(31 downto 0);
-        CONFIG_REG_FROM_PL : in std_logic_vector(519 downto 0);
+        TRIGGER_ACK_TIMEOUT : out std_logic_vector(31 downto 0);
         --
         S_AXI_ACLK  : in std_logic;
         S_AXI_ARESETN   : in std_logic;
@@ -139,6 +139,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             trigger_ena        : in std_logic;
             trigger_ena_ena    : in std_logic;
             trigger_ena_force  : in std_logic;
+            trigger_ack_timeout: in std_logic_vector(31 downto 0);
             FEE_hit            : out std_logic;
             FEE_ready          : out std_logic;
             FEE_busy           : out std_logic;
@@ -149,7 +150,6 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             set_config         : in std_logic;
             cal_pulse_trigger_in : in std_logic;
             int_cal_trigger    : in std_logic;
-            cp_data_done       : in std_logic;
             hold_time          : in std_logic_vector(15 downto 0);
             vata_s0            : out std_logic;
             vata_s1            : out std_logic;
@@ -175,6 +175,8 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             event_id_out_debug : out std_logic_vector(31 downto 0);
             abort_daq_debug    : out std_logic;
             trigger_acq_out       : out std_logic;
+            trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
+            trigger_ack_timeout_state : out std_logic_vector(3 downto 0);
             state_out          : out std_logic_vector(7 downto 0));
         end component;
 
@@ -214,11 +216,11 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     signal set_cal_dac           : std_logic := '0';
     signal int_cal_trigger       : std_logic := '0';
     signal cal_pulse_trigger     : std_logic := '0';
-    signal cp_data_done          : std_logic := '0';
     signal hold_time             : std_logic_vector(15 downto 0);
     signal cal_dac               : std_logic_vector(11 downto 0);
     signal trigger_power_cycle   : std_logic := '0';
     signal power_cycle_timer     : std_logic_vector(31 downto 0);
+    signal trigger_ack_timeout   : std_logic_vector(31 downto 0);
 
 begin
 
@@ -229,11 +231,12 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
         C_S_AXI_ADDR_WIDTH  => C_S00_AXI_ADDR_WIDTH
     )
     port map (
-        CONFIG_REG_FROM_PS => cfg_reg_from_ps,
-        HOLD_TIME          => hold_time,
-        CAL_DAC            => cal_dac,
-        POWER_CYCLE_TIMER  => power_cycle_timer,
-        CONFIG_REG_FROM_PL => cfg_reg_from_pl,
+        CONFIG_REG_FROM_PS  => cfg_reg_from_ps,
+        CONFIG_REG_FROM_PL  => cfg_reg_from_pl,
+        HOLD_TIME           => hold_time,
+        CAL_DAC             => cal_dac,
+        POWER_CYCLE_TIMER   => power_cycle_timer,
+        TRIGGER_ACK_TIMEOUT => trigger_ack_timeout,
         S_AXI_ACLK      => s00_axi_aclk,
         S_AXI_ARESETN   => s00_axi_aresetn,
         S_AXI_AWADDR    => s00_axi_awaddr,
@@ -262,12 +265,13 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
 
     vata_fsm : vata_460p3_iface_fsm
         port map (
-            clk_100MHz        => s00_axi_aclk,
-            rst_n             => s00_axi_aresetn,
-            trigger_ack       => trigger_ack,
-            trigger_ena       => trigger_ena,
-            trigger_ena_ena   => trigger_ena_ena,
-            trigger_ena_force => trigger_ena_force,
+            clk_100MHz          => s00_axi_aclk,
+            rst_n               => s00_axi_aresetn,
+            trigger_ack         => trigger_ack,
+            trigger_ena         => trigger_ena,
+            trigger_ena_ena     => trigger_ena_ena,
+            trigger_ena_force   => trigger_ena_force,
+            trigger_ack_timeout => trigger_ack_timeout,
             FEE_hit           => FEE_hit,
             FEE_ready         => FEE_ready,
             FEE_busy          => FEE_busy,
@@ -277,7 +281,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             get_config        => get_config,
             set_config        => set_config,
             cal_pulse_trigger_in => cal_pulse_trigger,
-            cp_data_done      => cp_data_done,
             hold_time         => hold_time,
             vata_s0           => vata_s0,
             vata_s1           => vata_s1,
@@ -303,6 +306,8 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             event_id_out_debug => event_id_out,
             abort_daq_debug   => abort_daq,
             trigger_acq_out   => trigger_acq_out,
+            trigger_ack_timeout_counter => trigger_ack_timeout_counter,
+            trigger_ack_timeout_state => trigger_ack_timeout_state,
             state_out         => state_out
         );
 
@@ -333,8 +338,10 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
     -- Upon writing to 0th addr, trigger the following actions:
     -- If writing 0, trigger set config.
     -- If writing 1, trigger get config.
-    -- If writing 2, trigger external calibration pulse.
-    -- If writing 3, trigger cp_data_done.
+    -- If writing 2, set the calibration dac value
+    -- If writing 3, trigger external calibration pulse.
+    -- If writing 4, trigger internal calibration pulse.
+    -- If writing 5, power cycle asic for duration specified in AXI register 20
     write_reg0_proc : process (s00_axi_aresetn, s00_axi_aclk)
     begin
         if s00_axi_aresetn = '0' then
@@ -344,7 +351,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             int_cal_trigger     <= '0';
             cal_pulse_trigger   <= '0';
             trigger_power_cycle <= '0';
-            cp_data_done        <= '0';
             last_axi_wready     <= '0';
         elsif rising_edge(s00_axi_aclk) then
             if axi_wready_buf = '1' and last_axi_wready = '0' and
@@ -358,7 +364,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
                     cal_pulse_trigger   <= '0';
                     int_cal_trigger     <= '0';
                     trigger_power_cycle <= '0';
-                    cp_data_done        <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(1, s00_axi_wdata'length)) then
                     -- Trigger get config
                     set_config          <= '0';
@@ -367,7 +372,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
                     cal_pulse_trigger   <= '0';
                     int_cal_trigger     <= '0';
                     trigger_power_cycle <= '0';
-                    cp_data_done        <= '0';
 
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(2, s00_axi_wdata'length)) then
                     -- Set the calibration dac value
@@ -377,7 +381,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
                     cal_pulse_trigger   <= '0';
                     int_cal_trigger     <= '0';
                     trigger_power_cycle <= '0';
-                    cp_data_done        <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(3, s00_axi_wdata'length)) then
                     -- Trigger the external calibration pulse
                     set_config          <= '0';
@@ -386,7 +389,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
                     cal_pulse_trigger   <= '1';
                     int_cal_trigger     <= '0';
                     trigger_power_cycle <= '0';
-                    cp_data_done        <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(4, s00_axi_wdata'length)) then
                     -- Toggle internal cald lines.
                     set_config          <= '0';
@@ -395,7 +397,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
                     cal_pulse_trigger   <= '0';
                     int_cal_trigger     <= '1';
                     trigger_power_cycle <= '0';
-                    cp_data_done        <= '0';
                 elsif s00_axi_wdata = std_logic_vector(to_unsigned(5, s00_axi_wdata'length)) then
                     -- Power cycle with vss_shutdown
                     set_config          <= '0';
@@ -404,16 +405,14 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
                     cal_pulse_trigger   <= '0';
                     int_cal_trigger     <= '0';
                     trigger_power_cycle <= '1';
-                    cp_data_done        <= '0';
                 else
-                    -- Just assume anything else is that we're done copying data.
+                    -- Unsupported command
                     set_config          <= '0';
                     get_config          <= '0';
                     set_cal_dac         <= '0';
                     cal_pulse_trigger   <= '0';
                     int_cal_trigger     <= '0';
                     trigger_power_cycle <= '0';
-                    cp_data_done        <= '1';
                 end if;
             else
                 set_config          <= '0';
@@ -422,7 +421,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
                 cal_pulse_trigger   <= '0';
                 int_cal_trigger     <= '0';
                 trigger_power_cycle <= '0';
-                cp_data_done        <= '0';
             end if;
             last_axi_wready <= axi_wready_buf;
         end if;
@@ -435,7 +433,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
     set_config_out   <= set_config;
     get_config_out   <= get_config;
     set_cal_dac_out  <= set_cal_dac;
-    cp_data_done_out <= cp_data_done;
 
     -- User logic ends
 
