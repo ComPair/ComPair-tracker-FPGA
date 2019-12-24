@@ -100,12 +100,15 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
         );
         port (
         -- User defined ports
-        CONFIG_REG_FROM_PS : out std_logic_vector(519 downto 0);
-        CONFIG_REG_FROM_PL : in std_logic_vector(519 downto 0);
-        HOLD_TIME          : out std_logic_vector(15 downto 0);
-        CAL_DAC            : out std_logic_vector(11 downto 0);
-        POWER_CYCLE_TIMER  : out std_logic_vector(31 downto 0);
+        CONFIG_REG_FROM_PS  : out std_logic_vector(519 downto 0);
+        CONFIG_REG_FROM_PL  : in std_logic_vector(519 downto 0);
+        HOLD_TIME           : out std_logic_vector(15 downto 0);
+        CAL_DAC             : out std_logic_vector(11 downto 0);
+        POWER_CYCLE_TIMER   : out std_logic_vector(31 downto 0);
         TRIGGER_ACK_TIMEOUT : out std_logic_vector(31 downto 0);
+        RUNNING_COUNTER     : in std_logic_vector(63 downto 0);
+        LIVE_COUNTER        : in std_logic_vector(63 downto 0);
+        EVENT_COUNTER       : in std_logic_vector(31 downto 0);
         --
         S_AXI_ACLK  : in std_logic;
         S_AXI_ARESETN   : in std_logic;
@@ -169,6 +172,11 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             data_tdata         : out std_logic_vector(31 downto 0);
             cald               : out std_logic;
             caldb              : out std_logic;
+            counter_rst        : in std_logic;
+            running_counter    : out std_logic_vector(63 downto 0);
+            live_counter       : out std_logic_vector(63 downto 0);
+            event_counter_rst  : in std_logic;
+            event_counter      : out std_logic_vector(31 downto 0);
             -- DEBUG --
             state_counter_out  : out std_logic_vector(15 downto 0);
             reg_indx_out       : out std_logic_vector(9 downto 0);
@@ -180,7 +188,20 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             state_out          : out std_logic_vector(7 downto 0));
         end component;
 
-
+    component control_register_triggers is
+        generic (
+            AXI_DATA_WIDTH     : integer := 32;
+            AXI_ADDR_WIDTH     : integer := 8;
+            N_TRIGGERS         : integer := 16;
+            AXI_AWADDR_CONTROL : integer := 0);
+        port (
+            axi_aclk    : in std_logic;
+            axi_aresetn : in std_logic;
+            axi_awaddr  : in std_logic_vector(AXI_ADDR_WIDTH-1 downto 0);
+            axi_wdata   : in std_logic_vector(AXI_DATA_WIDTH-1 downto 0);
+            axi_wready  : in std_logic;
+            triggers    : out std_logic_vector(N_TRIGGERS-1 downto 0));
+    end component;
 
     component spi_cal_dac is
         generic (
@@ -206,11 +227,12 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     end component;
 
     constant S00_AXI_AWADDR_0VAL : std_logic_vector(C_S00_AXI_ADDR_WIDTH-1 downto 0) := (others => '0');
+    constant N_CTRL_TRIGGERS     : integer := 16;
 
     signal cfg_reg_from_ps       : std_logic_vector(519 downto 0);
     signal cfg_reg_from_pl       : std_logic_vector(519 downto 0);
     signal axi_wready_buf        : std_logic;
-    signal last_axi_wready       : std_logic := '0';
+    signal ctrl_triggers         : std_logic_vector(N_CTRL_TRIGGERS-1 downto 0);
     signal set_config            : std_logic := '0';
     signal get_config            : std_logic := '0';
     signal set_cal_dac           : std_logic := '0';
@@ -221,7 +243,11 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     signal trigger_power_cycle   : std_logic := '0';
     signal power_cycle_timer     : std_logic_vector(31 downto 0);
     signal trigger_ack_timeout   : std_logic_vector(31 downto 0);
-
+    signal counter_rst           : std_logic := '0';
+    signal running_counter       : std_logic_vector(63 downto 0);
+    signal live_counter          : std_logic_vector(63 downto 0);
+    signal event_counter_rst     : std_logic := '0';
+    signal event_counter         : std_logic_vector(31 downto 0);
 begin
 
 -- Instantiation of Axi Bus Interface S00_AXI
@@ -237,6 +263,9 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
         CAL_DAC             => cal_dac,
         POWER_CYCLE_TIMER   => power_cycle_timer,
         TRIGGER_ACK_TIMEOUT => trigger_ack_timeout,
+        RUNNING_COUNTER     => running_counter,
+        LIVE_COUNTER        => live_counter,
+        EVENT_COUNTER       => event_counter,
         S_AXI_ACLK      => s00_axi_aclk,
         S_AXI_ARESETN   => s00_axi_aresetn,
         S_AXI_AWADDR    => s00_axi_awaddr,
@@ -246,7 +275,8 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
         S_AXI_WDATA     => s00_axi_wdata,
         S_AXI_WSTRB     => s00_axi_wstrb,
         S_AXI_WVALID    => s00_axi_wvalid,
-        S_AXI_WREADY    => s00_axi_wready,
+        --S_AXI_WREADY    => s00_axi_wready,
+        S_AXI_WREADY    => axi_wready_buf,
         S_AXI_BRESP     => s00_axi_bresp,
         S_AXI_BVALID    => s00_axi_bvalid,
         S_AXI_BREADY    => s00_axi_bready,
@@ -301,6 +331,11 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             data_tdata        => data_tdata,
             cald              => cald,
             caldb             => caldb,
+            counter_rst       => counter_rst,
+            running_counter   => running_counter,
+            event_counter_rst => event_counter_rst,
+            event_counter     => event_counter,
+            live_counter      => live_counter,
             reg_indx_out      => reg_indx_out,
             state_counter_out => state_counter_out,
             event_id_out_debug => event_id_out,
@@ -310,6 +345,20 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             trigger_ack_timeout_state => trigger_ack_timeout_state,
             state_out         => state_out
         );
+
+    control_register_triggers_inst : control_register_triggers
+        generic map (
+            AXI_DATA_WIDTH     => C_S00_AXI_DATA_WIDTH,
+            AXI_ADDR_WIDTH     => C_S00_AXI_ADDR_WIDTH,
+            N_TRIGGERS         => N_CTRL_TRIGGERS,
+            AXI_AWADDR_CONTROL => 0)
+        port map (
+            axi_aclk => s00_axi_aclk,
+            axi_aresetn => s00_axi_aresetn,
+            axi_awaddr => s00_axi_awaddr,
+            axi_wdata => s00_axi_wdata,
+            axi_wready => axi_wready_buf,
+            triggers => ctrl_triggers);
 
     spi_cal_dac_inst : spi_cal_dac
         generic map (
@@ -333,101 +382,18 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             power_cycle_timer   => power_cycle_timer,
             vss_shutdown_n      => vss_shutdown_n);
 
-    -- Below is the process that interprets writes to the 0th axi register
-    -- to determine whether to send some initiating signal.
-    -- Upon writing to 0th addr, trigger the following actions:
-    -- If writing 0, trigger set config.
-    -- If writing 1, trigger get config.
-    -- If writing 2, set the calibration dac value
-    -- If writing 3, trigger external calibration pulse.
-    -- If writing 4, trigger internal calibration pulse.
-    -- If writing 5, power cycle asic for duration specified in AXI register 20
-    write_reg0_proc : process (s00_axi_aresetn, s00_axi_aclk)
-    begin
-        if s00_axi_aresetn = '0' then
-            set_config          <= '0';
-            get_config          <= '0';
-            set_cal_dac         <= '0';
-            int_cal_trigger     <= '0';
-            cal_pulse_trigger   <= '0';
-            trigger_power_cycle <= '0';
-            last_axi_wready     <= '0';
-        elsif rising_edge(s00_axi_aclk) then
-            if axi_wready_buf = '1' and last_axi_wready = '0' and
-                    s00_axi_awaddr = S00_AXI_AWADDR_0VAL then
-                -- We are writing to the 0th address! Do something!
-                if s00_axi_wdata = std_logic_vector(to_unsigned(0, s00_axi_wdata'length)) then
-                    -- Trigger set config
-                    set_config          <= '1';
-                    get_config          <= '0';
-                    set_cal_dac         <= '0';
-                    cal_pulse_trigger   <= '0';
-                    int_cal_trigger     <= '0';
-                    trigger_power_cycle <= '0';
-                elsif s00_axi_wdata = std_logic_vector(to_unsigned(1, s00_axi_wdata'length)) then
-                    -- Trigger get config
-                    set_config          <= '0';
-                    get_config          <= '1';
-                    set_cal_dac         <= '0';
-                    cal_pulse_trigger   <= '0';
-                    int_cal_trigger     <= '0';
-                    trigger_power_cycle <= '0';
-
-                elsif s00_axi_wdata = std_logic_vector(to_unsigned(2, s00_axi_wdata'length)) then
-                    -- Set the calibration dac value
-                    set_config          <= '0';
-                    get_config          <= '0';
-                    set_cal_dac         <= '1';
-                    cal_pulse_trigger   <= '0';
-                    int_cal_trigger     <= '0';
-                    trigger_power_cycle <= '0';
-                elsif s00_axi_wdata = std_logic_vector(to_unsigned(3, s00_axi_wdata'length)) then
-                    -- Trigger the external calibration pulse
-                    set_config          <= '0';
-                    get_config          <= '0';
-                    set_cal_dac         <= '0';
-                    cal_pulse_trigger   <= '1';
-                    int_cal_trigger     <= '0';
-                    trigger_power_cycle <= '0';
-                elsif s00_axi_wdata = std_logic_vector(to_unsigned(4, s00_axi_wdata'length)) then
-                    -- Toggle internal cald lines.
-                    set_config          <= '0';
-                    get_config          <= '0';
-                    set_cal_dac         <= '0';
-                    cal_pulse_trigger   <= '0';
-                    int_cal_trigger     <= '1';
-                    trigger_power_cycle <= '0';
-                elsif s00_axi_wdata = std_logic_vector(to_unsigned(5, s00_axi_wdata'length)) then
-                    -- Power cycle with vss_shutdown
-                    set_config          <= '0';
-                    get_config          <= '0';
-                    set_cal_dac         <= '0';
-                    cal_pulse_trigger   <= '0';
-                    int_cal_trigger     <= '0';
-                    trigger_power_cycle <= '1';
-                else
-                    -- Unsupported command
-                    set_config          <= '0';
-                    get_config          <= '0';
-                    set_cal_dac         <= '0';
-                    cal_pulse_trigger   <= '0';
-                    int_cal_trigger     <= '0';
-                    trigger_power_cycle <= '0';
-                end if;
-            else
-                set_config          <= '0';
-                get_config          <= '0';
-                set_cal_dac         <= '0';
-                cal_pulse_trigger   <= '0';
-                int_cal_trigger     <= '0';
-                trigger_power_cycle <= '0';
-            end if;
-            last_axi_wready <= axi_wready_buf;
-        end if;
-    end process write_reg0_proc;
-
     s00_axi_wready   <= axi_wready_buf;
-    
+
+    -- Trigger mapping:
+    set_config          <= ctrl_triggers(0);
+    get_config          <= ctrl_triggers(1);
+    set_cal_dac         <= ctrl_triggers(2);
+    cal_pulse_trigger   <= ctrl_triggers(3);
+    int_cal_trigger     <= ctrl_triggers(4);
+    trigger_power_cycle <= ctrl_triggers(5);
+    counter_rst         <= ctrl_triggers(6);
+    event_counter_rst   <= ctrl_triggers(7);
+        
     -- Debugging
     cal_pulse_trigger_in_out <= cal_pulse_trigger;
     set_config_out   <= set_config;

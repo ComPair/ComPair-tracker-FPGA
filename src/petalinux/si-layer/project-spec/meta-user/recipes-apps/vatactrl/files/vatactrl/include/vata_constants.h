@@ -4,11 +4,12 @@
 #include "vata_types.h"
 #include "xparameters.h"
 
-#define N_VATA 2
+// This uses the fact that number of MM-S Fifo's matches number of VATA's:
+#define N_VATA XPAR_XLLFIFO_NUM_INSTANCES
 
 #define N_CFG_REG 17
 
-#define DAQ_SERVER_ADDR     "10.10.0.100"   // DAQ computer's IP addr.
+#define DAQ_SERVER_ADDR     "192.168.1.11"   // DAQ computer's IP addr.
 #define DATA_PACKET_PORT    5555            // Port to send data packets to
 
 #define N_ASIC_PACKET   13  // Each asic packet should be 13 x 32 bits.
@@ -20,6 +21,9 @@
 #define CAL_DAC_REG_OFFSET              19
 #define POWER_CYCLE_REG_OFFSET          20
 #define TRIGGER_ACK_TIMEOUT_REG_OFFSET  21
+#define RUNNING_TIMER_OFFSET            49
+#define LIVE_TIMER_OFFSET               51
+#define EVENT_COUNT_OFFSET              53
 
 #define AXI0_CTRL_SET_CONF              0
 #define AXI0_CTRL_GET_CONF              1
@@ -27,10 +31,13 @@
 #define AXI0_CTRL_TRIGGER_EXT_CAL       3
 #define AXI0_CTRL_TRIGGER_INT_CAL       4
 #define AXI0_CTRL_POWER_CYCLE           5
+#define AXI0_CTRL_RST_COUNTERS          6
+#define AXI0_CTRL_RST_EV_COUNT          7
+
 
 #define MAX_CAL_DAC_VAL                 4095
 
-static VataAddr VATA_ADDRS[2] = {
+static VataAddr VATA_ADDRS[N_VATA] = {
     {XPAR_VATA_460P3_AXI_INTER_0_BASEADDR,
      XPAR_VATA_460P3_AXI_INTER_0_HIGHADDR,
      XPAR_AXI_FIFO_MM_S_DATA0_BASEADDR,
@@ -38,8 +45,9 @@ static VataAddr VATA_ADDRS[2] = {
      XPAR_AXI_GPIO_TRIGGER0_BASEADDR,
      XPAR_AXI_GPIO_TRIGGER0_HIGHADDR,
      XPAR_AXI_GPIO_TRIGGER_ENA0_BASEADDR,
-     XPAR_AXI_GPIO_TRIGGER_ENA0_HIGHADDR},
-    {XPAR_VATA_460P3_AXI_INTER_1_BASEADDR,
+     XPAR_AXI_GPIO_TRIGGER_ENA0_HIGHADDR}
+#if N_VATA > 1
+    ,{XPAR_VATA_460P3_AXI_INTER_1_BASEADDR,
      XPAR_VATA_460P3_AXI_INTER_1_HIGHADDR,
      XPAR_AXI_FIFO_MM_S_DATA1_BASEADDR,
      XPAR_AXI_FIFO_MM_S_DATA1_HIGHADDR,
@@ -47,6 +55,7 @@ static VataAddr VATA_ADDRS[2] = {
      XPAR_AXI_GPIO_TRIGGER1_HIGHADDR,
      XPAR_AXI_GPIO_TRIGGER_ENA1_BASEADDR,
      XPAR_AXI_GPIO_TRIGGER_ENA1_HIGHADDR}
+#endif
 };
 
 #endif
