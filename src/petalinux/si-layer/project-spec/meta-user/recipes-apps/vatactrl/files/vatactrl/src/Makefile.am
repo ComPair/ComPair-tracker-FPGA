@@ -16,7 +16,12 @@ bin_PROGRAMS = vatactrl             \
 	       vt_test_emit \
 	       vt_udp_server \
 	       vt_udp_server_single_asic \
-               vt_power_cycle
+               vt_power_cycle \
+	       vt_get_running_clock \
+	       vt_get_live_clock \
+	       vt_get_event_count \
+	       vt_rst_counters \
+	       vt_rst_ev_count 
 
 bin_SCRIPTS = vt_asic_init vt_set_check_config
 
@@ -42,3 +47,8 @@ vt_udp_server_SOURCES = udp_server.c vata_util.c
 vt_udp_server_single_asic_SOURCES = udp_server_single_asic.c vata_util.c
 ##vt_zmq_pub_data_SOURCES = zmq_pub_data.c vata_util.c
 vt_power_cycle_SOURCES = power_cycle.c vata_util.c
+vt_get_running_clock_SOURCES = get_running_clock.c vata_util.c
+vt_get_live_clock_SOURCES = get_live_clock.c vata_util.c
+vt_get_event_count_SOURCES = get_event_count.c vata_util.c
+vt_rst_counters_SOURCES = rst_counters.c vata_util.c
+vt_rst_ev_count_SOURCES = rst_ev_count.c vata_util.c

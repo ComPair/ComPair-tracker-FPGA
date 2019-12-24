@@ -16,12 +16,15 @@ entity vata_460p3_axi_interface_v3_0_S00_AXI is
 	);
 	port (
 		-- Users to add ports here
-		CONFIG_REG_FROM_PS : out std_logic_vector(519 downto 0);
-		CONFIG_REG_FROM_PL : in std_logic_vector(519 downto 0);
-		HOLD_TIME	   : out std_logic_vector(15 downto 0);
-		CAL_DAC            : out std_logic_vector(11 downto 0);
-		POWER_CYCLE_TIMER  : out std_logic_vector(31 downto 0);
+		CONFIG_REG_FROM_PS  : out std_logic_vector(519 downto 0);
+		CONFIG_REG_FROM_PL  : in std_logic_vector(519 downto 0);
+		HOLD_TIME	        : out std_logic_vector(15 downto 0);
+		CAL_DAC             : out std_logic_vector(11 downto 0);
+		POWER_CYCLE_TIMER   : out std_logic_vector(31 downto 0);
         TRIGGER_ACK_TIMEOUT : out std_logic_vector(31 downto 0);
+        RUNNING_COUNTER     : in std_logic_vector(63 downto 0);
+        LIVE_COUNTER        : in std_logic_vector(63 downto 0);
+        EVENT_COUNTER       : in std_logic_vector(31 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -1119,15 +1122,15 @@ begin
 	        reg_data_out(31 downto 8) <= (others => '0');
           -- End configuration register readout.
 	      when b"110001" =>
-	        reg_data_out <= slv_reg49;
+	        reg_data_out <= RUNNING_COUNTER(31 downto 0);
 	      when b"110010" =>
-	        reg_data_out <= slv_reg50;
+	        reg_data_out <= RUNNING_COUNTER(63 downto 32);
 	      when b"110011" =>
-	        reg_data_out <= slv_reg51;
+	        reg_data_out <= LIVE_COUNTER(31 downto 0);
 	      when b"110100" =>
-	        reg_data_out <= slv_reg52;
+	        reg_data_out <= LIVE_COUNTER(63 downto 32);
 	      when b"110101" =>
-	        reg_data_out <= slv_reg53;
+	        reg_data_out <= EVENT_COUNTER;
 	      when b"110110" =>
 	        reg_data_out <= slv_reg54;
 	      when b"110111" =>
