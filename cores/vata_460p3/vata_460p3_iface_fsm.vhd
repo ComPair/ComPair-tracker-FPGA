@@ -40,6 +40,11 @@ entity vata_460p3_iface_fsm is
                 data_tdata            : out std_logic_vector(31 downto 0);
                 cald                  : out std_logic;
                 caldb                 : out std_logic;
+                counter_rst           : in std_logic;
+                running_counter       : out std_logic_vector(63 downto 0);
+                live_counter          : out std_logic_vector(63 downto 0);
+                event_counter_rst     : in std_logic;
+                event_counter         : out std_logic_vector(31 downto 0);
                 -- DEBUG --
                 state_counter_out     : out std_logic_vector(15 downto 0);
                 reg_indx_out          : out std_logic_vector(9 downto 0);
@@ -177,6 +182,10 @@ architecture arch_imp of vata_460p3_iface_fsm is
     signal trigger_acq            : std_logic := '0';
 
     signal clk_counter : unsigned(63 downto 0) := (others => '0');
+
+    signal urunning_counter : unsigned(63 downto 0) := (others => '0');
+    signal ulive_counter    : unsigned(63 downto 0) := (others => '0');
+    signal uevent_counter   : unsigned(31 downto 0) := (others => '0');
 
 begin
 
@@ -1002,6 +1011,34 @@ begin
         end if;
     end process;
 
+
+    process (rst_n, counter_rst, clk_100MHz)
+    begin
+        if rst_n = '0' or counter_rst = '1' then
+            urunning_counter <= (others => '0');
+            ulive_counter <= (others => '0');
+        elsif rising_edge(clk_100MHz) then
+            if current_state = IDLE then
+                ulive_counter <= ulive_counter + to_unsigned(1, ulive_counter'length);
+            else
+                ulive_counter <= ulive_counter;
+            end if;
+            urunning_counter <= urunning_counter + to_unsigned(1, urunning_counter'length);
+        end if;
+    end process;
+
+    process (rst_n, event_counter_rst, current_state)
+    begin
+        if rst_n = '0' or event_counter_rst = '1' then
+            uevent_counter <= (others => '0');
+        elsif current_state = RO_WFIFO_12 then -- we are finished with data readout for an event
+            uevent_counter <= uevent_counter + to_unsigned(1, uevent_counter'length);
+        else
+            uevent_counter <= uevent_counter;
+        end if;
+    end process;
+
+
     --process (rst_n, clk_100MHz)
     --begin
     --    if rst_n = '0' then
@@ -1021,6 +1058,10 @@ begin
     vata_s1 <= vata_mode(1);
     vata_s2 <= vata_mode(2);
 
+    running_counter <= std_logic_vector(urunning_counter);
+    live_counter    <= std_logic_vector(ulive_counter);
+    event_counter   <= std_logic_vector(uevent_counter);
+    
     --bram_addr   <= std_logic_vector(bram_uaddr);
     trigger_acq <= (trigger_ena_force) or (trigger_ena_ena and trigger_ena);
 
