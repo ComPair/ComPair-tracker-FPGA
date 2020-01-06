@@ -13,22 +13,22 @@ bin_PROGRAMS = vatactrl             \
                vt_read_fifo         \
                vt_packet_emit           \
                vt_set_trigger_ack_timeout \
-	       vt_test_emit \
-	       vt_udp_server \
-	       vt_udp_server_single_asic \
+               vt_test_emit \
+               vt_udp_server \
+               vt_udp_server_single_asic \
                vt_power_cycle \
-	       vt_get_running_clock \
-	       vt_get_live_clock \
-	       vt_get_event_count \
-	       vt_rst_counters \
-	       vt_rst_ev_count 
+               vt_get_running_clock \
+               vt_get_live_clock \
+               vt_get_event_count \
+               vt_get_clocks \
+               vt_rst_counters \
+               vt_rst_ev_count 
 
 bin_SCRIPTS = vt_asic_init vt_set_check_config
 
 ##vt_zmq_pub_data_LDFLAGS = -lzmq -L/local/data/puff/sgriffi4/xilinx/lucas/local/lib
 
-vatactrl_SOURCES = vatactrl.c
-
+vatactrl_SOURCES = vatactrl.cpp vata_ctrl.cpp
 vt_set_conf_SOURCES = set_conf.c vata_util.c
 vt_get_conf_SOURCES = get_conf.c vata_util.c
 vt_set_cal_dac_SOURCES = set_cal_dac.c vata_util.c
@@ -50,5 +50,6 @@ vt_power_cycle_SOURCES = power_cycle.c vata_util.c
 vt_get_running_clock_SOURCES = get_running_clock.c vata_util.c
 vt_get_live_clock_SOURCES = get_live_clock.c vata_util.c
 vt_get_event_count_SOURCES = get_event_count.c vata_util.c
+vt_get_clocks_SOURCES = get_clocks.c vata_util.c
 vt_rst_counters_SOURCES = rst_counters.c vata_util.c
 vt_rst_ev_count_SOURCES = rst_ev_count.c vata_util.c
