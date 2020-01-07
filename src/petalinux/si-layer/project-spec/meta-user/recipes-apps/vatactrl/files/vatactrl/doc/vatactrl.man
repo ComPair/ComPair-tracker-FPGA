@@ -1,22 +1,69 @@
 .\" This is a man page for the hello command.  It is intended to
 .\" be a model for writting man pages.
 .
-.\" Written by Ima Koder, Tampa Florida USA, 3/2005.
-.TH HELLO 1 "3/27/2005" "(C) IK ShellScript Co." "Ima Koder"
+.\" Written by Lucas Parker, LANL, 1/2020
+.TH VATACTRL 1 "1/2/2020" "(C) Not sure what to put here." "Lucas Parker"
 .
 .SH NAME
-hello \- Display a friendly greeting
+vatactrl \- Control a single VATA 460.3 ASIC
 .
 .SH SYNOPSIS
-.B hello
+.B vatactrl
+.IR ASIC-NUMBER 
+.RB [--set-config 
+.IR CONFIG-SOURCE \|]
+.RB [--get-config
+.IR CONFIG-DEST \|]
+.RB [--set-hold
+.IR N-HOLD-CYCLES \|]
+.RB [--get-hold \|]
+.RB [--get-counters \|]
+.RB [--reset-counters \|]
+.RB [--trigger-enable \|]
+.RB [--trigger-disable \|]
+.RB [--get-event-count \|]
+.RB [--reset-event-count \|]
+.RB [--cal-pulse \|]
+.RB [--set-cal-dac
+.IR cal-dac \|]
+.RB [--get-n-fifo \|]
+.RB [--single-read-fifo \|]
+.RB [--read-fifo \|]
 .
 .SH DESCRIPTION
+.PP
 The
-.B hello
-command simply displays a short greeting to the world.
+.B vatactrl
+command is capable of performing a set of interactions with the VATA ASIC.
+Multiple actions can be performed with a single command and 
+will be performed in the order that they appear on the command line.
+.TP
+.IR ASIC-NUMBER
+The number of the asic the commands target. Mandatory. Must be the first command line argument.
+.TP
+\fB\--set-config\fR \fI\,CONFIG-SOURCE\/\fR
+Set the configuration register from the given
+.IR CONFIG_SOURCE
+file.
+.TP
+\fB\--get-config\fR \fI\,CONFIG-DEST\/\fR
+Read the configuration file from the asic and save it to
+.IR CONFIG_DEST
+file.
+.TP
+\fB\--set-hold\fR \fI\,N-HOLD-CYCLES\/\fR
+Set the hold delay to
+.IR N-HOLD-CYCLES
+.TP
+\fB\--get-hold\fR
+Read the current hold delay setting and print it to stdout.
+.TP
+\fB\--get-counters\fR
+Read the running-time and live-time counters, and print to stdout.
+
 .
 .SH AUTHOR
-Ima Koder <hello-maintainer@fake.org
+Lucas Parker <lpp@lanl.gov>
 .
 .SH SEE ALSO
-greet(1)
+nothing-sofar(1)
