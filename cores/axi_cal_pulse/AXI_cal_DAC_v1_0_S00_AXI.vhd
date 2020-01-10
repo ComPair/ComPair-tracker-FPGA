@@ -2,9 +2,8 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity cal_dac_ctl_v1_0_S00_AXI is
+entity AXI_cal_DAC_v1_0_S00_AXI is
 	generic (
-	    -- CLK_RATIO AND COUNTER_WIDTH ARE CONFIGURABLE
 		-- Users to add parameters here
         CLK_RATIO : integer := 2; -- spi clock freq is clk in freq / 2 / CLK_RATIO
         COUNTER_WIDTH : integer := 2;
@@ -18,12 +17,11 @@ entity cal_dac_ctl_v1_0_S00_AXI is
 	);
 	port (
 		-- Users to add ports here
-    	cal_pulse_trigger_out : out std_logic;
-    	vata_trigger_out : out std_logic;
+        cal_pulse_trigger_out : out std_logic;
+        vata_trigger_out : out std_logic;
         spi_sclk : out std_logic;
         spi_mosi : out std_logic;
         spi_syncn : out std_logic; 
-           	
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -88,9 +86,10 @@ entity cal_dac_ctl_v1_0_S00_AXI is
     		-- accept the read data and response information.
 		S_AXI_RREADY	: in std_logic
 	);
-end cal_dac_ctl_v1_0_S00_AXI;
+end AXI_cal_DAC_v1_0_S00_AXI;
 
-architecture arch_imp of cal_dac_ctl_v1_0_S00_AXI is
+architecture arch_imp of AXI_cal_DAC_v1_0_S00_AXI is
+
     component cal_pulse is
         generic (
           C_S_AXI_DATA_WIDTH	: integer	:= 32
@@ -110,8 +109,8 @@ architecture arch_imp of cal_dac_ctl_v1_0_S00_AXI is
     
     component spi_cal_dac is
         generic (
-            CLK_RATIO : integer := 2; -- spi clock freq is clk in freq / 2 / CLK_RATIO
-            COUNTER_WIDTH : integer := 2
+            CLK_RATIO : integer; -- spi clock freq is clk in freq / 2 / CLK_RATIO
+            COUNTER_WIDTH : integer
             ); 
         port ( 
             clk : in std_logic;
@@ -122,8 +121,6 @@ architecture arch_imp of cal_dac_ctl_v1_0_S00_AXI is
             spi_mosi : out std_logic;
             spi_syncn : out std_logic);
     end component spi_cal_dac;
-
-
 
 	-- AXI4LITE signals
 	signal axi_awaddr	: std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -147,13 +144,15 @@ architecture arch_imp of cal_dac_ctl_v1_0_S00_AXI is
 	------------------------------------------------
 	---- Signals for user logic register space example
 	--------------------------------------------------
-	---- Number of Slave Registers 6
+	---- Number of Slave Registers 8
 	signal slv_reg0	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal slv_reg1	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal slv_reg2	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal slv_reg3	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal slv_reg4	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal slv_reg5	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+	signal slv_reg6	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+	signal slv_reg7	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal slv_reg_rden	: std_logic;
 	signal slv_reg_wren	: std_logic;
 	signal reg_data_out	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
@@ -262,6 +261,8 @@ begin
 	      slv_reg3 <= (others => '0');
 	      slv_reg4 <= (others => '0');
 	      slv_reg5 <= (others => '0');
+	      slv_reg6 <= (others => '0');
+	      slv_reg7 <= (others => '0');
 	    else
 	      loc_addr := axi_awaddr(ADDR_LSB + OPT_MEM_ADDR_BITS downto ADDR_LSB);
 	      if (slv_reg_wren = '1') then
@@ -314,6 +315,22 @@ begin
 	                slv_reg5(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
 	              end if;
 	            end loop;
+	          when b"110" =>
+	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
+	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
+	                -- Respective byte enables are asserted as per write strobes                   
+	                -- slave registor 6
+	                slv_reg6(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
+	              end if;
+	            end loop;
+	          when b"111" =>
+	            for byte_index in 0 to (C_S_AXI_DATA_WIDTH/8-1) loop
+	              if ( S_AXI_WSTRB(byte_index) = '1' ) then
+	                -- Respective byte enables are asserted as per write strobes                   
+	                -- slave registor 7
+	                slv_reg7(byte_index*8+7 downto byte_index*8) <= S_AXI_WDATA(byte_index*8+7 downto byte_index*8);
+	              end if;
+	            end loop;
 	          when others =>
 	            slv_reg0 <= slv_reg0;
 	            slv_reg1 <= slv_reg1;
@@ -321,6 +338,8 @@ begin
 	            slv_reg3 <= slv_reg3;
 	            slv_reg4 <= slv_reg4;
 	            slv_reg5 <= slv_reg5;
+	            slv_reg6 <= slv_reg6;
+	            slv_reg7 <= slv_reg7;
 	        end case;
 	      end if;
 	    end if;
@@ -408,7 +427,7 @@ begin
 	-- and the slave is ready to accept the read address.
 	slv_reg_rden <= axi_arready and S_AXI_ARVALID and (not axi_rvalid) ;
 
-	process (slv_reg0, slv_reg1, slv_reg2, slv_reg3, slv_reg4, slv_reg5, axi_araddr, S_AXI_ARESETN, slv_reg_rden)
+	process (slv_reg0, slv_reg1, slv_reg2, slv_reg3, slv_reg4, slv_reg5, slv_reg6, slv_reg7, axi_araddr, S_AXI_ARESETN, slv_reg_rden)
 	variable loc_addr :std_logic_vector(OPT_MEM_ADDR_BITS downto 0);
 	begin
 	    -- Address decoding for reading registers
@@ -426,6 +445,10 @@ begin
 	        reg_data_out <= slv_reg4;
 	      when b"101" =>
 	        reg_data_out <= slv_reg5;
+	      when b"110" =>
+	        reg_data_out <= slv_reg6;
+	      when b"111" =>
+	        reg_data_out <= slv_reg7;
 	      when others =>
 	        reg_data_out  <= (others => '0');
 	    end case;
@@ -451,7 +474,6 @@ begin
 
 
 	-- Add user logic here
-	
 	spi_cal_dac_inst : spi_cal_dac
 	   generic map (
 	       CLK_RATIO => CLK_RATIO,
@@ -479,7 +501,6 @@ begin
             reg2 => slv_reg2,
             reg3 => slv_reg3
         );
-
 	-- User logic ends
 
 end arch_imp;

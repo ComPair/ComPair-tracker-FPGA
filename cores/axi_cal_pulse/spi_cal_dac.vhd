@@ -4,8 +4,9 @@ use ieee.numeric_std.all;
 
 entity spi_cal_dac is
     generic (
-        CLK_RATIO : integer := 2; -- spi clock freq is clk in freq / 2 / CLK_RATIO
-        COUNTER_WIDTH : integer := 2); 
+        CLK_RATIO : integer; -- spi clock freq is clk in freq / 2 / CLK_RATIO
+        COUNTER_WIDTH : integer
+        ); 
     port ( 
         clk : in std_logic;
         rst_n : in std_logic;
@@ -13,7 +14,8 @@ entity spi_cal_dac is
         trigger_send_data : in std_logic;
         spi_sclk : out std_logic;
         spi_mosi : out std_logic;
-        spi_syncn : out std_logic);
+        spi_syncn : out std_logic
+        );
 end spi_cal_dac;
 
 architecture arch_imp of spi_cal_dac is
