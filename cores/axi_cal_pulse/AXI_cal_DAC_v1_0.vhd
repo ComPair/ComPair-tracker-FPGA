@@ -2,10 +2,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity cal_dac_ctl_v1_0 is
+entity AXI_cal_DAC_v1_0 is
 	generic (
 		-- Users to add parameters here
-        CLK_RATIO : integer := 2;
+        CLK_RATIO : integer := 2; -- spi clock freq is clk in freq / 2 / CLK_RATIO
         COUNTER_WIDTH : integer := 2;
 		-- User parameters ends
 		-- Do not modify the parameters beyond this line
@@ -17,11 +17,11 @@ entity cal_dac_ctl_v1_0 is
 	);
 	port (
 		-- Users to add ports here
-    	cal_pulse_trigger_out : out std_logic;   
-    	vata_trigger_out : out std_logic;
-        cal_dac_spi_sclk : out std_logic;
-        cal_dac_spi_mosi : out std_logic;
-        cal_dac_spi_syncn : out std_logic;    	     
+        cal_pulse_trigger_out : out std_logic;
+        vata_trigger_out : out std_logic;
+        spi_sclk : out std_logic;
+        spi_mosi : out std_logic;
+        spi_syncn : out std_logic; 
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -49,26 +49,17 @@ entity cal_dac_ctl_v1_0 is
 		s00_axi_rvalid	: out std_logic;
 		s00_axi_rready	: in std_logic
 	);
-end cal_dac_ctl_v1_0;
+end AXI_cal_DAC_v1_0;
 
-architecture arch_imp of cal_dac_ctl_v1_0 is
+architecture arch_imp of AXI_cal_DAC_v1_0 is
 
 	-- component declaration
-	component cal_dac_ctl_v1_0_S00_AXI is
+	component AXI_cal_DAC_v1_0_S00_AXI is
 		generic (
-        CLK_RATIO : integer := 2;
-        COUNTER_WIDTH : integer := 2;
-        ---		
 		C_S_AXI_DATA_WIDTH	: integer	:= 32;
 		C_S_AXI_ADDR_WIDTH	: integer	:= 5
 		);
 		port (
-    	cal_pulse_trigger_out : out std_logic;
-    	vata_trigger_out : out std_logic;
-        spi_sclk : out std_logic;
-        spi_mosi : out std_logic;
-        spi_syncn : out std_logic;       	
-    			
 		S_AXI_ACLK	: in std_logic;
 		S_AXI_ARESETN	: in std_logic;
 		S_AXI_AWADDR	: in std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -91,26 +82,17 @@ architecture arch_imp of cal_dac_ctl_v1_0 is
 		S_AXI_RVALID	: out std_logic;
 		S_AXI_RREADY	: in std_logic
 		);
-	end component cal_dac_ctl_v1_0_S00_AXI;
+	end component AXI_cal_DAC_v1_0_S00_AXI;
 
 begin
 
 -- Instantiation of Axi Bus Interface S00_AXI
-cal_dac_ctl_v1_0_S00_AXI_inst : cal_dac_ctl_v1_0_S00_AXI
+AXI_cal_DAC_v1_0_S00_AXI_inst : AXI_cal_DAC_v1_0_S00_AXI
 	generic map (
-        CLK_RATIO => CLK_RATIO,
-        COUNTER_WIDTH => COUNTER_WIDTH,	
 		C_S_AXI_DATA_WIDTH	=> C_S00_AXI_DATA_WIDTH,
 		C_S_AXI_ADDR_WIDTH	=> C_S00_AXI_ADDR_WIDTH
 	)
 	port map (
-	
-    	cal_pulse_trigger_out => cal_pulse_trigger_out,
-    	vata_trigger_out => vata_trigger_out,
-        spi_sclk  => cal_dac_spi_sclk,
-        spi_mosi => cal_dac_spi_mosi,
-        spi_syncn => cal_dac_spi_syncn,       		
-	
 		S_AXI_ACLK	=> s00_axi_aclk,
 		S_AXI_ARESETN	=> s00_axi_aresetn,
 		S_AXI_AWADDR	=> s00_axi_awaddr,

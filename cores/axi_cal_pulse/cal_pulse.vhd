@@ -7,11 +7,7 @@ use ieee.numeric_std.all;
 
 entity cal_pulse is
     generic (
-        C_S_AXI_DATA_WIDTH : integer := 32;
-        vata_trigger_pulse_width : integer := 5
-
-        --CAL_PULSE_NHOLD : integer := 200; -- 2us with 100MHz clock
-        --COUNTER_WIDTH   : integer := 9
+        C_S_AXI_DATA_WIDTH : integer := 32
        );
     port (
         clk                   : in std_logic;
