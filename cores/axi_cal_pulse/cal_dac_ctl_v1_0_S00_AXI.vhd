@@ -2,12 +2,12 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-
-
 entity cal_dac_ctl_v1_0_S00_AXI is
 	generic (
+	    -- CLK_RATIO AND COUNTER_WIDTH ARE CONFIGURABLE
 		-- Users to add parameters here
-   
+        CLK_RATIO : integer := 2; -- spi clock freq is clk in freq / 2 / CLK_RATIO
+        COUNTER_WIDTH : integer := 2;
 		-- User parameters ends
 		-- Do not modify the parameters beyond this line
 
@@ -20,7 +20,10 @@ entity cal_dac_ctl_v1_0_S00_AXI is
 		-- Users to add ports here
     	cal_pulse_trigger_out : out std_logic;
     	vata_trigger_out : out std_logic;
-    	
+        spi_sclk : out std_logic;
+        spi_mosi : out std_logic;
+        spi_syncn : out std_logic; 
+           	
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -90,7 +93,7 @@ end cal_dac_ctl_v1_0_S00_AXI;
 architecture arch_imp of cal_dac_ctl_v1_0_S00_AXI is
     component cal_pulse is
         generic (
-		C_S_AXI_DATA_WIDTH	: integer	:= 32
+          C_S_AXI_DATA_WIDTH	: integer	:= 32
             );
         port (
            clk                   : in std_logic;
@@ -104,6 +107,21 @@ architecture arch_imp of cal_dac_ctl_v1_0_S00_AXI is
     	   reg3 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0)            
             );
     end component cal_pulse;
+    
+    component spi_cal_dac is
+        generic (
+            CLK_RATIO : integer := 2; -- spi clock freq is clk in freq / 2 / CLK_RATIO
+            COUNTER_WIDTH : integer := 2
+            ); 
+        port ( 
+            clk : in std_logic;
+            rst_n : in std_logic;
+            data_in : in std_logic_vector(11 downto 0);
+            trigger_send_data : in std_logic;
+            spi_sclk : out std_logic;
+            spi_mosi : out std_logic;
+            spi_syncn : out std_logic);
+    end component spi_cal_dac;
 
 
 
@@ -433,6 +451,19 @@ begin
 
 
 	-- Add user logic here
+	
+	spi_cal_dac_inst : spi_cal_dac
+	   generic map (
+	       CLK_RATIO => CLK_RATIO,
+	       COUNTER_WIDTH => CLK_RATIO
+       )
+	   port map (
+	       clk => S_AXI_ACLK,
+	       rst_n => S_AXI_ARESETN,
+	       trigger_send_data => slv_reg4(0),
+	       data_in => slv_reg4(15 downto 4)
+       );
+	       
 
     cal_pulse_inst : cal_pulse
         generic map (
