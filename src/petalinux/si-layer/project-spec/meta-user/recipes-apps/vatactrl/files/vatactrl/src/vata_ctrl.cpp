@@ -281,6 +281,30 @@ int VataCtrl::read_fifo(std::vector<u32> &data, int &nread, u32 &nremain) {
     return 1;
 }
 
+// In case we want to use a raw buffer (and we know what we are doing!!!)
+// This is used to read the fifo once...  does not care about nremain.
+int VataCtrl::read_fifo(u32 *data, int nbuffer, u32 &nread) {
+    if (pfifo == NULL)
+        this->mmap_fifo();
+
+    u32 rdfo = pfifo[XLLF_RDFO_OFFSET/4];
+    if (rdfo == 0) {
+        return 0;
+    }
+    u32 rlr = pfifo[XLLF_RLF_OFFSET/4]/4;
+    if (nbuffer < rlr) {
+        // Not enough space in the buffer!!!
+        // Put rlr into the nread reference
+        // in case we want to resize buffer
+        nread = rlr;
+        return -1;
+    }
+    for (nread=0; nread<rlr; nread++) {
+        data[nread] = pfifo[XLLF_RDFD_OFFSET/4];        
+    }
+    return 1;
+}
+
 // Force a trigger.
 int VataCtrl::force_trigger() {
     if ( pgpio_trigger == NULL )
