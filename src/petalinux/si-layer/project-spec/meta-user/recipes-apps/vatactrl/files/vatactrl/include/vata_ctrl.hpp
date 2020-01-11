@@ -13,7 +13,7 @@
 class VataCtrl {
     public:
         int vata_num;
-        VataCtrl() = default; //{paxi = pfifo = pgpio_trigger = pgpio_trigger_ena = NULL;};
+        VataCtrl() = default;
         VataCtrl(int n);
         ~VataCtrl();
         int set_config(std::vector<u32> &data);
@@ -34,6 +34,7 @@ class VataCtrl {
         int set_cal_dac(u32 dac_value);
         int get_n_fifo();
         int read_fifo(std::vector<u32> &data, int &nread, u32 &nremain);
+        int read_fifo(u32 *data, int nbuffer, u32 &nread);
         int force_trigger();
         
     private:

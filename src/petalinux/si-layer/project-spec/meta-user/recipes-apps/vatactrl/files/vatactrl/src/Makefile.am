@@ -1,3 +1,5 @@
+AM_CXXFLAGS = -g -std=c++11 -Wall -fPIC
+
 bin_PROGRAMS = vatactrl             \
                vt_set_conf          \
                vt_get_conf          \
@@ -26,9 +28,16 @@ bin_PROGRAMS = vatactrl             \
 
 bin_SCRIPTS = vt_asic_init vt_set_check_config
 
+lib_LTLIBRARIES = libvatactrl.la
+libvatactrl_la_SOURCES = vata_ctrl.cpp
+
 ##vt_zmq_pub_data_LDFLAGS = -lzmq -L/local/data/puff/sgriffi4/xilinx/lucas/local/lib
 
-vatactrl_SOURCES = vatactrl.cpp vata_ctrl.cpp
+##vatactrl_SOURCES = vatactrl.cpp vata_ctrl.cpp
+##vatactrl_CFLAGS = $(AM_CXXFLAGS)
+vatactrl_SOURCES = vatactrl.cpp
+vatactrl_LDADD = libvatactrl.la
+
 vt_set_conf_SOURCES = set_conf.c vata_util.c
 vt_get_conf_SOURCES = get_conf.c vata_util.c
 vt_set_cal_dac_SOURCES = set_cal_dac.c vata_util.c

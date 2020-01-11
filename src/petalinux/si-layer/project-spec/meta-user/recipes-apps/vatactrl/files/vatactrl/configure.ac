@@ -7,5 +7,8 @@ AM_INIT_AUTOMAKE
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
+
+LT_INIT([disable-shared enable-static])
+
 AC_CONFIG_FILES([Makefile doc/Makefile src/Makefile])
 AC_OUTPUT

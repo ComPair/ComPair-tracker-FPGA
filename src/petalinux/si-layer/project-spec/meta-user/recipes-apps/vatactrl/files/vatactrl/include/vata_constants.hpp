@@ -11,7 +11,7 @@
 #define DAQ_SERVER_ADDR     "192.168.1.11"   // DAQ computer's IP addr.
 #define DATA_PACKET_PORT    5555            // Port to send data packets to
 
-#define N_ASIC_PACKET   13  // Each asic packet should be 13 x 32 bits.
+#define N_ASIC_PACKET   16                  // Each asic packet should be 16 x 32 bits.
 #define DATA_PACKET_HEADER_NBYTES       3   //  [N-DATA_TOT, TIME0, TIME1]
 
 #define CFG_REG_OFFSET                  1
