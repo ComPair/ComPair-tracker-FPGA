@@ -3,11 +3,6 @@
 #include <thread>
 #include "silayer_server.hpp"
 
-int main() {
-    LayerServer layer_server;
-    return layer_server.run();
-}
-
 LayerServer::LayerServer() {
     context = zmq::context_t(ZMQ_CTX_NTHEAD);
     socket = zmq::socket_t(context, ZMQ_REP);
