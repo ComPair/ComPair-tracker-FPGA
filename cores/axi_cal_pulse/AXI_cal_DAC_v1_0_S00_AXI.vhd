@@ -19,9 +19,11 @@ entity AXI_cal_DAC_v1_0_S00_AXI is
 		-- Users to add ports here
         cal_pulse_trigger_out : out std_logic;
         vata_trigger_out : out std_logic;
+        
         spi_sclk : out std_logic;
         spi_mosi : out std_logic;
-        spi_syncn : out std_logic; 
+        spi_syncn : out std_logic;
+        
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -90,6 +92,23 @@ end AXI_cal_DAC_v1_0_S00_AXI;
 
 architecture arch_imp of AXI_cal_DAC_v1_0_S00_AXI is
 
+
+    component spi_cal_dac is
+        generic (
+            CLK_RATIO : integer := 2; -- spi clock freq is clk in freq / 2 / CLK_RATIO
+            COUNTER_WIDTH : integer := 2
+            ); 
+        port ( 
+            clk : in std_logic;
+            rst_n : in std_logic;
+            data_in : in std_logic_vector(11 downto 0);
+            trigger_send_data : in std_logic;
+            spi_sclk : out std_logic;
+            spi_mosi : out std_logic;
+            spi_syncn : out std_logic
+            );
+    end component spi_cal_dac;
+
     component cal_pulse is
         generic (
           C_S_AXI_DATA_WIDTH	: integer	:= 32
@@ -107,20 +126,6 @@ architecture arch_imp of AXI_cal_DAC_v1_0_S00_AXI is
             );
     end component cal_pulse;
     
-    component spi_cal_dac is
-        generic (
-            CLK_RATIO : integer; -- spi clock freq is clk in freq / 2 / CLK_RATIO
-            COUNTER_WIDTH : integer
-            ); 
-        port ( 
-            clk : in std_logic;
-            rst_n : in std_logic;
-            data_in : in std_logic_vector(11 downto 0);
-            trigger_send_data : in std_logic;
-            spi_sclk : out std_logic;
-            spi_mosi : out std_logic;
-            spi_syncn : out std_logic);
-    end component spi_cal_dac;
 
 	-- AXI4LITE signals
 	signal axi_awaddr	: std_logic_vector(C_S_AXI_ADDR_WIDTH-1 downto 0);
@@ -472,19 +477,24 @@ begin
 	  end if;
 	end process;
 
-
+    
 	-- Add user logic here
-	spi_cal_dac_inst : spi_cal_dac
-	   generic map (
-	       CLK_RATIO => CLK_RATIO,
-	       COUNTER_WIDTH => CLK_RATIO
-       )
-	   port map (
-	       clk => S_AXI_ACLK,
-	       rst_n => S_AXI_ARESETN,
-	       trigger_send_data => slv_reg4(0),
-	       data_in => slv_reg4(15 downto 4)
-       );
+    spi_cal_dac_inst: spi_cal_dac
+        generic map (
+            CLK_RATIO => CLK_RATIO,
+            COUNTER_WIDTH => COUNTER_WIDTH
+        )
+        port map (
+            clk => S_AXI_ACLK,
+            rst_n => S_AXI_ARESETN,
+            
+            trigger_send_data => slv_reg4(0),
+            data_in => slv_reg5(11 downto 0),
+            
+            spi_sclk => spi_sclk,
+            spi_mosi => spi_mosi,
+            spi_syncn => spi_syncn            
+        );
 	       
 
     cal_pulse_inst : cal_pulse
