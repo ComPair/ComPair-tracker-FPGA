@@ -473,7 +473,7 @@ CONFIG_canutils=y
 # CONFIG_openssh-misc is not set
 # CONFIG_openssh-dbg is not set
 # CONFIG_openssh-sshd is not set
-# CONFIG_openssh-keygen is not set
+CONFIG_openssh-keygen=y
 # CONFIG_openssh-ssh is not set
 # CONFIG_openssh-dev is not set
 # CONFIG_openssh-sftp is not set
@@ -4128,12 +4128,12 @@ CONFIG_imagefeature-hwcodecs=y
 #
 # CONFIG_gpio-demo is not set
 # CONFIG_peekpoke is not set
-# CONFIG_vata-ctrl is not set
 CONFIG_vatactrl=y
 
 #
 # user packages 
 #
+# CONFIG_vata-ctrl is not set
 
 #
 # PetaLinux RootFS Settings

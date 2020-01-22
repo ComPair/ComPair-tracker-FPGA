@@ -13,4 +13,6 @@ scp ${incdir}/vata_constants.hpp $silayer:~/include/
 scp ${incdir}/vata_ctrl.hpp $silayer:~/include/
 scp ${zynqinc}/x*.h $silayer:~/include/
 
+scp ${builddir}/axi_cal* $silayer:~/bin/
+
 ## vim: set ts=4 sw=4 sts=4 et:
