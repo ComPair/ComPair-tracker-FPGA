@@ -1,6 +1,8 @@
 #ifndef __SILAYER_SERVER_H__
 #define __SILAYER_SERVER_H__
 
+#define ZMQ_BUILD_DRAFT_API
+
 #include <zmq.hpp>
 #include <string>
 #include <thread>
@@ -10,20 +12,19 @@
 
 #define TCP_PORT           5555
 #define DATA_BUFSZ         1024
-#define ZMQ_CTX_NTHREAD    1
-#define EXIT_REQ_RECV_CODE 1
+#define LAYER_CTX_NTHREAD    1
+#define EXIT_REQ_RECV_CODE 1785 // QUIT
 
 #define VERBOSE
 
 class LayerServer {
     private:
         VataCtrl vatas[N_VATA];
-        zmq::context_t context;
+        zmq::context_t ctx;
         zmq::socket_t socket;
         bool data_emitter_running;
         std::thread emitter_thread;
         zmq::socket_t inproc_sock;
-        DataEmitter emitter_funct;
 
         int _set_config(int nvata, char* &cmd);
         int _get_config(int nvata, char* &cmd);
@@ -40,18 +41,16 @@ class LayerServer {
         int _get_n_fifo(int nvata, char* &cmd);
         int _process_emit_msg(char *msg);
         void _send_could_not_process_msg();
-
+        void _send_msg(const char *msg, int msg_sz);
 
     public:
         LayerServer(); 
-        ~LayerServer(); 
+        ~LayerServer() {};
         int run();
         int process_req();
         int start_packet_emitter();
         int stop_packet_emitter();
 };
-
-
 
 #endif
 // vim: set ts=4 sw=4 sts=4 et:

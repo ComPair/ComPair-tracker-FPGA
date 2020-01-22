@@ -1,17 +1,16 @@
-#include <zmq.hpp>
-#include <string>
-#include <thread>
 #include "silayer_server.hpp"
 
 LayerServer::LayerServer() {
-    context = zmq::context_t(ZMQ_CTX_NTHEAD);
-    socket = zmq::socket_t(context, ZMQ_REP);
+    ctx = zmq::context_t(1);
+    socket = zmq::socket_t(ctx, ZMQ_REP);
     socket.bind("tcp://*:5555");
-    inproc_sock = zmq::socket_t(context, ZMQ_PAIR);
+    inproc_sock = zmq::socket_t(ctx, ZMQ_PAIR);
     inproc_sock.bind("inproc://main");
-    for (int i=0; i<N_VATA; i++) {
+    for (int i=0; i<(int)N_VATA; i++) {
         vatas[i] = VataCtrl(i);
     }
+    data_emitter_running = false;
+    std::cout << "Finished initializing layer server." << std::endl;
 }
 
 int LayerServer::run() {
@@ -19,7 +18,7 @@ int LayerServer::run() {
     while (true) {
         ret = process_req();
         if (ret < 0) {
-            std::cerr << "Request failed with errno " << req << std::endl;
+            std::cerr << "Request failed with errno " << ret << std::endl;
             return ret;
         }
         if (ret == EXIT_REQ_RECV_CODE)
@@ -27,16 +26,21 @@ int LayerServer::run() {
     }
 }
 
+
 int LayerServer::start_packet_emitter() {
     if (data_emitter_running) {
         if (stop_packet_emitter() != 0)
-            return 1
+            return 1;
     }
-    inproc_sock = zmq::socket(context, ZMQ_REP);
-    inproc_sock.connect("inproc://main");
+    inproc_sock = zmq::socket_t(ctx, zmq::socket_type::pair);
+    inproc_sock.bind("inproc://main");
 
-    emitter_funct = DataEmitter(&context); 
-    emitter_thread = std::thread(emitter_funct);
+    emitter_thread = std::thread(
+        [](zmq::context_t *ctx_ptr) {
+                DataEmitter emitter_funct(ctx_ptr);
+                emitter_funct();
+        }, &ctx);
+
     data_emitter_running = true;
     return 0;
 }
@@ -44,7 +48,7 @@ int LayerServer::start_packet_emitter() {
 int LayerServer::stop_packet_emitter() {
     zmq::message_t msg(4);
     std::memcpy(msg.data(), "halt", 4);
-    inproc_sock.send(msg);
+    inproc_sock.send(msg, zmq::send_flags::none);
     #ifdef VERBOSE
     std::cout << "Joining on emitter thread." << std::endl;
     #endif
@@ -83,7 +87,7 @@ int LayerServer::_set_config(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -106,7 +110,7 @@ int LayerServer::_get_config(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -132,7 +136,7 @@ int LayerServer::_set_hold(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -143,7 +147,7 @@ int LayerServer::_get_hold(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(sizeof(u32));
     std::memcpy(response.data(), &hold_delay, sizeof(u32));
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -157,7 +161,7 @@ int LayerServer::_get_counters(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(sz);
     std::memcpy(response.data(), counters, sz);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -168,7 +172,7 @@ int LayerServer::_reset_counters(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -179,7 +183,7 @@ int LayerServer::_trigger_enable(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -190,7 +194,7 @@ int LayerServer::_trigger_disable(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -202,7 +206,7 @@ int LayerServer::_get_event_count(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(sizeof(u32));
     std::memcpy(response.data(), &event_count, sizeof(u32));
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -213,7 +217,7 @@ int LayerServer::_reset_event_count(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -224,7 +228,7 @@ int LayerServer::_cal_pulse(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -250,7 +254,7 @@ int LayerServer::_set_cal_dac(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
@@ -262,14 +266,14 @@ int LayerServer::_get_n_fifo(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(sizeof(u32));
     std::memcpy(response.data(), &n_fifo, sizeof(u32));
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
 void LayerServer::_send_msg(const char *msg, int msg_sz) {
     zmq::message_t response(msg_sz);
     std::memcpy(response.data(), msg, msg_sz);
-    socket.send(response);
+    socket.send(response, zmq::send_flags::none);
 }
 
 
@@ -282,7 +286,10 @@ void LayerServer::_send_could_not_process_msg() {
 // "emit start" | "emit stop" | "emit status"
 // Nothing else.
 int LayerServer::_process_emit_msg(char *msg) {
-    char *cmd = strtok(msg, " "); // should be "start", "stop", or "status"
+    // Initialize strtok...
+    strtok(msg, " ");
+    // Now get next token.
+    char *cmd = strtok(NULL, " "); // should be "start", "stop", or "status"
     if (strncmp("status", cmd, 6) == 0) {
         if (data_emitter_running) {
             const char retmsg[] = "running";
@@ -325,7 +332,7 @@ int LayerServer::_process_emit_msg(char *msg) {
 
 int LayerServer::process_req() {
     zmq::message_t request;
-    socket.recv(&request);
+    socket.recv(request, zmq::recv_flags::none);
     int req_sz = request.size();
     char *c_req = new char[req_sz + 1];
     std::memcpy(c_req, request.data(), req_sz);
@@ -339,6 +346,9 @@ int LayerServer::process_req() {
     //   * halt
     int retval;
     if (strncmp("emit", c_req, 4) == 0) {
+        #ifdef VERBOSE
+        std::cout << "Processing emit message." << std::endl;
+        #endif
         retval = _process_emit_msg(c_req);
         delete[] c_req;
         return retval;
@@ -357,7 +367,7 @@ int LayerServer::process_req() {
         #endif
         _send_could_not_process_msg();
         return 1;
-    } else if (nvata < 0 || nvata >= N_VATA) {
+    } else if (nvata < 0 || nvata >= (int)N_VATA) {
         #ifdef VERBOSE
         std::cout << "ERROR: requested vata out of range: " << nvata << std::endl;
         #endif

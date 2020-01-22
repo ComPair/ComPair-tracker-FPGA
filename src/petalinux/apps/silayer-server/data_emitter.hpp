@@ -1,5 +1,8 @@
 #ifndef __DATA_EMITTER_H__
 #define __DATA_EMITTER_H__
+
+#define ZMQ_BUILD_DRAFT_API
+
 #include <zmq.hpp>
 #include <string>
 #include <thread>
@@ -11,7 +14,7 @@
 // broadcast on eth0 interface...
 #define UDP_ADDR "udp://eth0:9999"
 
-#define FIFO_READ_TIMEOUT 10000   // 10 ms, or 1000000 clock cycles
+#define FIFO_READ_TIMEOUT_US 10000   // 10 ms (timeout is in microseconts)
 
 class DataEmitter {
     private:
@@ -26,8 +29,9 @@ class DataEmitter {
         void send_data(DataPacket &dp);
 
     public:
+        DataEmitter() = default;
         DataEmitter(zmq::context_t *ctx);
-        ~DataEmitter();
+        ~DataEmitter() {};
         void operator()();
 };
 
