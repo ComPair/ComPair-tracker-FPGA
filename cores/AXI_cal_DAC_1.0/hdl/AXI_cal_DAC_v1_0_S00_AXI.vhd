@@ -1,3 +1,13 @@
+-- AXI register allocation:
+--  reg0: pulse/trigger state:
+--      lowest 3 bits are (fast_or_ena, vata_trigger_out_ena, cal_pulse_ena)
+--  reg1: Initiate pulses on rising edge of lowest bit
+--  reg2: Pulse width
+--  reg3: Vata trigger delay
+--  reg4: # of pulses to send. 0 => send as long as reg1(0) is high.
+--  reg5: Delay between pulses
+--  reg6: Rising edge on reg6(0) triggers the sending of cal dac value over SPI
+--  reg7: Cal dac value to send.
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -19,6 +29,7 @@ entity AXI_cal_DAC_v1_0_S00_AXI is
 		-- Users to add ports here
         cal_pulse_trigger_out : out std_logic;
         vata_trigger_out : out std_logic;
+        vata_fast_or_trigger_ena : out std_logic;
         
         spi_sclk : out std_logic;
         spi_mosi : out std_logic;
@@ -109,22 +120,26 @@ architecture arch_imp of AXI_cal_DAC_v1_0_S00_AXI is
             );
     end component spi_cal_dac;
 
-    component cal_pulse is
+    component pulse_trigger_fsm is
         generic (
-          C_S_AXI_DATA_WIDTH	: integer	:= 32
-            );
+            C_S_AXI_DATA_WIDTH : integer := 32
+        );
         port (
-           clk                   : in std_logic;
-           rst_n                 : in std_logic;
-           cal_pulse_trigger_out : out std_logic;
-           vata_trigger_out      : out std_logic;
-                       
-    	   reg0 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-    	   reg1 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-    	   reg2 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
-    	   reg3 : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0)            
-            );
-    end component cal_pulse;
+            clk                   : in std_logic;
+            rst_n                 : in std_logic := '0';
+            run_pulses            : in std_logic;
+            cal_pulse_ena         : in std_logic;
+            vata_trigger_ena      : in std_logic;
+            cal_pulse_width       : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); -- Pulse width
+            trigger_delay         : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); -- VATA trigger out delay
+            n_pulses_in           : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); -- Number of pulses to perform
+            pulse_wait            : in std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0); -- How long to wait between pulses
+            cal_pulse_trigger_out : out std_logic := '0';
+            vata_trigger_out      : out std_logic := '0'
+        );
+    end component pulse_trigger_fsm;
+
+
     
 
 	-- AXI4LITE signals
@@ -487,30 +502,35 @@ begin
         port map (
             clk => S_AXI_ACLK,
             rst_n => S_AXI_ARESETN,
-            
-            trigger_send_data => slv_reg4(0),
-            data_in => slv_reg5(11 downto 0),
-            
+            trigger_send_data => slv_reg6(0),
+            data_in => slv_reg7(11 downto 0),
             spi_sclk => spi_sclk,
             spi_mosi => spi_mosi,
             spi_syncn => spi_syncn            
         );
 	       
 
-    cal_pulse_inst : cal_pulse
+    pulse_trigger_fsm_inst : pulse_trigger_fsm 
         generic map (
             C_S_AXI_DATA_WIDTH	=> C_S_AXI_DATA_WIDTH
         )
         port map (
-            clk	=> S_AXI_ACLK,
-            rst_n => S_AXI_ARESETN,
+            clk	                  => S_AXI_ACLK,
+            rst_n                 => S_AXI_ARESETN,
             cal_pulse_trigger_out => cal_pulse_trigger_out,
-            vata_trigger_out => vata_trigger_out,
-            reg0 => slv_reg0,
-            reg1 => slv_reg1,
-            reg2 => slv_reg2,
-            reg3 => slv_reg3
+            vata_trigger_out      => vata_trigger_out,
+            run_pulses            => slv_reg1(0),
+            cal_pulse_ena         => slv_reg0(0),
+            vata_trigger_ena      => slv_reg0(1),
+            cal_pulse_width       => slv_reg2,
+            trigger_delay         => slv_reg3,
+            n_pulses_in           => slv_reg4,
+            pulse_wait            => slv_reg5
         );
+
+    vata_fast_or_trigger_ena <= slv_reg0(2);
+
 	-- User logic ends
 
 end arch_imp;
+-- vim: set ts=4 sw=4 sts=4 et:
