@@ -42,6 +42,7 @@ architecture arch_imp of pulse_trigger_fsm is
     -- Number of clock cycles to hold pulse high:
     -- Read in from `cal_pulse_width` input.
     signal cal_pulse_nhold       : unsigned(C_S_AXI_DATA_WIDTH-1 downto 0);
+    signal cal_pulse_nwait       : unsigned(C_S_AXI_DATA_WIDTH-1 downto 0);
 
     -- Number of clock cycles to wait before sending out VATA trigger.
     -- Read in from `trigger_delay` input.
@@ -65,7 +66,7 @@ architecture arch_imp of pulse_trigger_fsm is
     signal pulse_count_clr : std_logic := '0';
 
 begin
-    
+        
     --Updates the state machine.
     p_STATE_UPDATE : process (rst_n, clk)
     begin
@@ -102,19 +103,20 @@ begin
                     -- If the counter has grown larger than the width of nhold, go to idle.
                     -- Else, stay in hold.
                     if counter >= cal_pulse_nhold-1 then
-                        counter_clr <= '1';
-                        inc_pulse_count <= '1';
-                        next_state <= CAL_PULSE_WAIT;
+                        if pulse_count >= n_pulses-1 then
+                            next_state <= IDLE;
+                        else
+                            counter_clr <= '1';
+                            inc_pulse_count <= '1';
+                            next_state <= CAL_PULSE_WAIT;
+                        end if;
                     else
                         next_state <= CAL_PULSE_HOLD;
                     end if;
                 when CAL_PULSE_WAIT =>
-                    if counter >= cal_pulse_nhold-1 then
-                        if pulse_count >= n_pulses then
-                            next_state <= IDLE;
-                        else
-                            next_state <= CAL_PULSE_HOLD;
-                        end if;
+                    if counter >= cal_pulse_nwait-1 then
+                        counter_clr <= '1';
+                        next_state <= CAL_PULSE_HOLD;
                     else
                         next_state <= CAL_PULSE_WAIT;
                     end if;
@@ -127,13 +129,11 @@ begin
                         next_state <= INF_CAL_PULSE_HOLD;
                     end if;
                 when INF_CAL_PULSE_WAIT =>
-                    if counter >= cal_pulse_nhold-1 then
-                        if run_pulses = '0' then
-                            next_state <= IDLE;
-                        else
-                            counter_clr <= '1';
-                            next_state <= INF_CAL_PULSE_HOLD;
-                        end if;
+                    if run_pulses = '0' then
+                        next_state <= IDLE;
+                    elsif counter >= cal_pulse_nwait-1 then
+                        counter_clr <= '1';
+                        next_state <= INF_CAL_PULSE_HOLD;
                     else
                         next_state <= INF_CAL_PULSE_WAIT;
                     end if;
@@ -163,6 +163,8 @@ begin
             else
                 vata_trigger_out <= '0';
             end if;
+        elsif current_state = CAL_PULSE_WAIT or current_state = INF_CAL_PULSE_WAIT then
+            counter_ena <= '1';
         end if;
     end process p_OUTPUTS;
 
@@ -214,11 +216,11 @@ begin
     --signal pulse_count : unsigned(C_S_AXI_DATA_WIDTH-1 downto 0);
     --signal inc_pulse_count : std_logic := '0';
     --signal pulse_count_clr : std_logic := '0';
-    p_PULSE_COUNTER : process (rst_n, inc_pulse_count, pulse_count_clr)
+    p_PULSE_COUNTER : process (rst_n, clk)
     begin
         if rst_n = '0' then
             pulse_count <= (others => '0');
-        else
+        elsif rising_edge(clk) then
             if pulse_count_clr = '1' then
                 pulse_count <= (others => '0');
             elsif inc_pulse_count = '1' then
@@ -231,6 +233,7 @@ begin
 
     n_pulses              <= unsigned(n_pulses_in);
     cal_pulse_nhold       <= unsigned(cal_pulse_width);
+    cal_pulse_nwait       <= unsigned(pulse_wait);
     vata_trig_delay_nhold <= unsigned(trigger_delay);
     
 end arch_imp;

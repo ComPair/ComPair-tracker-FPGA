@@ -29,12 +29,12 @@ entity AXI_cal_DAC_v1_0_S00_AXI is
 		-- Users to add ports here
         cal_pulse_trigger_out : out std_logic;
         vata_trigger_out : out std_logic;
-        vata_fast_or_trigger_ena : out std_logic;
+        vata_fast_or_trigger_disable : out std_logic;
         
         spi_sclk : out std_logic;
         spi_mosi : out std_logic;
         spi_syncn : out std_logic;
-        
+
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -178,6 +178,7 @@ architecture arch_imp of AXI_cal_DAC_v1_0_S00_AXI is
 	signal reg_data_out	:std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
 	signal byte_index	: integer;
 	signal aw_en	: std_logic;
+
 
 begin
 	-- I/O Connections assignments
@@ -528,7 +529,7 @@ begin
             pulse_wait            => slv_reg5
         );
 
-    vata_fast_or_trigger_ena <= slv_reg0(2);
+    vata_fast_or_trigger_disable <= slv_reg0(2);
 
 	-- User logic ends
 
