@@ -28,10 +28,11 @@ bin_PROGRAMS = vatactrl             \
 	       axi_cal_trigger \
 	       axi_cal_set
 
-##bin_SCRIPTS = vt_asic_init vt_set_check_config
-
-lib_LTLIBRARIES = libvatactrl.la
+lib_LTLIBRARIES = libvatactrl.la libsictrl.la
 libvatactrl_la_SOURCES = vata_ctrl.cpp
+## sictrl.la is library with all things for si layer control.
+## Currently, vata's and axi-cal.
+libsictrl_la_SOURCES = vata_ctrl.cpp cal_ctrl.cpp
 
 ##vt_zmq_pub_data_LDFLAGS = -lzmq -L/local/data/puff/sgriffi4/xilinx/lucas/local/lib
 
