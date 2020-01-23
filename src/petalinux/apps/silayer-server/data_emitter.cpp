@@ -5,23 +5,13 @@ DataEmitter::DataEmitter(zmq::context_t *ctx) {
     for (int i=0; i<(int)N_VATA; i++) {
         vatas[i] = VataCtrl(i);
     }
-    try {
-        inproc_sock = zmq::socket_t(*context, zmq::socket_type::pair);
-        inproc_sock.connect("inproc://main");
-        std::cout << "XXX Created emitter inproc sock ok." << std::endl;
-    } catch (zmq::error_t e) {
-        std::cout << "XXX Exception creating emitter inproc sock" << std::endl;
-        throw;
-    }
+    inproc_sock = zmq::socket_t(*context, zmq::socket_type::pair);
+    inproc_sock.connect("inproc://" INPROC_CHANNEL);
 
-    try {
-        emit_sock = zmq::socket_t(*context, ZMQ_DISH);
-        emit_sock.bind(UDP_ADDR);
-        std::cout << "XXX Created udp sock ok." << std::endl;
-    } catch (zmq::error_t e) {
-        std::cout << "XXX Exception creating udp sock" << std::endl;
-        throw;
-    }
+    emit_sock = zmq::socket_t(*context, zmq::socket_type::pub);
+    emit_sock.setsockopt(ZMQ_LINGER, (int)0);
+
+    emit_sock.bind("tcp://eth0:" EMIT_PORT);
 }
 
 // Return true if halt message was received.
@@ -79,7 +69,6 @@ void DataEmitter::operator() () {
         try {
             //inproc_sock.recv(inproc_msg, ZMQ_NOBLOCK);
             inproc_sock.recv(inproc_msg, zmq::recv_flags::dontwait);
-            std::cout << "XXX Performed recv!?" << std::endl;
             if (halt_received(inproc_msg))
                 return;
         } catch (zmq::error_t e) {

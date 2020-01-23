@@ -12,9 +12,9 @@
 #include "data_packet.hpp"
 
 // broadcast on eth0 interface...
-#define UDP_ADDR "udp://eth0:9999"
-
+#define EMIT_PORT "9998"
 #define FIFO_READ_TIMEOUT_US 10000   // 10 ms (timeout is in microseconts)
+#define INPROC_CHANNEL "emit"
 
 class DataEmitter {
     private:

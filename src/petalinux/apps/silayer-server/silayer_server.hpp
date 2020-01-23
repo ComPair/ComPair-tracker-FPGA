@@ -10,7 +10,7 @@
 #include "vata_ctrl.hpp"
 #include "data_emitter.hpp"
 
-#define TCP_PORT           5555
+#define SI_SERVER_PORT     "5556"
 #define DATA_BUFSZ         1024
 #define LAYER_CTX_NTHREAD    1
 #define EXIT_REQ_RECV_CODE 1785 // QUIT

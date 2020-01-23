@@ -2,10 +2,11 @@
 
 LayerServer::LayerServer() {
     ctx = zmq::context_t(1);
-    socket = zmq::socket_t(ctx, ZMQ_REP);
-    socket.bind("tcp://*:5555");
-    inproc_sock = zmq::socket_t(ctx, ZMQ_PAIR);
-    inproc_sock.bind("inproc://main");
+    socket = zmq::socket_t(ctx, zmq::socket_type::rep);
+    socket.setsockopt(ZMQ_LINGER, (int)0);
+    socket.bind("tcp://*:" SI_SERVER_PORT);
+    inproc_sock = zmq::socket_t(ctx, zmq::socket_type::pair);
+    inproc_sock.bind("inproc://" INPROC_CHANNEL);
     for (int i=0; i<(int)N_VATA; i++) {
         vatas[i] = VataCtrl(i);
     }
@@ -353,6 +354,10 @@ int LayerServer::process_req() {
         delete[] c_req;
         return retval;
     } else if (strncmp("halt", c_req, 4) == 0) {
+        // Need to check if emitter is running!!!
+        if (data_emitter_running) {
+            stop_packet_emitter();
+        }
         delete[] c_req;
         return EXIT_REQ_RECV_CODE;
     }
