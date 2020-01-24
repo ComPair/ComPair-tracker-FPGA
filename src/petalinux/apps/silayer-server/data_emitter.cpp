@@ -6,11 +6,13 @@ DataEmitter::DataEmitter(zmq::context_t *ctx) {
         vatas[i] = VataCtrl(i);
     }
     inproc_sock = zmq::socket_t(*context, zmq::socket_type::pair);
-    inproc_sock.connect("inproc://main");
+    inproc_sock.connect("inproc://" INPROC_CHANNEL);
 
-    emit_sock = zmq::socket_t(*context, ZMQ_DISH);
-    emit_sock.bind(UDP_ADDR);
+    emit_sock = zmq::socket_t(*context, zmq::socket_type::pub);
+    emit_sock.setsockopt(ZMQ_LINGER, (int)0);
 
+    emit_sock.bind("tcp://eth0:" EMIT_PORT);
+    running = false;
 }
 
 // Return true if halt message was received.
@@ -21,19 +23,35 @@ bool DataEmitter::halt_received(zmq::message_t &msg) {
     return strncmp("halt", (char *)msg.data(), 4) == 0;
 }
 
+bool DataEmitter::stop_received(zmq::message_t &msg) {
+    if (msg.size() < 4) {
+        return false;
+    }
+    return strncmp("stop", (char *)msg.data(), 4) == 0;
+}
+
+bool DataEmitter::start_received(zmq::message_t &msg) {
+    if (msg.size() < 5) {
+        return false;
+    }
+    return strncmp("start", (char *)msg.data(), 5) == 0;
+}
+
 void DataEmitter::send_data(DataPacket &data_packet) {
     u16 packet_size = data_packet.get_packet_size();
     zmq::message_t response(packet_size);
     data_packet.to_msg(packet_size, (char *)response.data());
-    emit_sock.send(response);
+    std::cout << "XXX Sending data. Packet size: " << packet_size << std::endl;
+    emit_sock.send(response, zmq::send_flags::none);
 }
 
 void DataEmitter::read_fifos() {
-    DataPacket data_packet();
+    DataPacket data_packet;
     data_packet.collect_header_data(vatas);
     auto t0 = std::chrono::high_resolution_clock::now();
-    while (data_packet.nread < N_VATA) {
-        for (int i=0; i<N_VATA; i++) {
+    auto fifo_read_timeout = std::chrono::microseconds(FIFO_READ_TIMEOUT_US);
+    while (data_packet.nread < (int)N_VATA) {
+        for (int i=0; i<(int)N_VATA; i++) {
             if (data_packet.need_data[i]) {
                 data_packet.read_vata_data(i, vatas);
             }
@@ -41,7 +59,7 @@ void DataEmitter::read_fifos() {
         auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
                             (std::chrono::high_resolution_clock::now() - t0)
                         );
-        if (duration > FIFO_READ_TIMEOUT) {
+        if (duration > fifo_read_timeout) {
             data_packet.set_timeout();
             break; 
         }
@@ -51,7 +69,7 @@ void DataEmitter::read_fifos() {
 
 void DataEmitter::check_fifos() {
     // If any FIFO has data, try and read them all out...
-    for (int i=0; i<N_VATAS; i++) {
+    for (int i=0; i<(int)N_VATA; i++) {
         if (vatas[i].get_n_fifo() > 0 ) {
             read_fifos();
             return;
@@ -59,17 +77,39 @@ void DataEmitter::check_fifos() {
     }
 }
 
-void DataEmitter::operator()() {
+void DataEmitter::operator() () {
+    std::cout << "XXX Starting main data emitter loop" << std::endl;
     while (true) {
         zmq::message_t inproc_msg;
-        try {
-            inproc_sock.recv(inproc_msg, ZMQ_NOBLOCK);
-            if (halt_received(inproc_msg))
-                return;
-        } catch (zmq::error_t e) {
-            // No message came in...
+        //bool check_msg = true;
+        if (running) {
+            try {
+                inproc_sock.recv(inproc_msg, zmq::recv_flags::dontwait);
+            } catch (zmq::error_t e) {
+                //check_msg = false;
+            }
+        } else {
+            inproc_sock.recv(inproc_msg, zmq::recv_flags::none); // block
+            if (inproc_msg.size() > 0) {
+                std::string msg((char *)inproc_msg.data(), inproc_msg.size());
+                std::cout << "!!! Emitter thread received message: " <<  msg << std::endl;
+            }
         }
-        check_fifos();
+        if (true) {
+            if (halt_received(inproc_msg)) {
+                std::cout << "!!! Emitter thread received halt message" << std::endl;
+                return;
+            } else if (stop_received(inproc_msg)) {
+                std::cout << "!!! Emitter thread received stop message" << std::endl;
+                running = false;
+            } else if (start_received(inproc_msg)) {
+                std::cout << "!!! Emitter thread received start message" << std::endl;
+                running = true;
+            }
+        }
+        if (running) {
+            check_fifos();
+        }
     }
 }
 
