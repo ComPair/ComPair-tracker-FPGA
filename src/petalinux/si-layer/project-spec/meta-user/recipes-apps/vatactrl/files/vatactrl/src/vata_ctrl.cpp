@@ -6,7 +6,7 @@
 
 
 VataCtrl::VataCtrl(int n) {
-    if (n >= N_VATA) {
+    if (n >= (int)N_VATA) {
         throw "ERROR: requested invalid VATA number";
     }
     vata_num = n;
@@ -231,25 +231,6 @@ int VataCtrl::reset_event_count() {
     return 0;
 }
 
-// Initiate a calibration pulse.
-int VataCtrl::cal_pulse_trigger() {
-    if (paxi == NULL)
-        this->mmap_axi();
-    paxi[0] = AXI0_CTRL_TRIGGER_EXT_CAL;
-    return 0;
-}
-
-int VataCtrl::set_cal_dac(u32 dac_value) {
-    if (dac_value < 0 || MAX_CAL_DAC_VAL < dac_value) {
-        return 1;
-    }
-    if (paxi == NULL)
-        this->mmap_axi();
-    paxi[CAL_DAC_REG_OFFSET] = dac_value;
-    paxi[0] = AXI0_CTRL_SET_CAL_DAC;
-    return 0;
-}
-
 // Get the number of data packets in the data fifo.
 int VataCtrl::get_n_fifo() {
     if (pfifo == NULL)
@@ -272,7 +253,7 @@ int VataCtrl::read_fifo(std::vector<u32> &data, int &nread, u32 &nremain) {
         return 0;
     }
     int rlr = (int)pfifo[XLLF_RLF_OFFSET/4]/4;
-    if (data.size() < rlr)
+    if ((int)data.size() < rlr)
         data.resize(rlr);
     for (nread=0; nread<rlr; nread++) {
         data[nread] = pfifo[XLLF_RDFD_OFFSET/4];        
@@ -292,7 +273,7 @@ int VataCtrl::read_fifo(u32 *data, int nbuffer, u32 &nread) {
         return 0;
     }
     u32 rlr = pfifo[XLLF_RLF_OFFSET/4]/4;
-    if (nbuffer < rlr) {
+    if (nbuffer < (int)rlr) {
         // Not enough space in the buffer!!!
         // Put rlr into the nread reference
         // in case we want to resize buffer

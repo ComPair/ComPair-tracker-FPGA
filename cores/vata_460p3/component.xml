@@ -282,7 +282,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>e5c58ac4</spirit:value>
+            <spirit:value>269a3b51</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -298,7 +298,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>e5c58ac4</spirit:value>
+            <spirit:value>269a3b51</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -386,6 +386,19 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
+        <spirit:name>disable_fast_or_trigger</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
         <spirit:name>FEE_hit</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
@@ -454,19 +467,6 @@
         <spirit:name>event_id_data</spirit:name>
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>cal_pulse_trigger_out</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>std_logic</spirit:typeName>
@@ -663,45 +663,6 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>cal_dac_spi_sclk</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>cal_dac_spi_mosi</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>cal_dac_spi_syncn</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
         <spirit:name>cald</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
@@ -721,92 +682,6 @@
           <spirit:wireTypeDefs>
             <spirit:wireTypeDef>
               <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>set_config_out</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>get_config_out</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>set_cal_dac_out</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>cal_pulse_trigger_in_out</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>reg_indx_out</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:vector>
-            <spirit:left spirit:format="long">9</spirit:left>
-            <spirit:right spirit:format="long">0</spirit:right>
-          </spirit:vector>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic_vector</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>state_counter_out</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:vector>
-            <spirit:left spirit:format="long">15</spirit:left>
-            <spirit:right spirit:format="long">0</spirit:right>
-          </spirit:vector>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic_vector</spirit:typeName>
               <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
               <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
             </spirit:wireTypeDef>
@@ -1282,15 +1157,11 @@
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>int_cal_toggle.vhd</spirit:name>
+        <spirit:name>src/int_cal_toggle.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
         <spirit:name>src/power_cycler.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>src/spi_cal_dac.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
@@ -1302,17 +1173,13 @@
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>vata_460p3_iface_fsm.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>src/vata_cal_pulse.vhd</spirit:name>
+        <spirit:name>src/vata_460p3_iface_fsm.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
         <spirit:name>src/vata_460p3_axi_interface_v3_0.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_12be6e89</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_e6466ae1</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -1326,15 +1193,11 @@
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>int_cal_toggle.vhd</spirit:name>
+        <spirit:name>src/int_cal_toggle.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
         <spirit:name>src/power_cycler.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>src/spi_cal_dac.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
@@ -1346,11 +1209,7 @@
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>vata_460p3_iface_fsm.vhd</spirit:name>
-        <spirit:fileType>vhdlSource</spirit:fileType>
-      </spirit:file>
-      <spirit:file>
-        <spirit:name>src/vata_cal_pulse.vhd</spirit:name>
+        <spirit:name>src/vata_460p3_iface_fsm.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
@@ -1424,12 +1283,12 @@
       </xilinx:taxonomies>
       <xilinx:displayName>vata_460p3_axi_interface_v3_0</xilinx:displayName>
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
-      <xilinx:coreRevision>14</xilinx:coreRevision>
+      <xilinx:coreRevision>16</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>nasa.gov:user:vata_460p3_axi_interface_v2_0:1.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>nasa.gov:user:vata_460p3_axi_interface:2.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-01-21T18:40:46Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-01-24T17:46:12Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="nopcore"/>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@145fbe1a_ARCHIVE_LOCATION">c:/Users/aschoenw/Documents/Projects/Hardware/FPGA/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
@@ -2281,14 +2140,54 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@5af5e6c0_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@1fe08c8a_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@a8f9ba7_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@11fb09e5_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@51333dbc_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@b3fdfcd_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4362c26_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@42947da8_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@463629a0_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3c5f2ebf_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@65a62706_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4419e1c2_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@d6a5777_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@38022a47_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4218f71d_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@73740959_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@44e78b58_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@28a2bca0_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1781f65a_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3557a05_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5534f636_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3f0f6ea4_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7ff9828_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@51cbab8c_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7efc0c74_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4fcae240_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3396b801_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@31122f8c_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@47529578_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@720ba7b7_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@c93dd7e_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@45b945b8_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@59cbdaf8_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@188a5a74_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@fa4db5b_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1ec188c1_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7166bcfa_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7f382c0c_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@49bf7852_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@65fa9aed_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6f28cd7f_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@68741659_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@174d29be_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2018.3</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="cf2f49f5"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="871c369d"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="9ae45060"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="ff62e995"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="f385c57d"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="8373e359"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="f5d49b29"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="f8c82e76"/>
     </xilinx:packagingInfo>

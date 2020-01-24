@@ -10,6 +10,7 @@ entity vata_460p3_iface_fsm is
                 trigger_ena           : in std_logic;
                 trigger_ena_ena       : in std_logic;
                 trigger_ena_force     : in std_logic;
+                disable_fast_or_trigger : in std_logic; 
                 trigger_ack_timeout   : in std_logic_vector(31 downto 0);
                 FEE_hit               : out std_logic;
                 FEE_ready             : out std_logic;
@@ -19,7 +20,6 @@ entity vata_460p3_iface_fsm is
                 event_id_data         : in std_logic;
                 get_config            : in std_logic;
                 set_config            : in std_logic;
-                cal_pulse_trigger_in  : in std_logic;
                 int_cal_trigger       : in std_logic;
                 hold_time             : in std_logic_vector(15 downto 0); -- in clock cycles
                 vata_s0               : out std_logic;
@@ -31,7 +31,6 @@ entity vata_460p3_iface_fsm is
                 vata_i4               : out std_logic;
                 vata_o5               : in std_logic;
                 vata_o6               : in std_logic;
-                cal_pulse_trigger_out : out std_logic;
                 cfg_reg_from_ps       : in std_logic_vector(519 downto 0);
                 cfg_reg_from_pl       : out std_logic_vector(519 downto 0);
                 data_tvalid           : out std_logic;
@@ -46,8 +45,6 @@ entity vata_460p3_iface_fsm is
                 event_counter_rst     : in std_logic;
                 event_counter         : out std_logic_vector(31 downto 0);
                 -- DEBUG --
-                state_counter_out     : out std_logic_vector(15 downto 0);
-                reg_indx_out          : out std_logic_vector(9 downto 0);
                 event_id_out_debug    : out std_logic_vector(31 downto 0);
                 abort_daq_debug       : out std_logic;
                 trigger_acq_out       : out std_logic;
@@ -81,18 +78,7 @@ architecture arch_imp of vata_460p3_iface_fsm is
             event_id_latch : in std_logic;
             event_id_out : out std_logic_vector(EVENT_ID_WIDTH-1 downto 0));
     end component event_id_s2p;
-
-    component cal_pulse is
-        generic (
-            CAL_PULSE_NHOLD : integer := 200;
-            COUNTER_WIDTH           : integer := 4);
-        port (
-            clk                   : in std_logic;
-            rst_n                 : in std_logic;
-            cal_pulse_trigger_in  : in std_logic;
-            cal_pulse_trigger_out : out std_logic);
-        end component cal_pulse; 
-
+    
     component int_cal_toggle is
         port (
             clk             : in std_logic;
@@ -220,17 +206,6 @@ begin
     );
     abort_daq <= '0';
 
-    cal_pulse_inst : cal_pulse
-        generic map (
-            CAL_PULSE_NHOLD => 200,
-            COUNTER_WIDTH   => 9)
-        port map (
-            clk                   => clk_100MHz,
-            rst_n                 => rst_n,
-            cal_pulse_trigger_in  => cal_pulse_trigger_in,
-            cal_pulse_trigger_out => cal_pulse_trigger_out
-    );
-        
     int_cal_toggle_inst : int_cal_toggle
         port map (
             clk             => clk_100MHz,
@@ -975,17 +950,11 @@ begin
     live_counter    <= std_logic_vector(ulive_counter);
     event_counter   <= std_logic_vector(uevent_counter);
     
-    --bram_addr   <= std_logic_vector(bram_uaddr);
     trigger_acq <= (trigger_ena_force) or (trigger_ena_ena and trigger_ena);
 
     -- DEBUG --
-    state_counter_out <= std_logic_vector(state_counter);
     state_out         <= current_state;
-
-    reg_indx_out       <= std_logic_vector(to_unsigned(reg_indx, reg_indx_out'length));
-    --reg_from_vata_out  <= std_logic_vector(reg_from_vata(378 downto 0));
     event_id_out_debug <= event_id_out;
-    --abort_daq_debug    <= abort_daq;
     trigger_acq_out    <= trigger_acq;
 
 end arch_imp;

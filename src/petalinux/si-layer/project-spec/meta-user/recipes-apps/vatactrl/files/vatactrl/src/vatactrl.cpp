@@ -36,8 +36,6 @@ void usage(char *argv0) {
               << "    --trigger-disable   : disable triggered data readout" << std::endl
               << "    --get-event-count   : print event counter to stdout" << std::endl
               << "    --reset-event-count : reset the event counter" << std::endl
-              << "    --cal-pulse         : fire the external calibrator" << std::endl
-              << "    --set-cal-dac VALUE : set the external calibrator dac value to VALUE" << std::endl
               << "    --get-n-fifo        : print number of data packets in fifo to stdout" << std::endl
               << "    --single-read-fifo  : read a single data packet, print to stdout" << std::endl
               << "    --read-fifo         : read the entire fifo, each packet to a single line of stdout" << std::endl;
@@ -52,7 +50,7 @@ VataCtrl get_vata_from_args(int argc, char **argv) {
         std::cerr << "ERROR: first argument (" << argv[1] << ") is not a number." << std::endl;
         throw 1;
     }
-    if (nvata < 0 || nvata >= N_VATA) {
+    if (nvata < 0 || nvata >= (int)N_VATA) {
         std::cerr << "ERROR: Provided vata number (" << argv[1] << ") is not valid." << std::endl;
         std::cerr << "       Vata number should be in [0, " << N_VATA << ")." << std::endl;
         throw 2;
@@ -104,21 +102,21 @@ int parse_args(VataCtrl vata, int argc, char **argv) {
             std::cout << vata.get_event_count() << std::endl;
         } else if (strcmp("--reset-event-count", argv[i]) == 0) { 
             vata.reset_event_count();
-        } else if (strcmp("--cal-pulse", argv[i]) == 0) { 
-            vata.cal_pulse_trigger();
-        } else if (strcmp("--set-cal-dac", argv[i]) == 0) { 
-            if (++i >= argc) {
-                std::cerr << "ERROR: No calibration dac value provided." << std::endl;
-                return VT_PARSE_ARGS_ERR;
-            }
-            u32 dac_value = (u32)atoi(argv[i]);
-            if (vata.set_cal_dac(dac_value) != 0) {
-                std::cerr << "ERROR: Invalid dac value (" << dac_value << ")." << std::endl
-                          << "       dac_value must be in [0, " << MAX_CAL_DAC_VAL << ")." << std::endl;
-                return VT_CAL_DAC_ERR;
-            }
-        } else if (strcmp("--cal-pulse", argv[i]) == 0) { 
-            vata.cal_pulse_trigger();
+        //} else if (strcmp("--cal-pulse", argv[i]) == 0) { 
+        //    vata.cal_pulse_trigger();
+        //} else if (strcmp("--set-cal-dac", argv[i]) == 0) { 
+        //    if (++i >= argc) {
+        //        std::cerr << "ERROR: No calibration dac value provided." << std::endl;
+        //        return VT_PARSE_ARGS_ERR;
+        //    }
+        //    u32 dac_value = (u32)atoi(argv[i]);
+        //    if (vata.set_cal_dac(dac_value) != 0) {
+        //        std::cerr << "ERROR: Invalid dac value (" << dac_value << ")." << std::endl
+        //                  << "       dac_value must be in [0, " << MAX_CAL_DAC_VAL << ")." << std::endl;
+        //        return VT_CAL_DAC_ERR;
+        //    }
+        //} else if (strcmp("--cal-pulse", argv[i]) == 0) { 
+        //    vata.cal_pulse_trigger();
         } else if (strcmp("--get-n-fifo", argv[i]) == 0) { 
             std::cout << vata.get_n_fifo() << std::endl;
         } else if (strcmp("--single-read-fifo", argv[i]) == 0) { 

@@ -4,7 +4,6 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
-//#include <algorithm>
 #include <cstring>
 #include <cstdint>
 
@@ -30,8 +29,6 @@ class VataCtrl {
         int trigger_disable();
         u32 get_event_count();
         int reset_event_count();
-        int cal_pulse_trigger();
-        int set_cal_dac(u32 dac_value);
         int get_n_fifo();
         int read_fifo(std::vector<u32> &data, int &nread, u32 &nremain);
         int read_fifo(u32 *data, int nbuffer, u32 &nread);

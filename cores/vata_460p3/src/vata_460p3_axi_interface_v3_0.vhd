@@ -19,13 +19,13 @@ entity vata_460p3_axi_interface_v3_0 is
         trigger_ena           : in std_logic;
         trigger_ena_ena       : in std_logic;
         trigger_ena_force     : in std_logic;
+        disable_fast_or_trigger : in std_logic;
         FEE_hit               : out std_logic;
         FEE_ready             : out std_logic;
         FEE_busy              : out std_logic;
         FEE_spare             : out std_logic;
         event_id_latch        : in std_logic;
         event_id_data         : in std_logic;
-        cal_pulse_trigger_out : out std_logic;
         vata_s0               : out std_logic;
         vata_s1               : out std_logic;
         vata_s2               : out std_logic;
@@ -42,19 +42,10 @@ entity vata_460p3_axi_interface_v3_0 is
         data_tdata            : out std_logic_vector(31 downto 0);
         --
         vss_shutdown_n        : out std_logic;
-        cal_dac_spi_sclk      : out std_logic;
-        cal_dac_spi_mosi      : out std_logic;
-        cal_dac_spi_syncn     : out std_logic;
  
         cald                  : out std_logic;
         caldb                 : out std_logic;
         -- Temporary debug ports
-        set_config_out    : out std_logic;
-        get_config_out    : out std_logic;
-        set_cal_dac_out   : out std_logic;
-        cal_pulse_trigger_in_out  : out std_logic;
-        reg_indx_out      : out std_logic_vector(9 downto 0);
-        state_counter_out : out std_logic_vector(15 downto 0);
         state_out         : out std_logic_vector(7 downto 0);
         event_id_out      : out std_logic_vector(31 downto 0);
         trigger_acq_out   : out std_logic;
@@ -103,7 +94,6 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
         CONFIG_REG_FROM_PS  : out std_logic_vector(519 downto 0);
         CONFIG_REG_FROM_PL  : in std_logic_vector(519 downto 0);
         HOLD_TIME           : out std_logic_vector(15 downto 0);
-        CAL_DAC             : out std_logic_vector(11 downto 0);
         POWER_CYCLE_TIMER   : out std_logic_vector(31 downto 0);
         TRIGGER_ACK_TIMEOUT : out std_logic_vector(31 downto 0);
         RUNNING_COUNTER     : in std_logic_vector(63 downto 0);
@@ -142,6 +132,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             trigger_ena        : in std_logic;
             trigger_ena_ena    : in std_logic;
             trigger_ena_force  : in std_logic;
+            disable_fast_or_trigger : in std_logic;
             trigger_ack_timeout: in std_logic_vector(31 downto 0);
             FEE_hit            : out std_logic;
             FEE_ready          : out std_logic;
@@ -151,7 +142,6 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             event_id_data      : in std_logic;
             get_config         : in std_logic;
             set_config         : in std_logic;
-            cal_pulse_trigger_in : in std_logic;
             int_cal_trigger    : in std_logic;
             hold_time          : in std_logic_vector(15 downto 0);
             vata_s0            : out std_logic;
@@ -163,7 +153,6 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             vata_i4            : out std_logic;
             vata_o5            : in std_logic;
             vata_o6            : in std_logic;
-            cal_pulse_trigger_out : out std_logic;
             cfg_reg_from_ps    : in std_logic_vector(519 downto 0);
             cfg_reg_from_pl    : out std_logic_vector(519 downto 0);
             data_tvalid        : out std_logic;
@@ -178,8 +167,6 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             event_counter_rst  : in std_logic;
             event_counter      : out std_logic_vector(31 downto 0);
             -- DEBUG --
-            state_counter_out  : out std_logic_vector(15 downto 0);
-            reg_indx_out       : out std_logic_vector(9 downto 0);
             event_id_out_debug : out std_logic_vector(31 downto 0);
             abort_daq_debug    : out std_logic;
             trigger_acq_out       : out std_logic;
@@ -203,20 +190,6 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             triggers    : out std_logic_vector(N_TRIGGERS-1 downto 0));
     end component;
 
-    component spi_cal_dac is
-        generic (
-            CLK_RATIO : integer := 2;
-            COUNTER_WIDTH : integer := 2);
-        port (
-            clk               : in std_logic;
-            rst_n             : in std_logic;
-            data_in           : in std_logic_vector(11 downto 0);
-            trigger_send_data : in std_logic;
-            spi_sclk          : out std_logic;
-            spi_mosi          : out std_logic;
-            spi_syncn         : out std_logic);
-    end component;
-
     component power_cycler is
         port (
             clk                 : in std_logic;
@@ -235,11 +208,8 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     signal ctrl_triggers         : std_logic_vector(N_CTRL_TRIGGERS-1 downto 0);
     signal set_config            : std_logic := '0';
     signal get_config            : std_logic := '0';
-    signal set_cal_dac           : std_logic := '0';
     signal int_cal_trigger       : std_logic := '0';
-    signal cal_pulse_trigger     : std_logic := '0';
     signal hold_time             : std_logic_vector(15 downto 0);
-    signal cal_dac               : std_logic_vector(11 downto 0);
     signal trigger_power_cycle   : std_logic := '0';
     signal power_cycle_timer     : std_logic_vector(31 downto 0);
     signal trigger_ack_timeout   : std_logic_vector(31 downto 0);
@@ -260,7 +230,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
         CONFIG_REG_FROM_PS  => cfg_reg_from_ps,
         CONFIG_REG_FROM_PL  => cfg_reg_from_pl,
         HOLD_TIME           => hold_time,
-        CAL_DAC             => cal_dac,
         POWER_CYCLE_TIMER   => power_cycle_timer,
         TRIGGER_ACK_TIMEOUT => trigger_ack_timeout,
         RUNNING_COUNTER     => running_counter,
@@ -301,6 +270,7 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             trigger_ena         => trigger_ena,
             trigger_ena_ena     => trigger_ena_ena,
             trigger_ena_force   => trigger_ena_force,
+            disable_fast_or_trigger => disable_fast_or_trigger,
             trigger_ack_timeout => trigger_ack_timeout,
             FEE_hit           => FEE_hit,
             FEE_ready         => FEE_ready,
@@ -310,7 +280,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             event_id_data     => event_id_data,
             get_config        => get_config,
             set_config        => set_config,
-            cal_pulse_trigger_in => cal_pulse_trigger,
             hold_time         => hold_time,
             vata_s0           => vata_s0,
             vata_s1           => vata_s1,
@@ -321,7 +290,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             vata_i4           => vata_i4,
             vata_o5           => vata_o5,
             vata_o6           => vata_o6,
-            cal_pulse_trigger_out => cal_pulse_trigger_out,
             int_cal_trigger   => int_cal_trigger,
             cfg_reg_from_ps   => cfg_reg_from_ps,
             cfg_reg_from_pl   => cfg_reg_from_pl,
@@ -336,8 +304,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             event_counter_rst => event_counter_rst,
             event_counter     => event_counter,
             live_counter      => live_counter,
-            reg_indx_out      => reg_indx_out,
-            state_counter_out => state_counter_out,
             event_id_out_debug => event_id_out,
             abort_daq_debug   => abort_daq,
             trigger_acq_out   => trigger_acq_out,
@@ -360,20 +326,6 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             axi_wready => axi_wready_buf,
             triggers => ctrl_triggers);
 
-    spi_cal_dac_inst : spi_cal_dac
-        generic map (
-            -- Set SPI clock to 25 MHz
-            CLK_RATIO     => 2,
-            COUNTER_WIDTH => 2)
-        port map (
-            clk               => s00_axi_aclk,
-            rst_n             => s00_axi_aresetn,
-            data_in           => cal_dac,
-            trigger_send_data => set_cal_dac,
-            spi_sclk          => cal_dac_spi_sclk,
-            spi_mosi          => cal_dac_spi_mosi,
-            spi_syncn         => cal_dac_spi_syncn);
-
     power_cycler_inst : power_cycler
         port map (
             clk                 => s00_axi_aclk,
@@ -387,18 +339,10 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
     -- Trigger mapping:
     set_config          <= ctrl_triggers(0);
     get_config          <= ctrl_triggers(1);
-    set_cal_dac         <= ctrl_triggers(2);
-    cal_pulse_trigger   <= ctrl_triggers(3);
-    int_cal_trigger     <= ctrl_triggers(4);
-    trigger_power_cycle <= ctrl_triggers(5);
-    counter_rst         <= ctrl_triggers(6);
-    event_counter_rst   <= ctrl_triggers(7);
-        
-    -- Debugging
-    cal_pulse_trigger_in_out <= cal_pulse_trigger;
-    set_config_out   <= set_config;
-    get_config_out   <= get_config;
-    set_cal_dac_out  <= set_cal_dac;
+    int_cal_trigger     <= ctrl_triggers(2);
+    trigger_power_cycle <= ctrl_triggers(3);
+    counter_rst         <= ctrl_triggers(4);
+    event_counter_rst   <= ctrl_triggers(5);
 
     -- User logic ends
 

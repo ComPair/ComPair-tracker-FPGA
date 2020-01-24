@@ -1,5 +1,26 @@
 -- pulse_trigger_fsm
+-- =================
 --  Simple FSM for controlling calibration pulse output and vata trigger outputs.
+--
+--  Notes on inputs:
+--      * n_pulses_in:
+--            Number of pulses to send out. If n_pulses_in is 0, repeatedly emit pulses.
+--      * run_pulses: 
+--            On rising edge, start sending pulses. If n_pulses_in is 0, then pulses will be
+--            sent as long as run_pulses is high.
+--      * cal_pulse_ena:
+--            calibrating pulses emitted if this is high.
+--      * vata_trigger_ena:
+--            triggers sent for vata's if this is high
+--      * cal_pulse_width:
+--            cal_pulse_out will be high for `cal_pulse_width` number of clock cycles for each pulse.
+--      * trigger_delay:
+--            vata_trigger_out will go high `trigger_delay` clock cycles after cal_pluse_trigger_out goes high.
+--            If trigger_delay > cal_pulse_width, vata triggers will never occur.
+--      * pulse_wait:
+--            After finishing a cal pulse, wait `pulse_wait` number of cycles before the next calibration pulse.
+--            A calibration pulse will be sent out every `cal_pulse_width` + `pulse_wait` clock cycles.
+--
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -11,9 +32,6 @@ entity pulse_trigger_fsm is
     port (
         clk                   : in std_logic;
         rst_n                 : in std_logic := '0';
-        -- run_pulses:
-        --   if n_pulses >  0, then on rising edge of run_pulses start sending out n_pulses
-        --   if n_pulses == 0, then continue sending pulses as long as run_pulses is high
         run_pulses            : in std_logic;
         cal_pulse_ena         : in std_logic;
         vata_trigger_ena      : in std_logic;
@@ -213,9 +231,6 @@ begin
         end if;       
     end process p_VATA_TRIG_COUNTER; 
 
-    --signal pulse_count : unsigned(C_S_AXI_DATA_WIDTH-1 downto 0);
-    --signal inc_pulse_count : std_logic := '0';
-    --signal pulse_count_clr : std_logic := '0';
     p_PULSE_COUNTER : process (rst_n, clk)
     begin
         if rst_n = '0' then

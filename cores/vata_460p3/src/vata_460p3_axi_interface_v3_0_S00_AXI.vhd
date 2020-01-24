@@ -19,7 +19,6 @@ entity vata_460p3_axi_interface_v3_0_S00_AXI is
 		CONFIG_REG_FROM_PS  : out std_logic_vector(519 downto 0);
 		CONFIG_REG_FROM_PL  : in std_logic_vector(519 downto 0);
 		HOLD_TIME	        : out std_logic_vector(15 downto 0);
-		CAL_DAC             : out std_logic_vector(11 downto 0);
 		POWER_CYCLE_TIMER   : out std_logic_vector(31 downto 0);
         TRIGGER_ACK_TIMEOUT : out std_logic_vector(31 downto 0);
         RUNNING_COUNTER     : in std_logic_vector(63 downto 0);
@@ -1082,55 +1081,55 @@ begin
 	        reg_data_out <= slv_reg29;
 	      when b"011110" =>
 	        reg_data_out <= slv_reg30;
+          -- Configuration register readout for the next 17 registers...
 	      when b"011111" =>
-	        reg_data_out <= slv_reg31;
-              -- Configuration register readout for the next 17 registers...
-	      when b"100000" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(31 downto 0);
-	      when b"100001" =>
+	      when b"100000" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(63 downto 32);
-	      when b"100010" =>
+	      when b"100001" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(95 downto 64);
-	      when b"100011" =>
+	      when b"100010" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(127 downto 96);
-	      when b"100100" =>
+	      when b"100011" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(159 downto 128);
-	      when b"100101" =>
+	      when b"100100" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(191 downto 160);
-	      when b"100110" =>
+	      when b"100101" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(223 downto 192);
-	      when b"100111" =>
+	      when b"100110" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(255 downto 224);
-	      when b"101000" =>
+	      when b"100111" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(287 downto 256);
-	      when b"101001" =>
+	      when b"101000" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(319 downto 288);
-	      when b"101010" =>
+	      when b"101001" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(351 downto 320);
-	      when b"101011" =>
+	      when b"101010" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(383 downto 352);
-	      when b"101100" =>
+	      when b"101011" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(415 downto 384);
-	      when b"101101" =>
+	      when b"101100" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(447 downto 416);
-	      when b"101110" =>
+	      when b"101101" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(479 downto 448);
-	      when b"101111" =>
+	      when b"101110" =>
 	        reg_data_out <= CONFIG_REG_FROM_PL(511 downto 480);
-	      when b"110000" =>
+	      when b"101111" =>
 	        reg_data_out(7 downto 0) <= CONFIG_REG_FROM_PL(519 downto 512);
-	        reg_data_out(31 downto 8) <= (others => '0');
+            reg_data_out(31 downto 8) <= (others => '0');
           -- End configuration register readout.
-	      when b"110001" =>
+	      when b"110000" =>
 	        reg_data_out <= RUNNING_COUNTER(31 downto 0);
-	      when b"110010" =>
+	      when b"110001" =>
 	        reg_data_out <= RUNNING_COUNTER(63 downto 32);
-	      when b"110011" =>
+	      when b"110010" =>
 	        reg_data_out <= LIVE_COUNTER(31 downto 0);
-	      when b"110100" =>
+	      when b"110011" =>
 	        reg_data_out <= LIVE_COUNTER(63 downto 32);
-	      when b"110101" =>
+	      when b"110100" =>
 	        reg_data_out <= EVENT_COUNTER;
+	      when b"110101" =>
+	        reg_data_out <= slv_reg53;
 	      when b"110110" =>
 	        reg_data_out <= slv_reg54;
 	      when b"110111" =>
@@ -1196,9 +1195,8 @@ begin
     CONFIG_REG_FROM_PS(519 downto 512) <= slv_reg17(7 downto 0);
 
     HOLD_TIME <= slv_reg18(15 downto 0);
-    CAL_DAC   <= slv_reg19(11 downto 0);
-    POWER_CYCLE_TIMER <= slv_reg20;
-    TRIGGER_ACK_TIMEOUT <= slv_reg21;
+    POWER_CYCLE_TIMER <= slv_reg19;
+    TRIGGER_ACK_TIMEOUT <= slv_reg20;
 
 
 	-- User logic ends
