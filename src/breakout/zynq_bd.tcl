@@ -293,7 +293,7 @@ proc create_root_design { parentCell } {
   set_property -dict [ list \
    CONFIG.C_ENABLE_ILA_AXI_MON {false} \
    CONFIG.C_MONITOR_TYPE {Native} \
-   CONFIG.C_NUM_OF_PROBES {5} \
+   CONFIG.C_NUM_OF_PROBES {6} \
  ] $ila_1
 
   # Create instance: processing_system7_0, and set properties
@@ -761,11 +761,12 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net vata_460p3_axi_inter_0_data_stream [get_bd_intf_pins axi_fifo_mm_s_data0/AXI_STR_RXD] [get_bd_intf_pins vata_460p3_axi_inter_0/data_stream]
 
   # Create port connections
-  connect_bd_net -net AXI_cal_DAC_0_s00_cal_pulse_trigger_out [get_bd_ports P2_DIG_CAL_PULSE_TRIGGER] [get_bd_pins AXI_cal_DAC_0/s00_cal_pulse_trigger_out] [get_bd_pins ila_1/probe0]
-  connect_bd_net -net AXI_cal_DAC_0_s00_spi_mosi [get_bd_ports P2_DIG_CAL_DAC_MOSI] [get_bd_pins AXI_cal_DAC_0/s00_spi_mosi] [get_bd_pins ila_1/probe3]
-  connect_bd_net -net AXI_cal_DAC_0_s00_spi_sclk [get_bd_ports P2_DIG_CAL_DAC_SCLK] [get_bd_pins AXI_cal_DAC_0/s00_spi_sclk] [get_bd_pins ila_1/probe2]
-  connect_bd_net -net AXI_cal_DAC_0_s00_spi_syncn [get_bd_ports P2_DIG_CAL_DAC_SYNCn] [get_bd_pins AXI_cal_DAC_0/s00_spi_syncn] [get_bd_pins ila_1/probe4]
-  connect_bd_net -net AXI_cal_DAC_0_s00_vata_trigger_out [get_bd_pins AXI_cal_DAC_0/s00_vata_trigger_out] [get_bd_pins ila_1/probe1]
+  connect_bd_net -net AXI_cal_DAC_0_cal_pulse_trigger_out [get_bd_ports P2_DIG_CAL_PULSE_TRIGGER] [get_bd_pins AXI_cal_DAC_0/cal_pulse_trigger_out] [get_bd_pins ila_1/probe0]
+  connect_bd_net -net AXI_cal_DAC_0_spi_mosi [get_bd_ports P2_DIG_CAL_DAC_MOSI] [get_bd_pins AXI_cal_DAC_0/spi_mosi] [get_bd_pins ila_1/probe3]
+  connect_bd_net -net AXI_cal_DAC_0_spi_sclk [get_bd_ports P2_DIG_CAL_DAC_SCLK] [get_bd_pins AXI_cal_DAC_0/spi_sclk] [get_bd_pins ila_1/probe2]
+  connect_bd_net -net AXI_cal_DAC_0_spi_syncn [get_bd_ports P2_DIG_CAL_DAC_SYNCn] [get_bd_pins AXI_cal_DAC_0/spi_syncn] [get_bd_pins ila_1/probe4]
+  connect_bd_net -net AXI_cal_DAC_0_vata_fast_or_trigger_disable1 [get_bd_pins AXI_cal_DAC_0/vata_fast_or_trigger_disable] [get_bd_pins ila_1/probe5] [get_bd_pins vata_460p3_axi_inter_0/disable_fast_or_trigger]
+  connect_bd_net -net AXI_cal_DAC_0_vata_trigger_out [get_bd_pins AXI_cal_DAC_0/vata_trigger_out] [get_bd_pins ila_1/probe1]
   connect_bd_net -net P2_ASIC_TRIGGER_OUT_1 [get_bd_ports P2_ASIC_TRIGGER_OUT] [get_bd_pins ila_0/probe11] [get_bd_pins vata_460p3_axi_inter_0/vata_o6]
   connect_bd_net -net P2_o5_GALAO_1 [get_bd_ports P2_o5_GALAO] [get_bd_pins ila_0/probe10] [get_bd_pins vata_460p3_axi_inter_0/vata_o5]
   connect_bd_net -net PHY_LEDs [get_bd_pins vio_0/probe_in0] [get_bd_pins xlconcat_0/dout]
@@ -814,6 +815,7 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -825,6 +827,4 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
-
-common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 
