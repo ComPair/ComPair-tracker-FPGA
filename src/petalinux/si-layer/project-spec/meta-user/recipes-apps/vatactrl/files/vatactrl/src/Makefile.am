@@ -1,10 +1,12 @@
 AM_CXXFLAGS = -g -std=c++11 -Wall -fPIC
 
 bin_PROGRAMS = vatactrl             \
+	       calctrl              \
+	       ## ALL BELOW ARE SOON TO DISAPPEAR
                vt_set_conf          \
                vt_get_conf          \
-               vt_set_cal_dac       \
-               vt_cal_pulse_trigger \
+               ##vt_set_cal_dac       \
+               ##vt_cal_pulse_trigger \
                ##vt_cal_pulse_repeat  \
                vt_set_hold_delay    \
                vt_get_hold_delay    \
@@ -28,23 +30,22 @@ bin_PROGRAMS = vatactrl             \
 	       axi_cal_trigger \
 	       axi_cal_set
 
-lib_LTLIBRARIES = libvatactrl.la libsictrl.la
-libvatactrl_la_SOURCES = vata_ctrl.cpp
-## sictrl.la is library with all things for si layer control.
+## sictrl is library with all things for si layer control.
 ## Currently, vata's and axi-cal.
+lib_LTLIBRARIES = libsictrl.la
 libsictrl_la_SOURCES = vata_ctrl.cpp cal_ctrl.cpp
 
-##vt_zmq_pub_data_LDFLAGS = -lzmq -L/local/data/puff/sgriffi4/xilinx/lucas/local/lib
-
-##vatactrl_SOURCES = vatactrl.cpp vata_ctrl.cpp
-##vatactrl_CFLAGS = $(AM_CXXFLAGS)
 vatactrl_SOURCES = vatactrl.cpp
-vatactrl_LDADD = libvatactrl.la
+vatactrl_LDADD = libsictrl.la
 
+calctrl_SOURCES = calctrl.cpp
+calctrl_LDADD = libsictrl.la
+
+###################################################################
+## Below are standalone binaries that are soon to be deprecated: ##
+###################################################################
 vt_set_conf_SOURCES = set_conf.c vata_util.c
 vt_get_conf_SOURCES = get_conf.c vata_util.c
-vt_set_cal_dac_SOURCES = set_cal_dac.c vata_util.c
-vt_cal_pulse_trigger_SOURCES = cal_pulse_trigger.c vata_util.c
 ##vt_cal_pulse_repeat_SOURCES = cal_pulse_repeat.c mmap_addr.c
 vt_trigger_enable_SOURCES = trigger_enable.c vata_util.c
 vt_set_hold_delay_SOURCES = set_hold_delay.c vata_util.c
@@ -65,7 +66,6 @@ vt_get_event_count_SOURCES = get_event_count.c vata_util.c
 vt_get_clocks_SOURCES = get_clocks.c vata_util.c
 vt_rst_counters_SOURCES = rst_counters.c vata_util.c
 vt_rst_ev_count_SOURCES = rst_ev_count.c vata_util.c
-
 
 axi_cal_set_SOURCES = axi_cal_set.c
 axi_cal_trigger_SOURCES = axi_cal_trigger.c
