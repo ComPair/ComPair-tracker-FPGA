@@ -12,6 +12,7 @@ DataEmitter::DataEmitter(zmq::context_t *ctx) {
     emit_sock.setsockopt(ZMQ_LINGER, (int)0);
 
     emit_sock.bind("tcp://eth0:" EMIT_PORT);
+    running = false;
 }
 
 // Return true if halt message was received.
@@ -20,6 +21,20 @@ bool DataEmitter::halt_received(zmq::message_t &msg) {
         return false;
     }
     return strncmp("halt", (char *)msg.data(), 4) == 0;
+}
+
+bool DataEmitter::stop_received(zmq::message_t &msg) {
+    if (msg.size() < 4) {
+        return false;
+    }
+    return strncmp("stop", (char *)msg.data(), 4) == 0;
+}
+
+bool DataEmitter::start_received(zmq::message_t &msg) {
+    if (msg.size() < 5) {
+        return false;
+    }
+    return strncmp("start", (char *)msg.data(), 5) == 0;
 }
 
 void DataEmitter::send_data(DataPacket &data_packet) {
@@ -66,15 +81,35 @@ void DataEmitter::operator() () {
     std::cout << "XXX Starting main data emitter loop" << std::endl;
     while (true) {
         zmq::message_t inproc_msg;
-        try {
-            //inproc_sock.recv(inproc_msg, ZMQ_NOBLOCK);
-            inproc_sock.recv(inproc_msg, zmq::recv_flags::dontwait);
-            if (halt_received(inproc_msg))
-                return;
-        } catch (zmq::error_t e) {
-            // No message came in...
+        //bool check_msg = true;
+        if (running) {
+            try {
+                inproc_sock.recv(inproc_msg, zmq::recv_flags::dontwait);
+            } catch (zmq::error_t e) {
+                //check_msg = false;
+            }
+        } else {
+            inproc_sock.recv(inproc_msg, zmq::recv_flags::none); // block
+            if (inproc_msg.size() > 0) {
+                std::string msg((char *)inproc_msg.data(), inproc_msg.size());
+                std::cout << "!!! Emitter thread received message: " <<  msg << std::endl;
+            }
         }
-        check_fifos();
+        if (true) {
+            if (halt_received(inproc_msg)) {
+                std::cout << "!!! Emitter thread received halt message" << std::endl;
+                return;
+            } else if (stop_received(inproc_msg)) {
+                std::cout << "!!! Emitter thread received stop message" << std::endl;
+                running = false;
+            } else if (start_received(inproc_msg)) {
+                std::cout << "!!! Emitter thread received start message" << std::endl;
+                running = true;
+            }
+        }
+        if (running) {
+            check_fifos();
+        }
     }
 }
 

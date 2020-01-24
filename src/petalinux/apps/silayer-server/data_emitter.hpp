@@ -22,8 +22,11 @@ class DataEmitter {
         zmq::socket_t inproc_sock;
         zmq::socket_t emit_sock;
         VataCtrl vatas[N_VATA];
+        bool running;
 
         bool halt_received(zmq::message_t &msg);
+        bool stop_received(zmq::message_t &msg);
+        bool start_received(zmq::message_t &msg);
         void check_fifos();
         void read_fifos();
         void send_data(DataPacket &dp);

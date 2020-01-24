@@ -10,6 +10,13 @@ LayerServer::LayerServer() {
     for (int i=0; i<(int)N_VATA; i++) {
         vatas[i] = VataCtrl(i);
     }
+
+    emitter_thread = std::thread(
+        [](zmq::context_t *ctx_ptr) {
+                DataEmitter emitter_funct(ctx_ptr);
+                emitter_funct();
+        }, &ctx);
+
     data_emitter_running = false;
     std::cout << "Finished initializing layer server." << std::endl;
 }
@@ -33,20 +40,23 @@ int LayerServer::start_packet_emitter() {
         if (stop_packet_emitter() != 0)
             return 1;
     }
-    inproc_sock = zmq::socket_t(ctx, zmq::socket_type::pair);
-    inproc_sock.bind("inproc://main");
-
-    emitter_thread = std::thread(
-        [](zmq::context_t *ctx_ptr) {
-                DataEmitter emitter_funct(ctx_ptr);
-                emitter_funct();
-        }, &ctx);
-
+    zmq::message_t msg(5);
+    std::memcpy(msg.data(), "start", 5);
+    inproc_sock.send(msg, zmq::send_flags::none);
     data_emitter_running = true;
     return 0;
 }
 
 int LayerServer::stop_packet_emitter() {
+    zmq::message_t msg(5);
+    std::memcpy(msg.data(), "stop", 5);
+    inproc_sock.send(msg, zmq::send_flags::none);
+    data_emitter_running = false;
+    return 0;
+}
+
+// Have packet emitter exit...
+int LayerServer::_kill_packet_emitter() {
     zmq::message_t msg(4);
     std::memcpy(msg.data(), "halt", 4);
     inproc_sock.send(msg, zmq::send_flags::none);
@@ -54,10 +64,10 @@ int LayerServer::stop_packet_emitter() {
     std::cout << "Joining on emitter thread." << std::endl;
     #endif
     emitter_thread.join();
-    data_emitter_running = false;
     #ifdef VERBOSE
     std::cout << "Join complete." << std::endl;
     #endif
+    data_emitter_running = false;
     return 0;
 }
 
@@ -356,7 +366,7 @@ int LayerServer::process_req() {
     } else if (strncmp("halt", c_req, 4) == 0) {
         // Need to check if emitter is running!!!
         if (data_emitter_running) {
-            stop_packet_emitter();
+            _kill_packet_emitter();
         }
         delete[] c_req;
         return EXIT_REQ_RECV_CODE;

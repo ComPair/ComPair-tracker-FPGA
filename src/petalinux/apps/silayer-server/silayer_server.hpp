@@ -42,6 +42,7 @@ class LayerServer {
         int _process_emit_msg(char *msg);
         void _send_could_not_process_msg();
         void _send_msg(const char *msg, int msg_sz);
+        int _kill_packet_emitter();
 
     public:
         LayerServer(); 
