@@ -4,8 +4,8 @@ use ieee.numeric_std.all;
 
 entity spi_cal_dac is
     generic (
-        CLK_RATIO : integer; -- spi clock freq is clk in freq / 2 / CLK_RATIO
-        COUNTER_WIDTH : integer
+        CLK_RATIO : integer := 2; -- spi clock freq is clk in freq / 2 / CLK_RATIO
+        COUNTER_WIDTH : integer := 2
         ); 
     port ( 
         clk : in std_logic;

@@ -1,0 +1,10 @@
+
+
+OPTION psf_version = 2.1;
+
+BEGIN DRIVER AXI_cal_DAC
+	OPTION supported_peripherals = (AXI_cal_DAC);
+	OPTION copyfiles = all;
+	OPTION VERSION = 1.0;
+	OPTION NAME = AXI_cal_DAC;
+END DRIVER

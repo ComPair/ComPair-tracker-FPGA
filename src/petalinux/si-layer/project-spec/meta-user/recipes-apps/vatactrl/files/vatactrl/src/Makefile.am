@@ -24,12 +24,15 @@ bin_PROGRAMS = vatactrl             \
                vt_get_event_count \
                vt_get_clocks \
                vt_rst_counters \
-               vt_rst_ev_count 
+               vt_rst_ev_count \
+	       axi_cal_trigger \
+	       axi_cal_set
 
-bin_SCRIPTS = vt_asic_init vt_set_check_config
-
-lib_LTLIBRARIES = libvatactrl.la
+lib_LTLIBRARIES = libvatactrl.la libsictrl.la
 libvatactrl_la_SOURCES = vata_ctrl.cpp
+## sictrl.la is library with all things for si layer control.
+## Currently, vata's and axi-cal.
+libsictrl_la_SOURCES = vata_ctrl.cpp cal_ctrl.cpp
 
 ##vt_zmq_pub_data_LDFLAGS = -lzmq -L/local/data/puff/sgriffi4/xilinx/lucas/local/lib
 
@@ -62,3 +65,7 @@ vt_get_event_count_SOURCES = get_event_count.c vata_util.c
 vt_get_clocks_SOURCES = get_clocks.c vata_util.c
 vt_rst_counters_SOURCES = rst_counters.c vata_util.c
 vt_rst_ev_count_SOURCES = rst_ev_count.c vata_util.c
+
+
+axi_cal_set_SOURCES = axi_cal_set.c
+axi_cal_trigger_SOURCES = axi_cal_trigger.c

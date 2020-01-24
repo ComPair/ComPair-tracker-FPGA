@@ -114,7 +114,7 @@ begin
                 
                 cal_pulse_trigger_out <= '1';
                 
-                if vata_trig_delay_counter >= vata_trig_delay_nhold-1 then
+                if vata_trig_delay_counter > vata_trig_delay_nhold-1 then
                     vata_trig_delay_counter_ena <= '0'; --Doesn't really matter, but stops the counter. 
                     vata_trigger_out <= '1';
                 else
