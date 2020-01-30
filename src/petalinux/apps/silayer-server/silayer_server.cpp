@@ -232,40 +232,148 @@ int LayerServer::_reset_event_count(int nvata, char* &cmd) {
     return 0;
 }
 
-int LayerServer::_cal_pulse(int nvata, char* &cmd) {
-    vatas[nvata].cal_pulse_trigger();
-    #ifdef VERBOSE
-    std::cout << "Cal pulse for vata " << nvata << std::endl;
-    #endif
-    zmq::message_t response(2);
-    std::memcpy(response.data(), "ok", 2);
-    socket.send(response, zmq::send_flags::none);
+int LayerServer::_parse_positive_int(char* &cmd) {
+    cmd = strtok(NULL, " "); // move command to ena/dis
+    if (cmd == NULL) {
+        return -1;
+    }
+    char *chk;
+    int ret = strtol(cmd, &chk, 0);
+    if (*chk != ' ' && *chk != '\0') {
+        return -1;
+    }
+    return ret;
+}
+
+int LayerServer::_cal_pulse_ena(char* &cmd) {
+    int pulse_ena = _parse_positive_int(cmd);
+    if (pulse_ena < 0) {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Could not parse pulse enable setting." << std::endl;
+        #endif
+        return 1;
+    }
+    if (pulse_ena == 0) {
+        calctrl.cal_pulse_ena = false;
+    } else if (pulse_ena == 1) {
+        calctrl.cal_pulse_ena = true;
+    } else {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: pulse enable setting neither 0 nor 1." << std::endl;
+        #endif
+        return 1;
+    }
     return 0;
 }
 
-int LayerServer::_set_cal_dac(int nvata, char* &cmd) {
-    cmd = strtok(NULL, " ");
-    if (cmd == NULL) {
+int LayerServer::_cal_trigger_ena(char* &cmd) {
+    int trigger_ena = _parse_positive_int(cmd);
+    if (trigger_ena < 0) {
         #ifdef VERBOSE
-        std::cerr << "Could not parse cal dac command." << std::endl;
+        std::cerr << "ERROR: Could not parse trigger enable setting." << std::endl;
         #endif
         return 1;
     }
-    char *chk;
-    int cal_dac = strtol(cmd, &chk, 0);
-    if (*chk != ' ' && *chk != '\0') {
+    if (trigger_ena == 0) {
+        calctrl.vata_trigger_ena = false;
+    } else if (trigger_ena == 1) {
+        calctrl.vata_trigger_ena = true;
+    } else {
         #ifdef VERBOSE
-        std::cerr << "Could not parse cal dac value." << std::endl;
+        std::cerr << "ERROR: Trigger enable setting neither 0 nor 1." << std::endl;
         #endif
         return 1;
     }
-    vatas[nvata].set_cal_dac((u32)cal_dac);
-    #ifdef VERBOSE
-    std::cout << "Set cal dac for vata " << nvata << " to " << cal_dac << std::endl;
-    #endif
-    zmq::message_t response(2);
-    std::memcpy(response.data(), "ok", 2);
-    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
+int LayerServer::_cal_fast_or_disable(char* &cmd) {
+    int fast_or_dis = _parse_positive_int(cmd);
+    if (fast_or_dis < 0) {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Could not parse fast-or disable setting." << std::endl;
+        #endif
+        return 1;
+    }
+    if (fast_or_dis == 0) {
+        calctrl.vata_fast_or_disable = false;
+    } else if (fast_or_dis == 1) {
+        calctrl.vata_fast_or_disable = true;
+    } else {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Fast-or disable setting neither 0 nor 1." << std::endl;
+        #endif
+        return 1;
+    }
+    return 0;
+}
+
+int LayerServer::_cal_pulse_width(char* &cmd) {
+    int pulse_width = _parse_positive_int(cmd);
+    if (pulse_width < 0) {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Could not parse pulse-width value." << std::endl;
+        #endif
+        return 1;
+    }
+    calctrl.cal_pulse_width = (u32)pulse_width;
+    return 0;
+}
+
+int LayerServer::_cal_trigger_delay(char* &cmd) {
+    int trigger_delay = _parse_positive_int(cmd);
+    if (trigger_delay < 0) {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Could not parse trigger-delay value." << std::endl;
+        #endif
+        return 1;
+    }
+    calctrl.vata_trigger_delay = (u32)trigger_delay;
+    return 0;
+}
+
+int LayerServer::_cal_repeat_delay(char* &cmd) {
+    int repeat_delay = _parse_positive_int(cmd);
+    if (repeat_delay < 0) {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Could not parse repeat-delay value." << std::endl;
+        #endif
+        return 1;
+    }
+    calctrl.repetition_delay = (u32)repeat_delay;
+    return 0;
+}
+
+int LayerServer::_cal_n_pulses(char* &cmd) {
+    int n = _parse_positive_int(cmd);
+    if (n < 0) {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Could not parse repeat-delay value." << std::endl;
+        #endif
+        return 1;
+    } else if (n == 0) {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Requested number of pulses cannot be 0." << std::endl;
+        #endif
+        return 2;
+    }
+    return calctrl.n_pulses((u32)n);
+}
+
+int LayerServer::_cal_set_dac(char* &cmd) {
+    int cal_dac = _parse_positive_int(cmd);
+    if (cal_dac < 0) {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Could not parse cal-dac value." << std::endl;
+        #endif
+        return 1;
+    }
+    if (calctrl.set_cal_dac((u32)cal_dac) == 1) {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: dac value out of range." << std::endl;
+        #endif
+        return 2;
+    }
     return 0;
 }
 
@@ -340,6 +448,228 @@ int LayerServer::_process_emit_msg(char *msg) {
     }
 }
 
+/************************************
+ * Process the calibration message.
+ * 
+ * cal pulse-ena [1|0]
+ * cal trigger-ena [1|0]
+ * cal fast-or-disable [1|0]
+ * cal pulse-width WIDTH
+ * cal trigger-delay DELAY
+ * cal repeat-delay DELAY
+ * cal start-inf
+ * cal stop-inf
+ * cal n-pulses N
+ * cal set-dac N
+ * Nothing else.
+ ***********************************/
+int LayerServer::_process_cal_msg(char *msg) {
+     // Initialize strtok...
+    strtok(msg, " ");
+    // Now get next token. Should be the subcommand
+    char *cmd = strtok(NULL, " ");
+    if (strncmp("pulse-ena", cmd, 9) == 0) {
+        if (_cal_pulse_ena(cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse pulse-ena command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("trigger-ena", cmd, 11) == 0) { 
+        if (_cal_trigger_ena(cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse trigger-ena command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("fast-or-disable", cmd, 15) == 0) { 
+        if (_cal_fast_or_disable(cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse fast-or-disable command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("pulse-width", cmd, 11) == 0) { 
+        if (_cal_pulse_width(cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse pulse-width command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("trigger-delay", cmd, 13) == 0) { 
+        if (_cal_trigger_delay(cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse trigger-delay command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("repeat-delay", cmd, 12) == 0) { 
+        if (_cal_repeat_delay(cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse repeat-delay command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("start-inf", cmd, 9) == 0) { 
+        if (calctrl.start_inf_pulses() != 0) {
+            const char retmsg[] = "ERROR: could not do start-inf command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("stop-inf", cmd, 8) == 0) { 
+        if (calctrl.stop_inf_pulses() != 0) {
+            const char retmsg[] = "ERROR: could not do stop-inf command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("n-pulses", cmd, 8) == 0) { 
+        int ret = _cal_n_pulses(cmd);
+        if (ret == 1) {
+            const char retmsg[] = "ERROR: could not parse n-pulses command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        } else if (ret == 2) {
+            const char retmsg[] = "ERROR: number of pulses must be > 0";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("set-dac", cmd, 7) == 0) { 
+        int ret = _cal_set_dac(cmd);
+        if (ret == 1) {
+            const char retmsg[] = "ERROR: could not parse set-dac command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        } else if (ret == 2) {
+            const char retmsg[] = "ERROR: cal dac value too large ";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else {
+        const char retmsg[] = "ERROR: unsupported cal command.";
+        _send_msg(retmsg, sizeof(retmsg));
+        return 1;
+    }   
+    const char retmsg[] = "ok";
+    _send_msg(retmsg, sizeof(retmsg));
+    return 0;
+}
+
+int LayerServer::_process_vata_msg(char *msg) {
+     // Initialize strtok...
+    strtok(msg, " ");
+    // Move to vata number..
+    char *cmd = strtok(NULL, " ");
+
+
+    // Now get next token. Should be vata number.
+    //char *cmd = strtok(NULL, " ");
+    
+    char *chk;
+    int nvata = strtol(cmd, &chk, 0);
+
+    std::cout << "XXX: msg: " << msg << std::endl;
+    std::cout << "XXX: cmd: " << cmd << std::endl;
+    std::cout << "XXX: chk: '" << *chk << "'" << std::endl;
+
+    if (*chk != ' ' && *chk != '\0') {
+        // Could not parse arg (or no command provided after arg)
+        #ifdef VERBOSE
+        std::cout << "ERROR: first argument not a number: " << msg << std::endl;
+        #endif
+        _send_could_not_process_msg();
+        return 1;
+    } else if (nvata < 0 || nvata >= (int)N_VATA) {
+        #ifdef VERBOSE
+        std::cout << "ERROR: requested vata out of range: " << nvata << std::endl;
+        #endif
+        _send_could_not_process_msg();
+        return 1;
+    }
+    // Now move on the the command
+    //cmd = strtok(cmd, " ");
+    cmd = strtok(NULL, " ");
+    if (cmd == NULL) {
+        #ifdef VERBOSE
+        std::cout << "ERROR: no command provided." << std::endl;
+        #endif
+        _send_could_not_process_msg();
+        return 1;
+    }
+
+    // Process command
+    if (strncmp("set-config", cmd, 10) == 0) {
+        if (_set_config(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse set-config command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("get-config", cmd, 10) == 0) {
+        if (_get_config(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse get-config command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("set-hold", cmd, 8) == 0) {
+        if (_set_hold(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse set-hold command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("get-hold", cmd, 8) == 0) {
+        if (_get_hold(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse get-hold command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("get-counters", cmd, 12) == 0) {
+        if (_get_counters(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse get-counters command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("reset-counters", cmd, 14) == 0) {
+        if (_reset_counters(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse reset-counters command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("trigger-enable", cmd, 14) == 0) {
+        if (_trigger_enable(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse trigger-enable command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("trigger-disable", cmd, 15) == 0) {
+        if (_trigger_disable(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse trigger-disable command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("get-event-count", cmd, 15) == 0) {
+        if (_get_event_count(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse get-event-count command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("reset-event-count", cmd, 17) == 0) {
+        if (_reset_event_count(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse reset-event-count command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("get-n-fifo", cmd, 10) == 0) {
+        if (_get_n_fifo(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse get-n-fifo command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else {
+        #ifdef VERBOSE
+        std::cerr << "Could not parse command: " << cmd << std::endl;    
+        #endif
+        const char retmsg[] = "ERROR: vata sub-command invalid";
+        _send_msg(retmsg, sizeof(retmsg));
+        return 1;
+    }
+    // The above vata commands send a response.
+    // No need to send one here.
+
+    return 0;
+}
 
 int LayerServer::process_req() {
     zmq::message_t request;
@@ -352,111 +682,40 @@ int LayerServer::process_req() {
     std::cout << "Received message: " << c_req << std::endl;
     #endif
 
-    // First check for non-vata-targeting messages.
-    //   * emit start|stop
-    //   * halt
     int retval;
     if (strncmp("emit", c_req, 4) == 0) {
         #ifdef VERBOSE
         std::cout << "Processing emit message." << std::endl;
         #endif
         retval = _process_emit_msg(c_req);
-        delete[] c_req;
-        return retval;
+    } else if (strncmp("cal", c_req, 3) == 0) { 
+        #ifdef VERBOSE
+        std::cout << "Processing calibrate message." << std::endl;
+        #endif
+        retval = _process_cal_msg(c_req);
+    } else if (strncmp("vata", c_req, 4) == 0) {
+        #ifdef VERBOSE
+        std::cout << "Processing vata message." << std::endl;
+        #endif
+        retval = _process_vata_msg(c_req);
     } else if (strncmp("halt", c_req, 4) == 0) {
         // Need to check if emitter is running!!!
-        if (data_emitter_running) {
-            _kill_packet_emitter();
-        }
-        delete[] c_req;
-        return EXIT_REQ_RECV_CODE;
-    }
-    
-    // First get the vata we are targeting...
-    char *cmd;
-    int nvata = strtol(c_req, &cmd, 0);
-    if (*cmd != ' ') {
-        // Could not parse arg (or no command provided after arg)
-        #ifdef VERBOSE
-        std::cout << "ERROR: first argument not a number: " << c_req << std::endl;
-        #endif
-        _send_could_not_process_msg();
-        return 1;
-    } else if (nvata < 0 || nvata >= (int)N_VATA) {
-        #ifdef VERBOSE
-        std::cout << "ERROR: requested vata out of range: " << nvata << std::endl;
-        #endif
-        _send_could_not_process_msg();
-        return 1;
-    }
-    // Now move on the the command
-    cmd = strtok(cmd, " ");
-    if (cmd == NULL) {
-        #ifdef VERBOSE
-        std::cout << "ERROR: no command provided." << std::endl;
-        #endif
-        _send_could_not_process_msg();
-        return 1;
-    }
-
-    // Process command
-    // retval = 0: no problem.
-    // retval = 1: parse error, continue
-    // retval = 2: big problem. shutdown (currently not used)
-    retval = 0;
-    if (strncmp("set-config", cmd, 10) == 0) {
-        if (_set_config(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("get-config", cmd, 10) == 0) {
-        if (_get_config(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("set-hold", cmd, 8) == 0) {
-        if (_set_hold(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("get-hold", cmd, 8) == 0) {
-        if (_get_hold(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("get-counters", cmd, 12) == 0) {
-        if (_get_counters(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("reset-counters", cmd, 14) == 0) {
-        if (_reset_counters(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("trigger-enable", cmd, 14) == 0) {
-        if (_trigger_enable(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("trigger-disable", cmd, 15) == 0) {
-        if (_trigger_disable(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("get-event-count", cmd, 15) == 0) {
-        if (_get_event_count(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("reset-event-count", cmd, 17) == 0) {
-        if (_reset_event_count(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("cal-pulse", cmd, 9) == 0) {
-        if (_cal_pulse(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("set-cal-dac", cmd, 11) == 0) {
-        if (_set_cal_dac(nvata, cmd) != 0)
-            retval = 1;
-    } else if (strncmp("get-n-fifo", cmd, 10) == 0) {
-        if (_get_n_fifo(nvata, cmd) != 0)
-            retval = 1;
+        // ??? I think the below is deprecated???
+        //if (data_emitter_running) {
+        //    _kill_packet_emitter();
+        //}
+        _kill_packet_emitter();
+        retval = EXIT_REQ_RECV_CODE;
     } else {
         #ifdef VERBOSE
-        std::cerr << "Could not parse command: " << cmd << std::endl;    
+        std::cerr << "Could not parse command: " << c_req << std::endl;    
         #endif
+        _send_could_not_process_msg();
         retval = 1;
     }
 
     delete[] c_req;
-    if (retval == 1) {
-        _send_could_not_process_msg();
-        return 1;
-    } else {
-        return 0;
-    }
+    return retval;
 }
 
 // vim: set ts=4 sw=4 sts=4 et:
