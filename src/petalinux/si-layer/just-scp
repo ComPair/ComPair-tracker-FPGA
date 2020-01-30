@@ -7,12 +7,12 @@ zynqinc="$(pwd)/../../../../ComPair-tracker-FPGA/work/zynq/zynq.sdk/standalone_b
 
 echo "Copying binaries and libraries over..."
 scp ${builddir}/vatactrl $silayer:~/bin/
-scp ${builddir}/libvatactrl.la $silayer:~/lib/
-scp ${builddir}/.libs/libvatactrl.a $silayer:~/lib/
-scp ${incdir}/vata_constants.hpp $silayer:~/include/
-scp ${incdir}/vata_ctrl.hpp $silayer:~/include/
+scp ${builddir}/calctrl $silayer:~/bin/
+scp ${builddir}/libsictrl.la $silayer:~/lib/
+scp ${builddir}/.libs/libsictrl.a $silayer:~/lib/
+scp ${incdir}/*.hpp $silayer:~/include/
 scp ${zynqinc}/x*.h $silayer:~/include/
 
-scp ${builddir}/axi_cal* $silayer:~/bin/
+##scp ${builddir}/axi_cal* $silayer:~/bin/
 
 ## vim: set ts=4 sw=4 sts=4 et:
