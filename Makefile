@@ -24,20 +24,34 @@ endif
 #USING_1CFA_ARGS = -tclargs use_1cfa
 
 SETUP_EVAL = -source $(ROOTDIR)/scripts/setup_trenz_breakout.tcl -log setup.log -jou setup.jou -notrace $(USING_1CFA_ARGS)
+SETUP_DBE_ALIVENESS = -source $(ROOTDIR)/scripts/setup_dbe_aliveness.tcl -log setup.log -jou setup.jou -notrace $(USING_1CFA_ARGS)
 
-all: setup_breakout
+all: setup_dbe_aliveness
 	
 # Setup the Trenz/Zynq base project
-setup_breakout : .\work\.setup.done
+#setup_breakout : .\work\.setup.done
+#.\work\.setup.done :
+#	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+#	@echo "    Running Trenz TE0703 setup"
+#	mkdir -p work
+#	echo $(PWD)
+#	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_EVAL) $(POSTFIX)
+
+setup_dbe_aliveness : .\work\.setup.done
 .\work\.setup.done :
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
-	@echo "    Running Trenz TE0703 setup"
+	@echo "    Running DBE setup"
 	mkdir -p work
 	echo $(PWD)
-	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_EVAL) $(POSTFIX)
+	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_DBE_ALIVENESS) $(POSTFIX)
+
 
 save_trenz_design :  
 	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/save_trenz_design.tcl -log save_trenz_design.log -jou save_trenz_design.jou -notrace $(POSTFIX)
+
+save_dbe_bd :  
+	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/save_dbe_bd.tcl -log save_dbe_bd.log -jou save_dbe_bd.jou -notrace $(POSTFIX)
+
 
 
 compile : .\work\.compile.done
