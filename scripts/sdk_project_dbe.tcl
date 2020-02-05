@@ -61,10 +61,33 @@ sdk configapp -app app_fsbl build-config release
 sdk configapp -app  app_fsbl -set compiler-optimization {Optimize for size (-Os)}
 
 
-createbsp -name bsp_lwip -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
-setlib -bsp bsp_lwip -lib lwip202
-updatemss -mss ${sdk_ws_dir}/bsp_lwip/system.mss
 
+
+createbsp -name bsp_gpio -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
+updatemss -mss ${sdk_ws_dir}/bsp_gpio/system.mss
+
+sdk createapp -name app_gpio -app "Empty Application" -proc [get_processor_name hw_0] -hwproject hw_0 -bsp bsp_gpio -os standalone
+exec rm -f ${sdk_ws_dir}/app_gpio/src/main.cc
+sdk configapp -app app_gpio build-config debug
+sdk configapp -app  app_gpio -set compiler-optimization {Optimize for size (-Os)}
+sdk configapp -app app_gpio build-config release
+sdk configapp -app  app_gpio -set compiler-optimization {Optimize for size (-Os)}
+if { [file exists ${sdk_ws_dir}/app_gpio/src/lscript.ld] == 1 } {
+   exec cp -f ${sdk_ws_dir}/app_gpio/src/lscript.ld ${sdk_ws_dir}/app_gpio/lscript.ld
+}
+exec rm -rf ${sdk_ws_dir}/app_gpio/src
+#exec ln -s $::env(SDK_SRC_PATH) ${sdk_ws_dir}/app_gpio/src
+exec cp -f -r ${PROJECT_BASE}/src/dbe/sdk/gpio_app/src ${sdk_ws_dir}/app_gpio/
+if { [file exists ${sdk_ws_dir}/app_gpio/lscript.ld] == 1 } {
+   exec mv -f ${sdk_ws_dir}/app_gpio/lscript.ld ${sdk_ws_dir}/app_gpio/src/lscript.ld
+}
+
+
+
+
+# createbsp -name bsp_lwip -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
+# setlib -bsp bsp_lwip -lib lwip202
+# updatemss -mss ${sdk_ws_dir}/bsp_lwip/system.mss
 
 # sdk createapp -name app_lwip -app "Empty Application" -proc [get_processor_name hw_0] -hwproject hw_0 -bsp bsp_lwip -os standalone
 # exec rm -f ${sdk_ws_dir}/app_lwip/src/main.cc
@@ -77,16 +100,16 @@ updatemss -mss ${sdk_ws_dir}/bsp_lwip/system.mss
 # }
 # exec rm -rf ${sdk_ws_dir}/app_lwip/src
 # #exec ln -s $::env(SDK_SRC_PATH) ${sdk_ws_dir}/app_lwip/src
-# exec cp -f -r ${repoRoot}/sdk/htides_ccd_app/src ${sdk_ws_dir}/app_lwip/
+# exec cp -f -r ${PROJECT_BASE}/sdk/htides_ccd_app/src ${sdk_ws_dir}/app_lwip/
 # if { [file exists ${sdk_ws_dir}/app_lwip/lscript.ld] == 1 } {
    # exec mv -f ${sdk_ws_dir}/app_lwip/lscript.ld ${sdk_ws_dir}/app_lwip/src/lscript.ld
 # }
 
 
-# # # Build all
-# regenbsp -bsp bsp_lwip
-# regenbsp -bsp bsp_lwip
-# projects -build
+# Build all
+regenbsp -bsp bsp_gpio
+#regenbsp -bsp bsp_lwip
+projects -build
 
 
 # # # if everything is successful "touch" a file so make will not it's done

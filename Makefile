@@ -27,7 +27,7 @@ endif
 SETUP_EVAL = -source $(ROOTDIR)/scripts/setup_trenz_breakout.tcl -log setup.log -jou setup.jou -notrace $(USING_1CFA_ARGS)
 SETUP_DBE_ALIVENESS = -source $(ROOTDIR)/scripts/setup_dbe_aliveness.tcl -log setup.log -jou setup.jou -notrace $(USING_1CFA_ARGS)
 
-all: setup_dbe_aliveness
+all_dbe: setup_dbe_aliveness compile export_hardware_dbe sdk_project_dbe
 	
 # Setup the Trenz/Zynq base project
 #setup_breakout : .\work\.setup.done

@@ -62,6 +62,9 @@ setlib -bsp bsp_lwip -lib lwip202
 updatemss -mss ${sdk_ws_dir}/bsp_lwip/system.mss
 
 
+
+
+
 # sdk createapp -name app_lwip -app "Empty Application" -proc [get_processor_name hw_0] -hwproject hw_0 -bsp bsp_lwip -os standalone
 # exec rm -f ${sdk_ws_dir}/app_lwip/src/main.cc
 # sdk configapp -app app_lwip build-config debug
