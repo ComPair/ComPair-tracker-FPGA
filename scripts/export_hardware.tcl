@@ -13,8 +13,8 @@
 # get the directory where this script resides
 set thisDir [file dirname [info script]]
 
-set TOP_PROJECT_NAME "zynq_bd_wrapper"
-
+set TOPLEVEL_NAME "zynq_bd_wrapper"
+set PROJECT_NAME "zynq"
 #for now, keeping this as zynq_bd_wrapper since the existing project referenced it
 set EXPORTED_SDK_NAME "zynq_bd_wrapper"
 
@@ -33,13 +33,15 @@ puts "  BUILD_WORKSPACE: $BUILD_WORKSPACE"
 puts "          IP_BASE: $IP_BASE"
 
 # Create project
-open_project [file normalize "$BUILD_WORKSPACE/zynq/zynq.xpr"]
+open_project [file normalize "$BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.xpr"]
 
 #export to sdk - standard location
-file mkdir [file normalize "$BUILD_WORKSPACE/zynq/zynq.sdk"]
-file copy -force [file normalize "$BUILD_WORKSPACE/zynq/zynq.runs/impl_1/$TOP_PROJECT_NAME.sysdef"] [file normalize "$BUILD_WORKSPACE/zynq/zynq.sdk/$TOP_PROJECT_NAME.hdf"]
+file mkdir [file normalize "$BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.sdk"]
+write_hwdef -force -file [file normalize $BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.runs/synth_1/$TOPLEVEL_NAME.hwdef]
+write_sysdef -force -hwdef [file normalize $BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.runs/synth_1/$TOPLEVEL_NAME.hwdef] -bitfile [file normalize $BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.runs/impl_1/$TOPLEVEL_NAME.bit] -file [file normalize $BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.runs/impl_1/$TOPLEVEL_NAME.sysdef]
+file copy -force [file normalize "$BUILD_WORKSPACE/zynq/zynq.runs/impl_1/$TOPLEVEL_NAME.sysdef"] [file normalize "$BUILD_WORKSPACE/zynq/zynq.sdk/$TOPLEVEL_NAME.hdf"]
 
 #export to sdk - alternate location for version control
-file mkdir [file normalize "$PROJECT_BASE/artifacts/$EXPORTED_SDK_NAME.sdk"]
-file copy -force [file normalize "$BUILD_WORKSPACE/zynq/zynq.runs/impl_1/$TOP_PROJECT_NAME.sysdef"] [file normalize "$PROJECT_BASE/artifacts/$EXPORTED_SDK_NAME.sdk/$EXPORTED_SDK_NAME.hdf"]
+#file mkdir [file normalize "$PROJECT_BASE/artifacts/$EXPORTED_SDK_NAME.sdk"]
+#file copy -force [file normalize "$BUILD_WORKSPACE/zynq/zynq.runs/impl_1/$TOPLEVEL_NAME.sysdef"] [file normalize "$PROJECT_BASE/artifacts/$EXPORTED_SDK_NAME.sdk/$EXPORTED_SDK_NAME.hdf"]
 puts "Hardware exported!"
