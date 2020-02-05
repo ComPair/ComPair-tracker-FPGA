@@ -138,7 +138,6 @@ add_files -fileset constrs_1 -norecurse [glob $PROJECT_BASE/src/breakout/*.xdc]
 set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd"]
 
 puts "Setup of the Trenz Board complete!"
-puts "Now building our crap:"
 
 #source $thisDir/connect_gpio_to_vata_ports.tcl
 
