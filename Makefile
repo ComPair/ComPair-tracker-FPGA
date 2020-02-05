@@ -4,8 +4,9 @@
 
 ROOTDIR=..
 
-# Common Vivado options
+# Common options
 VIVADOCOMOPS = -mode batch
+XSCTCOMOPS = -batch
 
 # determine the OS shell - this make file should work on both linux and windows
 UNAME := $(shell uname)
@@ -52,8 +53,6 @@ save_trenz_design :
 save_dbe_bd :  
 	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/save_dbe_bd.tcl -log save_dbe_bd.log -jou save_dbe_bd.jou -notrace $(POSTFIX)
 
-
-
 compile : .\work\.compile.done
 .\work\.compile.done : .\work\.setup.done
 	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/compile.tcl -log compile.log -jou compile.jou $(POSTFIX)
@@ -66,13 +65,18 @@ launchgui :
 	cd work; $(PREFIX) vivado zynq/zynq.xpr $(POSTFIX)
 
 #This is export hardware files so they can be used in sdk
-export_hardware :
+export_hardware : 
 	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/export_hardware.tcl -log export_hardware.log -jou export_hardware.jou -notrace $(POSTFIX)
 	exit 0
 
 export_hardware_dbe :
 	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/export_hardware_dbe.tcl -log export_hardware.log -jou export_hardware.jou -notrace $(POSTFIX)
 	exit 0
+
+sdk_project_dbe :
+	cd work; $(PREFIX) xsdk $(XSCTCOMOPS) -source $(ROOTDIR)/scripts/sdk_project_dbe.tcl $(POSTFIX)
+	exit 0
+
 # Remove the work directory. Cannot be undone!
 clean:
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
