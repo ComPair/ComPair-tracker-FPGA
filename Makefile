@@ -70,11 +70,15 @@ export_hardware :
 	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/export_hardware.tcl -log export_hardware.log -jou export_hardware.jou -notrace $(POSTFIX)
 	exit 0
 
+export_hardware_dbe :
+	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/export_hardware_dbe.tcl -log export_hardware.log -jou export_hardware.jou -notrace $(POSTFIX)
+	exit 0
 # Remove the work directory. Cannot be undone!
 clean:
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
 	@echo "    Removing working directory."
 	rm -rf work
+	mkdir work
 	
 help:
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -87,5 +91,6 @@ help:
 	@echo "compile (Broken at moment)"
 	@echo "setup_breakout"
 	@echo "export_hardware"
+	@echo "export_hardware_dbe"
 	@echo "clean"
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
