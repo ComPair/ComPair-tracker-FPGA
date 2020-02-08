@@ -139,8 +139,8 @@ set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.
 
 puts "Setup of the Trenz Board complete!"
 
-puts "Importing hdl.."
-add_files -norecurse $PROJECT_BASE/src/hdl/slice_it_up.vhd
+#puts "Importing hdl.."
+#add_files -norecurse $PROJECT_BASE/src/hdl/slice_it_up.vhd
 
 #source $thisDir/connect_gpio_to_vata_ports.tcl
 

@@ -1,3 +1,9 @@
+set_property SYNTH_CHECKPOINT_MODE Singular [get_files [pwd]/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/dbe_aliveness_bd.bd]
+
+update_compile_order -fileset sources_1
+import_files -norecurse [pwd]/../src/hdl/slice_it_up.vhd
+
+
 create_bd_cell -type module -reference slice_it_up slice_it_up_0
 
 create_bd_port -dir O DIG_ASIC_1_S0
