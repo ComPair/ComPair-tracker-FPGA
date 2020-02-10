@@ -208,22 +208,6 @@ int run_cmd(u32 uart_baseaddr, char *recv_buf, char *send_buf) {
         toggle_gpio(DIG_ASIC_1_CALDB, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_1_CALDB\r\n");
         goto return_ok;
-    } else if (strncmp("DIG_ASIC_1_OUT_5", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_1_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_1_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_1_OUT_6", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_1_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_1_OUT_6\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_2_OUT_5", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_2_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_2_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_2_OUT_6", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_2_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_2_OUT_6\r\n");
-        goto return_ok;
     } else if (strncmp("DIG_ASIC_3_S0", recv_buf, 13) == 0) {
         toggle_gpio(DIG_ASIC_3_S0, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_3_S0\r\n");
@@ -287,22 +271,6 @@ int run_cmd(u32 uart_baseaddr, char *recv_buf, char *send_buf) {
     } else if (strncmp("DIG_ASIC_3_CALDB", recv_buf, 16) == 0) {
         toggle_gpio(DIG_ASIC_3_CALDB, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_3_CALDB\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_3_OUT_5", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_3_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_3_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_3_OUT_6", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_3_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_3_OUT_6\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_4_OUT_5", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_4_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_4_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_4_OUT_6", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_4_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_4_OUT_6\r\n");
         goto return_ok;
     } else if (strncmp("DIG_ASIC_5_S0", recv_buf, 13) == 0) {
         toggle_gpio(DIG_ASIC_5_S0, uart_baseaddr);
@@ -368,22 +336,6 @@ int run_cmd(u32 uart_baseaddr, char *recv_buf, char *send_buf) {
         toggle_gpio(DIG_ASIC_5_CALDB, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_5_CALDB\r\n");
         goto return_ok;
-    } else if (strncmp("DIG_ASIC_5_OUT_5", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_5_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_5_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_5_OUT_6", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_5_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_5_OUT_6\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_6_OUT_5", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_6_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_6_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_6_OUT_6", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_6_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_6_OUT_6\r\n");
-        goto return_ok;
     } else if (strncmp("DIG_ASIC_7_S0", recv_buf, 13) == 0) {
         toggle_gpio(DIG_ASIC_7_S0, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_7_S0\r\n");
@@ -448,22 +400,6 @@ int run_cmd(u32 uart_baseaddr, char *recv_buf, char *send_buf) {
         toggle_gpio(DIG_ASIC_7_CALDB, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_7_CALDB\r\n");
         goto return_ok;
-    } else if (strncmp("DIG_ASIC_7_OUT_5", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_7_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_7_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_7_OUT_6", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_7_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_7_OUT_6\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_8_OUT_5", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_8_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_8_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_8_OUT_6", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_8_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_8_OUT_6\r\n");
-        goto return_ok;
     } else if (strncmp("DIG_A_VTH_CAL_DAC_MOSI_P", recv_buf, 24) == 0) {
         toggle_gpio(DIG_A_VTH_CAL_DAC_MOSI_P, uart_baseaddr);
         xil_printf("Toggling port DIG_A_VTH_CAL_DAC_MOSI_P\r\n");
@@ -484,21 +420,9 @@ int run_cmd(u32 uart_baseaddr, char *recv_buf, char *send_buf) {
         toggle_gpio(DIG_A_VTH_DAC_SYNCn_P, uart_baseaddr);
         xil_printf("Toggling port DIG_A_VTH_DAC_SYNCn_P\r\n");
         goto return_ok;
-    } else if (strncmp("DIG_A_TELEMX_MISO_P", recv_buf, 19) == 0) {
-        toggle_gpio(DIG_A_TELEMX_MISO_P, uart_baseaddr);
-        xil_printf("Toggling port DIG_A_TELEMX_MISO_P\r\n");
-        goto return_ok;
-    } else if (strncmp("PPS", recv_buf, 3) == 0) {
-        toggle_gpio(PPS, uart_baseaddr);
-        xil_printf("Toggling port PPS\r\n");
-        goto return_ok;
     } else if (strncmp("DIG_A_TELEMX_MOSI_P", recv_buf, 19) == 0) {
         toggle_gpio(DIG_A_TELEMX_MOSI_P, uart_baseaddr);
         xil_printf("Toggling port DIG_A_TELEMX_MOSI_P\r\n");
-        goto return_ok;
-    } else if (strncmp("EXTCLK", recv_buf, 6) == 0) {
-        toggle_gpio(EXTCLK, uart_baseaddr);
-        xil_printf("Toggling port EXTCLK\r\n");
         goto return_ok;
     } else if (strncmp("DIG_A_TELEM1_SCLK_P", recv_buf, 19) == 0) {
         toggle_gpio(DIG_A_TELEM1_SCLK_P, uart_baseaddr);
@@ -511,10 +435,6 @@ int run_cmd(u32 uart_baseaddr, char *recv_buf, char *send_buf) {
     } else if (strncmp("DIG_A_TELEM2_CSn_P", recv_buf, 18) == 0) {
         toggle_gpio(DIG_A_TELEM2_CSn_P, uart_baseaddr);
         xil_printf("Toggling port DIG_A_TELEM2_CSn_P\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_B_TELEMX_MISO_P", recv_buf, 19) == 0) {
-        toggle_gpio(DIG_B_TELEMX_MISO_P, uart_baseaddr);
-        xil_printf("Toggling port DIG_B_TELEMX_MISO_P\r\n");
         goto return_ok;
     } else if (strncmp("DIG_B_TELEMX_MOSI_P", recv_buf, 19) == 0) {
         toggle_gpio(DIG_B_TELEMX_MOSI_P, uart_baseaddr);
@@ -616,22 +536,6 @@ int run_cmd(u32 uart_baseaddr, char *recv_buf, char *send_buf) {
         toggle_gpio(DIG_ASIC_9_CALDB, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_9_CALDB\r\n");
         goto return_ok;
-    } else if (strncmp("DIG_ASIC_9_OUT_5", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_9_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_9_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_9_OUT_6", recv_buf, 16) == 0) {
-        toggle_gpio(DIG_ASIC_9_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_9_OUT_6\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_10_OUT_5", recv_buf, 17) == 0) {
-        toggle_gpio(DIG_ASIC_10_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_10_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_10_OUT_6", recv_buf, 17) == 0) {
-        toggle_gpio(DIG_ASIC_10_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_10_OUT_6\r\n");
-        goto return_ok;
     } else if (strncmp("DIG_ASIC_11_S0", recv_buf, 14) == 0) {
         toggle_gpio(DIG_ASIC_11_S0, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_11_S0\r\n");
@@ -676,22 +580,6 @@ int run_cmd(u32 uart_baseaddr, char *recv_buf, char *send_buf) {
         toggle_gpio(DIG_ASIC_12_S_LATCH, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_12_S_LATCH\r\n");
         goto return_ok;
-    } else if (strncmp("Trig_Ack_P", recv_buf, 10) == 0) {
-        toggle_gpio(Trig_Ack_P, uart_baseaddr);
-        xil_printf("Toggling port Trig_Ack_P\r\n");
-        goto return_ok;
-    } else if (strncmp("Event_ID_Latch_P", recv_buf, 16) == 0) {
-        toggle_gpio(Event_ID_Latch_P, uart_baseaddr);
-        xil_printf("Toggling port Event_ID_Latch_P\r\n");
-        goto return_ok;
-    } else if (strncmp("Event_ID_P", recv_buf, 10) == 0) {
-        toggle_gpio(Event_ID_P, uart_baseaddr);
-        xil_printf("Toggling port Event_ID_P\r\n");
-        goto return_ok;
-    } else if (strncmp("Trig_ENA_P", recv_buf, 10) == 0) {
-        toggle_gpio(Trig_ENA_P, uart_baseaddr);
-        xil_printf("Toggling port Trig_ENA_P\r\n");
-        goto return_ok;
     } else if (strncmp("DIG_ASIC_12_I1", recv_buf, 14) == 0) {
         toggle_gpio(DIG_ASIC_12_I1, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_12_I1\r\n");
@@ -711,22 +599,6 @@ int run_cmd(u32 uart_baseaddr, char *recv_buf, char *send_buf) {
     } else if (strncmp("DIG_ASIC_11_CALDB", recv_buf, 17) == 0) {
         toggle_gpio(DIG_ASIC_11_CALDB, uart_baseaddr);
         xil_printf("Toggling port DIG_ASIC_11_CALDB\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_11_OUT_5", recv_buf, 17) == 0) {
-        toggle_gpio(DIG_ASIC_11_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_11_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_11_OUT_6", recv_buf, 17) == 0) {
-        toggle_gpio(DIG_ASIC_11_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_11_OUT_6\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_12_OUT_5", recv_buf, 17) == 0) {
-        toggle_gpio(DIG_ASIC_12_OUT_5, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_12_OUT_5\r\n");
-        goto return_ok;
-    } else if (strncmp("DIG_ASIC_12_OUT_6", recv_buf, 17) == 0) {
-        toggle_gpio(DIG_ASIC_12_OUT_6, uart_baseaddr);
-        xil_printf("Toggling port DIG_ASIC_12_OUT_6\r\n");
         goto return_ok;
     } else if (strncmp("Si_HIT_P", recv_buf, 8) == 0) {
         toggle_gpio(Si_HIT_P, uart_baseaddr);
