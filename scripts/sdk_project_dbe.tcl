@@ -42,7 +42,7 @@ set sdk_dir $::env(XILINX_SDK)
 
 set hw_project_name my_hw_project
 
-#Create an SDK workspace
+#Set SDK workspace
 set sdk_ws_dir [file normalize "$BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.sdk"]
 set hdf_filename [file normalize $sdk_ws_dir/$TOPLEVEL_NAME.hdf]
 sdk setws $sdk_ws_dir
@@ -83,6 +83,22 @@ if { [file exists ${sdk_ws_dir}/app_gpio/lscript.ld] == 1 } {
 }
 
 
+
+sdk createapp -name toggle_gpio -app "Empty Application" -proc [get_processor_name hw_0] -hwproject hw_0 -bsp bsp_gpio -os standalone
+exec rm -f ${sdk_ws_dir}/toggle_gpio/src/main.cc
+sdk configapp -app toggle_gpio build-config debug
+sdk configapp -app  toggle_gpio -set compiler-optimization {Optimize for size (-Os)}
+sdk configapp -app toggle_gpio build-config release
+sdk configapp -app  toggle_gpio -set compiler-optimization {Optimize for size (-Os)}
+if { [file exists ${sdk_ws_dir}/toggle_gpio/src/lscript.ld] == 1 } {
+   exec cp -f ${sdk_ws_dir}/toggle_gpio/src/lscript.ld ${sdk_ws_dir}/toggle_gpio/lscript.ld
+}
+exec rm -rf ${sdk_ws_dir}/toggle_gpio/src
+#exec ln -s $::env(SDK_SRC_PATH) ${sdk_ws_dir}/toggle_gpio/src
+exec cp -f -r ${PROJECT_BASE}/src/dbe/sdk/toggle_gpio/src ${sdk_ws_dir}/toggle_gpio/
+if { [file exists ${sdk_ws_dir}/toggle_gpio/lscript.ld] == 1 } {
+   exec mv -f ${sdk_ws_dir}/toggle_gpio/lscript.ld ${sdk_ws_dir}/toggle_gpio/src/lscript.ld
+}
 
 
 # createbsp -name bsp_lwip -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
