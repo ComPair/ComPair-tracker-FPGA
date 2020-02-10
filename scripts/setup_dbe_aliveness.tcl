@@ -91,7 +91,7 @@ set_property IP_REPO_PATHS $IP_PATH [current_fileset]
 ::update_ip_catalog
 
 ##add_files -norecurse $CORES_BASE/vata460p3/vata460p3_interface.vhd
-
+add_files -norecurse $PROJECT_BASE/src/hdl/slice_it_up.vhd
 # Source the bd.tcl file to create the bd with custom ip module
 # first get the major.minor version of the tool - and source
 # the bd creation script that corresponds to the current tool version
