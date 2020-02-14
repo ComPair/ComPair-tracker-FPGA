@@ -2,7 +2,7 @@
 #  ComPair Trakcer FEE project makefile
 #
 
-ROOTDIR=..
+ROOTDIR=../..#$(PWD)
 
 # Common options
 VIVADOCOMOPS = -mode batch
@@ -20,6 +20,10 @@ PREFIX = cmd //c "
 POSTFIX = "
 endif
 
+ifndef BUILD
+$(error BUILD is not set.)
+endif
+
 ## By default we are using the Trenz 21FC3 FPGA module.
 ## To use the 1CFA module, uncomment the line below.
 #USING_1CFA_ARGS = -tclargs use_1cfa
@@ -27,8 +31,10 @@ endif
 SETUP_EVAL = -source $(ROOTDIR)/scripts/setup_trenz_breakout.tcl -log setup.log -jou setup.jou -notrace $(USING_1CFA_ARGS)
 SETUP_DBE_ALIVENESS = -source $(ROOTDIR)/scripts/setup_dbe_aliveness.tcl -log setup.log -jou setup.jou -notrace $(USING_1CFA_ARGS)
 
+SETUP_PROJECT = -source $(ROOTDIR)/scripts/setup_project.tcl -log setup.log -jou setup.jou -notrace -tclargs $(BUILD) $(USING_1CFA_ARGS)
+
 all_dbe: setup_dbe_aliveness compile export_hardware_dbe sdk_project_dbe
-	
+
 # Setup the Trenz/Zynq base project
 #setup_breakout : .\work\.setup.done
 #.\work\.setup.done :
@@ -38,14 +44,17 @@ all_dbe: setup_dbe_aliveness compile export_hardware_dbe sdk_project_dbe
 #	echo $(PWD)
 #	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_EVAL) $(POSTFIX)
 
-setup_dbe_aliveness : .\work\.setup.done
-.\work\.setup.done :
-	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
-	@echo "    Running DBE setup"
-	mkdir -p work
-	echo $(PWD)
-	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_DBE_ALIVENESS) $(POSTFIX)
+setup : .\work\$(BUILD)\.setup.done
 
+.\work\$(BUILD)\.setup.done :
+	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+	@echo "    Running $(BUILD) setup"
+	mkdir -p work/\$(PROJECT_NAME)
+	@echo $(PWD)
+	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_PROJECT) $(POSTFIX)
+
+save_bd:
+	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/save_trenz_design.tcl -log save_trenz_design.log -jou save_trenz_design.jou -notrace $(POSTFIX)	
 
 save_trenz_design :  
 	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/save_trenz_design.tcl -log save_trenz_design.log -jou save_trenz_design.jou -notrace $(POSTFIX)
@@ -53,7 +62,7 @@ save_trenz_design :
 save_dbe_bd :  
 	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/save_dbe_bd.tcl -log save_dbe_bd.log -jou save_dbe_bd.jou -notrace $(POSTFIX)
 
-compile : .\work\.compile.done
+compile : .\work\$(BUILD)\.compile.done
 .\work\.compile.done : .\work\.setup.done
 	cd work; $(PREFIX) vivado $(VIVADOCOMOPS) -source $(ROOTDIR)/scripts/compile.tcl -log compile.log -jou compile.jou $(POSTFIX)
 
@@ -62,7 +71,7 @@ compile : .\work\.compile.done
 launchgui :
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
 	@echo "    Launching GUI..."
-	cd work; $(PREFIX) vivado zynq/zynq.xpr $(POSTFIX)
+	cd work/$(BUILD); $(PREFIX) vivado zynq/zynq.xpr $(POSTFIX)
 
 #This is export hardware files so they can be used in sdk
 export_hardware : 
@@ -98,3 +107,4 @@ help:
 	@echo "export_hardware_dbe"
 	@echo "clean"
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+
