@@ -364,6 +364,10 @@ proc create_root_design { parentCell } {
 
   # Create instance: AXI_cal_DAC_0, and set properties
   set AXI_cal_DAC_0 [ create_bd_cell -type ip -vlnv nasa.gov:user:AXI_cal_DAC:1.0 AXI_cal_DAC_0 ]
+  set_property -dict [ list \
+   CONFIG.CLK_RATIO {50} \
+   CONFIG.COUNTER_WIDTH {8} \
+ ] $AXI_cal_DAC_0
 
   # Create instance: SC0720_0, and set properties
   set SC0720_0 [ create_bd_cell -type ip -vlnv trenz.biz:user:SC0720:1.0 SC0720_0 ]
