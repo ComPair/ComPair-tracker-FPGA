@@ -1,3 +1,4 @@
+set BUILD "[lindex $argv 0]"
 #Function to get the name of the processor in the design
 # get the directory where this script resides
 set thisDir [file dirname [info script]]
@@ -18,20 +19,21 @@ proc get_processor_name {hw_project_name} {
 }
 
 
-set TOPLEVEL_NAME "dbe_aliveness_bd_wrapper"
+set TOPLEVEL_NAME "$BUILD\_bd_wrapper"
 set PROJECT_NAME "zynq"
 
 
 # source common utilities
 
 set PROJECT_BASE [file normalize "$thisDir/../"]
-set BUILD_WORKSPACE [file normalize "$PROJECT_BASE/work"]
+set BUILD_WORKSPACE [file normalize "$PROJECT_BASE/work/$BUILD/"]
 
 puts "================================="
 puts "     PROJECT_BASE: $PROJECT_BASE"
+puts "            BUILD: $BUILD"
 puts "  BUILD_WORKSPACE: $BUILD_WORKSPACE"
-puts "    PROJECT_NAME: $PROJECT_NAME"
-puts "   TOPLEVEL_NAME: $TOPLEVEL_NAME"
+puts "     PROJECT_NAME: $PROJECT_NAME"
+puts "    TOPLEVEL_NAME: $TOPLEVEL_NAME"
 
 
 
@@ -77,7 +79,7 @@ if { [file exists ${sdk_ws_dir}/app_gpio/src/lscript.ld] == 1 } {
 }
 exec rm -rf ${sdk_ws_dir}/app_gpio/src
 #exec ln -s $::env(SDK_SRC_PATH) ${sdk_ws_dir}/app_gpio/src
-exec cp -f -r ${PROJECT_BASE}/src/dbe/sdk/gpio_app/src ${sdk_ws_dir}/app_gpio/
+exec cp -f -r ${PROJECT_BASE}/src/block_diagrams/$BUILD/sdk/gpio_app/src ${sdk_ws_dir}/app_gpio/
 if { [file exists ${sdk_ws_dir}/app_gpio/lscript.ld] == 1 } {
    exec mv -f ${sdk_ws_dir}/app_gpio/lscript.ld ${sdk_ws_dir}/app_gpio/src/lscript.ld
 }

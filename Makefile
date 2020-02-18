@@ -35,7 +35,7 @@ SETUP_PROJECT = -source $(ROOTDIR)/scripts/setup_project.tcl -log setup.log -jou
 COMPILE_PROJECT = -source $(ROOTDIR)/scripts/compile.tcl -log compile.log -jou compile.jou -notrace -tclargs $(BUILD) 
 SAVE_BD = -source $(ROOTDIR)/scripts/save_bd.tcl -log save_bd.log -jou save_bd.jou -notrace -tclargs $(BUILD) 
 EXPORT_HW = -source $(ROOTDIR)/scripts/export_hardware.tcl -log export_hardware.log -jou export_hardware.jou -notrace -tclargs $(BUILD) 
-SDK = -source $(ROOTDIR)/scripts/sdk_project_dbe.tcl
+SDK = -source $(ROOTDIR)/scripts/sdk_project_dbe.tcl $(BUILD) 
 #all_dbe: setup_dbe_aliveness compile export_hardware_dbe sdk_project_dbe
 
 all: setup compile export_hardware sdk_project_dbe
@@ -56,8 +56,9 @@ setup : ./work/$(BUILD)/.setup.done
 	@echo $(PWD)
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_PROJECT) $(POSTFIX)
 
-compile : ./work/$(BUILD)/.compile.done
-./work/$(BUILD)/.compile.done : setup
+compile : ./work/$(BUILD)/.compile.done 
+
+./work/$(BUILD)/.compile.done : ./work/$(BUILD)/.setup.done
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(COMPILE_PROJECT) $(POSTFIX)
 
 save_bd:
