@@ -90,16 +90,13 @@ set_property IP_REPO_PATHS $IP_PATH [current_fileset]
 # Source the bd.tcl file to create the bd with custom ip module
 # first get the major.minor version of the tool - and source
 # the bd creation script that corresponds to the current tool version
-set BD_NAME "[concat [string trim $BUILD]_bd]"
-puts $BD_NAME
+set BD_NAME $BUILD\_bd
+
 set currVer [join [lrange [split [version -short] "."] 0 1] "."]
 puts "Current Version $currVer"
 if {$currVer eq "2018.3"} {
   puts "Running Block Design Generation"
-  #source $PROJECT_BASE/src/breakout/zynq_bd.tcl
-
-  #set BD_TCL ""
-  source [file normalize [concat [string trim $PROJECT_BASE/src/block_diagrams/$BUILD/$BD_NAME].tcl]]
+  source [file normalize $PROJECT_BASE/src/block_diagrams/$BUILD/$BD_NAME\.tcl]
 } else {
   puts "This script will only work with 2018.3, everything else will fail"
 }
@@ -107,26 +104,26 @@ validate_bd_design
 save_bd_design
 
 # Generate Target
-create_fileset -blockset -define_from dbe_aliveness_bd dbe_aliveness_bd
-generate_target all [get_files */dbe_aliveness_bd.bd]
+create_fileset -blockset -define_from $BD_NAME $BD_NAME
+generate_target all [get_files */$BD_NAME\.bd]
 
 report_ip_status
 upgrade_ip [ get_ips * ]
 
 remove_files fifo_generator_0.xci -quiet
 
-make_wrapper -files [get_files [file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/dbe_aliveness_bd.bd"]] -top
+make_wrapper -files [get_files [file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/$BD_NAME/$BD_NAME.bd"]] -top
 
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- "[file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/hdl/dbe_aliveness_bd_wrapper.vhd"]"\
+ "[file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/$BD_NAME/hdl/$BD_NAME\_wrapper.vhd"]"\
 ]
 add_files -norecurse -fileset $obj $files
 update_compile_order -fileset sim_1
 
 # Set 'sources_1' fileset file properties for remote files
-set file "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/hdl/dbe_aliveness_bd_wrapper.vhd"
+set file "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/$BD_NAME/hdl/$BD_NAME\_wrapper.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property "file_type" "VHDL" $file_obj
@@ -135,10 +132,9 @@ set_property "file_type" "VHDL" $file_obj
 add_files -fileset constrs_1 -norecurse [glob $PROJECT_BASE/src/block_diagrams/$BUILD/*.xdc]
 
 # Change from "Out of Context" IP to "Global"
-set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/dbe_aliveness_bd.bd"]
+set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/$BD_NAME/$BD_NAME.bd"]
 
-puts "--- $BUILD setup complete " 
+puts "--- $BUILD setup complete."
 
 # If successful, "touch" a file so the make utility will know it's done
 touch {.setup.done}
-puts "Setup complete."
