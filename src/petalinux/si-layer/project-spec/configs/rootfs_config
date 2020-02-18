@@ -673,7 +673,7 @@ CONFIG_less=y
 #
 # man 
 #
-# CONFIG_man is not set
+CONFIG_man=y
 # CONFIG_man-dbg is not set
 # CONFIG_man-dev is not set
 

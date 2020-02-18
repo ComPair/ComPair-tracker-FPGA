@@ -63,11 +63,11 @@ set proj_dir [get_property directory [current_project]]
 # Set project properties
 set obj [get_projects zynq]
 
-if { $USE_1CFA } {
-    set_property "board_part" "trenz.biz:te0720_1c:part0:1.0" $obj
-} else {
-    set_property "board_part" "trenz.biz:te0720_2i:part0:1.0" $obj
-}
+#if { $USE_1CFA } {
+#    set_property "board_part" "trenz.biz:te0720_1c:part0:1.0" $obj
+#} else {
+#    set_property "board_part" "trenz.biz:te0720_2i:part0:1.0" $obj
+#}
 
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "generate_ip_upgrade_log" "0" $obj
@@ -99,7 +99,7 @@ set currVer [join [lrange [split [version -short] "."] 0 1] "."]
 puts "Current Version $currVer"
 if {$currVer eq "2018.3"} {
   puts "Running Block Design Generation"
-  source $PROJECT_BASE/src/breakout/zynq_bd.tcl
+  source $PROJECT_BASE/src/dbe/dbe_aliveness_bd.tcl
 } else {
   puts "This script will only work with 2018.3, everything else will fail"
 }
@@ -107,37 +107,40 @@ validate_bd_design
 save_bd_design
 
 # Generate Target
-create_fileset -blockset -define_from zynq_bd zynq_bd
-generate_target all [get_files */zynq_bd.bd]
+create_fileset -blockset -define_from dbe_aliveness_bd dbe_aliveness_bd
+generate_target all [get_files */dbe_aliveness_bd.bd]
 
 report_ip_status
 upgrade_ip [ get_ips * ]
 
 remove_files fifo_generator_0.xci -quiet
 
-make_wrapper -files [get_files [file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd"]] -top
+make_wrapper -files [get_files [file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/dbe_aliveness_bd.bd"]] -top
 
 # Set 'sources_1' fileset object
 set obj [get_filesets sources_1]
 set files [list \
- "[file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/hdl/zynq_bd_wrapper.vhd"]"\
+ "[file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/hdl/dbe_aliveness_bd_wrapper.vhd"]"\
 ]
 add_files -norecurse -fileset $obj $files
 update_compile_order -fileset sim_1
 
 # Set 'sources_1' fileset file properties for remote files
-set file "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/hdl/zynq_bd_wrapper.vhd"
+set file "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/hdl/dbe_aliveness_bd_wrapper.vhd"
 set file [file normalize $file]
 set file_obj [get_files -of_objects [get_filesets sources_1] [list "*$file"]]
 set_property "file_type" "VHDL" $file_obj
 
 #add_files -fileset constrs_1 -norecurse [file normalize "$PROJECT_BASE/src/zybo/board_constraints.xdc"]
-add_files -fileset constrs_1 -norecurse [glob $PROJECT_BASE/src/breakout/*.xdc]
+add_files -fileset constrs_1 -norecurse [glob $PROJECT_BASE/src/dbe/*.xdc]
 
 # Change from "Out of Context" IP to "Global"
-set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd"]
+set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/dbe_aliveness_bd.bd"]
 
 puts "Setup of the Trenz Board complete!"
+
+#puts "Importing hdl.."
+#add_files -norecurse $PROJECT_BASE/src/hdl/slice_it_up.vhd
 
 #source $thisDir/connect_gpio_to_vata_ports.tcl
 
@@ -148,14 +151,14 @@ puts "Setup of the Trenz Board complete!"
 ##source $thisDir/add_vata_to_bd.tcl
 ##
 #### Next commands are cludge to fix error during implementation.
-#### Error relates to zynq_bd missing some output files
+#### Error relates to dbe_aliveness_bd missing some output files
 #### vivado recommends synth_checkpoint_mode be set to `Singular` for zynq.bd to fix this (it does not),
 #### but there is a command setting synth_checkpoint_mode to None just a few lines up...
 #### need to look up what this command does.
-##upgrade_ip -srcset zynq_bd -vlnv user.org:user:vata_460p3_interface:1.0 [get_ips zynq_bd_vata_460p3_interface_P2_0] -log ip_upgrade.log
-##export_ip_user_files -of_objects [get_ips zynq_bd_vata_460p3_interface_P2_0] -no_script -sync -force -quiet
-##generate_target all [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd]
-##export_ip_user_files -of_objects [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd] -no_script -sync -force -quiet
+##upgrade_ip -srcset dbe_aliveness_bd -vlnv user.org:user:vata_460p3_interface:1.0 [get_ips dbe_aliveness_bd_vata_460p3_interface_P2_0] -log ip_upgrade.log
+##export_ip_user_files -of_objects [get_ips dbe_aliveness_bd_vata_460p3_interface_P2_0] -no_script -sync -force -quiet
+##generate_target all [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/dbe_aliveness_bd.bd]
+##export_ip_user_files -of_objects [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/dbe_aliveness_bd.bd] -no_script -sync -force -quiet
 ##report_ip_status
 
 # If successful, "touch" a file so the make utility will know it's done

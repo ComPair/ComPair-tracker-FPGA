@@ -30,7 +30,7 @@ puts "          IP_BASE: $IP_BASE"
 # Create project
 open_project [file normalize "$BUILD_WORKSPACE/zynq/zynq.xpr"]
 
-open_bd_design [file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/zynq_bd/zynq_bd.bd"]
+open_bd_design [file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_aliveness_bd/dbe_aliveness_bd.bd"]
 
-write_bd_tcl [file normalize "$PROJECT_BASE/src/breakout/zynq_bd.tcl"] -force
+write_bd_tcl [file normalize "$PROJECT_BASE/src/dbe/dbe_aliveness_bd.tcl"] -force
 puts "Trenz Board design saved!"

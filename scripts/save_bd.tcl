@@ -1,28 +1,26 @@
 set BUILD "[lindex $argv 0]"
 # get the directory where this script resides
 set thisDir [file dirname [info script]]
+
 # source common utilities
 source -notrace $thisDir/utils.tcl
 
+set CORES_BASE [file normalize "$thisDir/../cores/"]
+set IP_BASE [file normalize "$CORES_BASE/fpga-ip-library/vivado_library/ip_repo"]
 set PROJECT_BASE [file normalize "$thisDir/../"]
-set CORES_BASE [file normalize "$PROJECT_BASE/cores/"]
-set BUILD_WORKSPACE [file normalize "$PROJECT_BASE/work/$BUILD/"]
-set HDL_SRC_DIR [file normalize "$PROJECT_BASE/src/hdl"]
+set BUILD_WORKSPACE [file normalize "$PROJECT_BASE/work/$BUILD"]
 
 puts "================================="
 puts "     PROJECT_BASE: $PROJECT_BASE"
 puts "            BUILD: $BUILD"
 puts "       CORES_BASE: $CORES_BASE"
 puts "  BUILD_WORKSPACE: $BUILD_WORKSPACE"
-puts "================================="
-
+puts "          IP_BASE: $IP_BASE"
 
 # Create project
 open_project [file normalize "$BUILD_WORKSPACE/zynq/zynq.xpr"]
-launch_runs impl_1 -to_step write_bitstream -jobs 4
-wait_on_run impl_1
 
+open_bd_design [file normalize "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/$BUILD\_bd/$BUILD\_bd.bd"]
 
-# if everything is successful "touch" a file so make will not it's done
-touch {.compile.done}
-puts "Compilation complete!"
+write_bd_tcl [file normalize "$PROJECT_BASE/src/block_diagrams/$BUILD/$BUILD\_bd.tcl"] -force
+puts "$BUILD block diagram saved!"
