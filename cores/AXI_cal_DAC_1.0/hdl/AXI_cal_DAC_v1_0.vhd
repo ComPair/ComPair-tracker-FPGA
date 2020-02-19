@@ -5,8 +5,8 @@ use ieee.numeric_std.all;
 entity AXI_cal_DAC_v1_0 is
     generic (
         -- Users to add parameters here
-        CLK_RATIO : integer := 2; -- spi clock freq is clk in freq / 2 / CLK_RATIO
-        COUNTER_WIDTH : integer := 2;
+        CLK_RATIO : integer := 50; -- spi clock freq is clk in freq / 2 / CLK_RATIO
+        COUNTER_WIDTH : integer := 8;
         -- User parameters ends
         -- Do not modify the parameters beyond this line
 
@@ -57,8 +57,8 @@ architecture arch_imp of AXI_cal_DAC_v1_0 is
     -- component declaration
     component AXI_cal_DAC_v1_0_S00_AXI is
         generic (
-            CLK_RATIO : integer := 2;
-            COUNTER_WIDTH : integer := 2;
+            CLK_RATIO : integer := 50;
+            COUNTER_WIDTH : integer := 8;
             ---
             C_S_AXI_DATA_WIDTH  : integer   := 32;
             C_S_AXI_ADDR_WIDTH  : integer   := 5
