@@ -52,8 +52,8 @@ setup : ./work/$(BUILD)/.setup.done
 ./work/$(BUILD)/.setup.done :
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
 	@echo "    Running $(BUILD) setup"
-	mkdir work
-	mkdir work/\$(BUILD)
+	if [ ! -d "work" ]; then mkdir work; fi
+	if [ ! -d "work/\$(BUILD)" ]; then mkdir work/\$(BUILD); fi
 	@echo $(PWD)
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_PROJECT) $(POSTFIX)
 
