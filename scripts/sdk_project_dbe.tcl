@@ -49,8 +49,18 @@ set sdk_ws_dir [file normalize "$BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.sdk
 set hdf_filename [file normalize $sdk_ws_dir/$TOPLEVEL_NAME.hdf]
 sdk setws $sdk_ws_dir
 
+file delete -force $sdk_ws_dir/.metadata
+file delete -force $sdk_ws_dir/hw_0
+file delete -force $sdk_ws_dir/bsp_fsbl
+file delete -force $sdk_ws_dir/app_fsbl
+file delete -force $sdk_ws_dir/bsp_petalinux
+file delete -force $sdk_ws_dir/calctrl
+
+
+
 sdk createhw -name hw_0 -hwspec $hdf_filename
 
+# ##################      First Stage Boot Loader
 createbsp -name bsp_fsbl -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
 setlib -bsp bsp_fsbl -lib xilrsa
 setlib -bsp bsp_fsbl -lib xilffs
@@ -63,28 +73,42 @@ sdk configapp -app app_fsbl build-config release
 sdk configapp -app  app_fsbl -set compiler-optimization {Optimize for size (-Os)}
 
 
+# ##################      Linux Applications
+createbsp -name bsp_petalinux -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
+updatemss -mss [file normalize $sdk_ws_dir/bsp_petalinux/system.mss]
+regenbsp -bsp bsp_petalinux
 
+sdk createapp -name calctrl -app "Empty Application" -proc ps7_cortexa9 -hwproject hw_0 -os linux -bsp bsp_petalinux -lang c++
+#exec cp -f -vr ${PROJECT_BASE}/src/sdk-apps/calctrl ${sdk_ws_dir}/calctrl/src
+puts "${PROJECT_BASE}/src/sdk-apps/calctrl"
+puts "${sdk_ws_dir}/calctrl"
+exec rm -rf ${sdk_ws_dir}/calctrl/src
+exec cp -rf ${PROJECT_BASE}/src/sdk-apps/calctrl/ ${sdk_ws_dir}/calctrl/src 
 
-createbsp -name bsp_gpio -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
-updatemss -mss ${sdk_ws_dir}/bsp_gpio/system.mss
+sdk configapp -app calctrl build-config debug
+sdk configapp -app calctrl include-path ${sdk_ws_dir}/bsp_petalinux/ps7_cortexa9_0/include
+# projects -clean
+projects -build
 
-sdk createapp -name app_gpio -app "Empty Application" -proc [get_processor_name hw_0] -hwproject hw_0 -bsp bsp_gpio -os standalone
-exec rm -f ${sdk_ws_dir}/app_gpio/src/main.cc
-sdk configapp -app app_gpio build-config debug
-sdk configapp -app  app_gpio -set compiler-optimization {Optimize for size (-Os)}
-sdk configapp -app app_gpio build-config release
-sdk configapp -app  app_gpio -set compiler-optimization {Optimize for size (-Os)}
-if { [file exists ${sdk_ws_dir}/app_gpio/src/lscript.ld] == 1 } {
-   exec cp -f ${sdk_ws_dir}/app_gpio/src/lscript.ld ${sdk_ws_dir}/app_gpio/lscript.ld
-}
-exec rm -rf ${sdk_ws_dir}/app_gpio/src
-#exec ln -s $::env(SDK_SRC_PATH) ${sdk_ws_dir}/app_gpio/src
-exec cp -f -r ${PROJECT_BASE}/src/block_diagrams/$BUILD/sdk/gpio_app/src ${sdk_ws_dir}/app_gpio/
-if { [file exists ${sdk_ws_dir}/app_gpio/lscript.ld] == 1 } {
-   exec mv -f ${sdk_ws_dir}/app_gpio/lscript.ld ${sdk_ws_dir}/app_gpio/src/lscript.ld
-}
+# ##################      GPIO Application
+# createbsp -name bsp_gpio -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
+# updatemss -mss ${sdk_ws_dir}/bsp_gpio/system.mss
 
-
+# sdk createapp -name app_gpio -app "Empty Application" -proc [get_processor_name hw_0] -hwproject hw_0 -bsp bsp_gpio -os standalone
+# exec rm -f ${sdk_ws_dir}/app_gpio/src/main.cc
+# sdk configapp -app app_gpio build-config debug
+# sdk configapp -app  app_gpio -set compiler-optimization {Optimize for size (-Os)}
+# sdk configapp -app app_gpio build-config release
+# sdk configapp -app  app_gpio -set compiler-optimization {Optimize for size (-Os)}
+# if { [file exists ${sdk_ws_dir}/app_gpio/src/lscript.ld] == 1 } {
+   # exec cp -f ${sdk_ws_dir}/app_gpio/src/lscript.ld ${sdk_ws_dir}/app_gpio/lscript.ld
+# }
+# exec rm -rf ${sdk_ws_dir}/app_gpio/src
+# #exec ln -s $::env(SDK_SRC_PATH) ${sdk_ws_dir}/app_gpio/src
+# exec cp -f -r ${PROJECT_BASE}/src/dbe/sdk/gpio_app/src ${sdk_ws_dir}/app_gpio/
+# if { [file exists ${sdk_ws_dir}/app_gpio/lscript.ld] == 1 } {
+   # exec mv -f ${sdk_ws_dir}/app_gpio/lscript.ld ${sdk_ws_dir}/app_gpio/src/lscript.ld
+# }
 
 
 # createbsp -name bsp_lwip -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
@@ -109,9 +133,9 @@ if { [file exists ${sdk_ws_dir}/app_gpio/lscript.ld] == 1 } {
 
 
 # Build all
-regenbsp -bsp bsp_gpio
+#regenbsp -bsp bsp_gpio
 #regenbsp -bsp bsp_lwip
-projects -build
+#projects -build
 
 
 # # # if everything is successful "touch" a file so make will not it's done
