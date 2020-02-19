@@ -37,6 +37,13 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 # To test this script, run the following commands from Vivado Tcl console:
 # source dbe_production_bd_script.tcl
 
+
+# The design that will be created by this Tcl script contains the following 
+# module references:
+# local_invert, local_invert
+
+# Please add the sources of those modules before sourcing this Tcl script.
+
 # If there is no project opened, this script will create a
 # project, but make sure you do not have an existing project
 # <./myproj/project_1.xpr> in the current working folder.
@@ -152,6 +159,32 @@ xilinx.com:ip:xlslice:1.0\
       set bCheckIPsPassed 0
    }
 
+}
+
+##################################################################
+# CHECK Modules
+##################################################################
+set bCheckModules 1
+if { $bCheckModules == 1 } {
+   set list_check_mods "\ 
+local_invert\
+local_invert\
+"
+
+   set list_mods_missing ""
+   common::send_msg_id "BD_TCL-006" "INFO" "Checking if the following modules exist in the project's sources: $list_check_mods ."
+
+   foreach mod_vlnv $list_check_mods {
+      if { [can_resolve_reference $mod_vlnv] == 0 } {
+         lappend list_mods_missing $mod_vlnv
+      }
+   }
+
+   if { $list_mods_missing ne "" } {
+      catch {common::send_msg_id "BD_TCL-115" "ERROR" "The following module(s) are not found in the project: $list_mods_missing" }
+      common::send_msg_id "BD_TCL-008" "INFO" "Please add source files for the missing module(s) above."
+      set bCheckIPsPassed 0
+   }
 }
 
 if { $bCheckIPsPassed != 1 } {
@@ -427,6 +460,28 @@ proc create_root_design { parentCell } {
    CONFIG.Multiples16 {1} \
  ] $axi_quad_spi_1
 
+  # Create instance: local_invert_0, and set properties
+  set block_name local_invert
+  set block_cell_name local_invert_0
+  if { [catch {set local_invert_0 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_msg_id "BD_TCL-105" "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $local_invert_0 eq "" } {
+     catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: local_invert_1, and set properties
+  set block_name local_invert
+  set block_cell_name local_invert_1
+  if { [catch {set local_invert_1 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_msg_id "BD_TCL-105" "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $local_invert_1 eq "" } {
+     catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
   set_property -dict [ list \
@@ -971,7 +1026,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_PCAP_PERIPHERAL_CLKSRC {IO PLL} \
    CONFIG.PCW_PCAP_PERIPHERAL_DIVISOR0 {5} \
    CONFIG.PCW_PCAP_PERIPHERAL_FREQMHZ {200} \
-   CONFIG.PCW_PERIPHERAL_BOARD_PRESET {None} \
+   CONFIG.PCW_PERIPHERAL_BOARD_PRESET {part0} \
    CONFIG.PCW_PJTAG_PERIPHERAL_ENABLE {0} \
    CONFIG.PCW_PLL_BYPASSMODE_ENABLE {0} \
    CONFIG.PCW_PRESET_BANK0_VOLTAGE {LVCMOS 3.3V} \
@@ -1318,8 +1373,8 @@ proc create_root_design { parentCell } {
 
   # Create port connections
   connect_bd_net -net AXI_cal_DAC_0_cal_pulse_trigger_out [get_bd_ports DIG_A_CAL_PULSE_TRIGGER_P] [get_bd_pins AXI_cal_DAC_0/cal_pulse_trigger_out]
-  connect_bd_net -net AXI_cal_DAC_0_spi_mosi [get_bd_ports DIG_A_VTH_CAL_DAC_MOSI_P] [get_bd_pins AXI_cal_DAC_0/spi_mosi]
-  connect_bd_net -net AXI_cal_DAC_0_spi_sclk [get_bd_ports DIG_A_VTH_CAL_DAC_SCLK_P] [get_bd_pins AXI_cal_DAC_0/spi_sclk]
+  connect_bd_net -net AXI_cal_DAC_0_spi_mosi [get_bd_pins AXI_cal_DAC_0/spi_mosi] [get_bd_pins local_invert_0/din]
+  connect_bd_net -net AXI_cal_DAC_0_spi_sclk [get_bd_pins AXI_cal_DAC_0/spi_sclk] [get_bd_pins local_invert_1/din]
   connect_bd_net -net AXI_cal_DAC_0_spi_syncn [get_bd_ports DIG_A_CAL_DAC_SYNCn_P] [get_bd_pins AXI_cal_DAC_0/spi_syncn]
   connect_bd_net -net AXI_cal_DAC_0_vata_fast_or_trigger_disable [get_bd_pins AXI_cal_DAC_0/vata_fast_or_trigger_disable] [get_bd_pins vata_460p3_axi_inter_0/disable_fast_or_trigger]
   connect_bd_net -net DIG_ASIC_1_OUT_5_1 [get_bd_ports DIG_ASIC_1_OUT_5] [get_bd_pins vata_460p3_axi_inter_0/vata_o5]
@@ -1349,6 +1404,8 @@ proc create_root_design { parentCell } {
   connect_bd_net -net axi_quad_spi_0_ss_o [get_bd_pins axi_quad_spi_0/ss_o] [get_bd_pins xlslice_0/Din] [get_bd_pins xlslice_1/Din]
   connect_bd_net -net axi_quad_spi_1_io0_o [get_bd_ports DIG_B_TELEMX_MOSI_P] [get_bd_pins axi_quad_spi_1/io0_o]
   connect_bd_net -net axi_quad_spi_1_sck_o [get_bd_ports DIG_B_TELEMX_SCLK_P] [get_bd_pins axi_quad_spi_1/sck_o]
+  connect_bd_net -net local_invert_0_dout [get_bd_ports DIG_A_VTH_CAL_DAC_MOSI_P] [get_bd_pins local_invert_0/dout]
+  connect_bd_net -net local_invert_1_dout [get_bd_ports DIG_A_VTH_CAL_DAC_SCLK_P] [get_bd_pins local_invert_1/dout]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins AXI_cal_DAC_0/s00_axi_aclk] [get_bd_pins axi_fifo_mm_s_data0/s_axi_aclk] [get_bd_pins axi_gpio_trigger0/s_axi_aclk] [get_bd_pins axi_gpio_trigger_ena0/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/M01_ACLK] [get_bd_pins ps7_0_axi_periph/M02_ACLK] [get_bd_pins ps7_0_axi_periph/M03_ACLK] [get_bd_pins ps7_0_axi_periph/M04_ACLK] [get_bd_pins ps7_0_axi_periph/M05_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_100M/slowest_sync_clk] [get_bd_pins vata_460p3_axi_inter_0/s00_axi_aclk] [get_bd_pins vio_0/clk]
   connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins axi_quad_spi_0/s_axi_aclk] [get_bd_pins axi_quad_spi_1/ext_spi_clk] [get_bd_pins axi_quad_spi_1/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/M_AXI_GP1_ACLK] [get_bd_pins ps7_0_axi_periph_1/ACLK] [get_bd_pins ps7_0_axi_periph_1/M00_ACLK] [get_bd_pins ps7_0_axi_periph_1/M01_ACLK] [get_bd_pins ps7_0_axi_periph_1/S00_ACLK] [get_bd_pins rst_ps7_0_5M/slowest_sync_clk]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_100M/ext_reset_in] [get_bd_pins rst_ps7_0_5M/ext_reset_in]

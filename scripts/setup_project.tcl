@@ -73,11 +73,13 @@ set_property "simulator_language" "Mixed" $obj
 set_property "target_language" "VHDL" $obj
 
 # Create 'sources_1' fileset (if not found)
+
 if {[string equal [get_filesets -quiet sources_1] ""]} {
   create_fileset -srcset sources_1
 }
 
 puts "INFO: Project created: $BUILD"
+add_files -norecurse $PROJECT_BASE/src/hdl/local_invert.vhd
 
 ## ip_lib -> cores
 ## set IP_PATH $PROJECT_BASE/ip_lib
@@ -132,7 +134,11 @@ set_property "file_type" "VHDL" $file_obj
 add_files -fileset constrs_1 -norecurse [glob $PROJECT_BASE/src/block_diagrams/$BUILD/*.xdc]
 
 # Change from "Out of Context" IP to "Global"
+#set_property GENERATE_SYNTH_CHECKPOINT 0 [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_production_bd/dbe_production_bd.bd]
+#set_property IS_GLOBAL_INCLUDE 1 [get_files $BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/dbe_production_bd/dbe_production_bd.bd]
+# Change from "Out of Context" IP to "Global"
 set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.srcs/sources_1/bd/$BD_NAME/$BD_NAME.bd"]
+
 
 puts "--- $BUILD setup complete."
 
