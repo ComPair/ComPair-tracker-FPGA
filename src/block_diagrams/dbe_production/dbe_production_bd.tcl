@@ -1,6 +1,6 @@
 
 ################################################################
-# This is a generated script based on design: dbe_aliveness_bd
+# This is a generated script based on design: dbe_production_bd
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -35,7 +35,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 ################################################################
 
 # To test this script, run the following commands from Vivado Tcl console:
-# source dbe_aliveness_bd_script.tcl
+# source dbe_production_bd_script.tcl
 
 # If there is no project opened, this script will create a
 # project, but make sure you do not have an existing project
@@ -44,12 +44,13 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
    create_project project_1 myproj -part xc7z020clg484-2
+   set_property BOARD_PART trenz.biz:te0720_2i:part0:1.0 [current_project]
 }
 
 
 # CHANGE DESIGN NAME HERE
 variable design_name
-set design_name dbe_aliveness_bd
+set design_name dbe_production_bd
 
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
@@ -1381,6 +1382,7 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -1392,6 +1394,4 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
-
-common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 
