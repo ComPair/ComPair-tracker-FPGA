@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity AXI_cal_DAC_v1_0 is
+entity AXI_cal_pulse_v1_0 is
     generic (
         -- Users to add parameters here
         CLK_RATIO : integer := 50; -- spi clock freq is clk in freq / 2 / CLK_RATIO
@@ -50,12 +50,12 @@ entity AXI_cal_DAC_v1_0 is
         s00_axi_rvalid  : out std_logic;
         s00_axi_rready  : in std_logic
     );
-end AXI_cal_DAC_v1_0;
+end AXI_cal_pulse_v1_0;
 
-architecture arch_imp of AXI_cal_DAC_v1_0 is
+architecture arch_imp of AXI_cal_pulse_v1_0 is
 
     -- component declaration
-    component AXI_cal_DAC_v1_0_S00_AXI is
+    component AXI_cal_pulse_v1_0_S00_AXI is
         generic (
             CLK_RATIO : integer := 50;
             COUNTER_WIDTH : integer := 8;
@@ -94,12 +94,12 @@ architecture arch_imp of AXI_cal_DAC_v1_0 is
             S_AXI_RVALID    : out std_logic;
             S_AXI_RREADY    : in std_logic
         );
-    end component AXI_cal_DAC_v1_0_S00_AXI;
+    end component AXI_cal_pulse_v1_0_S00_AXI;
 
 begin
 
 -- Instantiation of Axi Bus Interface S00_AXI
-AXI_cal_DAC_v1_0_S00_AXI_inst : AXI_cal_DAC_v1_0_S00_AXI
+AXI_cal_pulse_v1_0_S00_AXI_inst : AXI_cal_pulse_v1_0_S00_AXI
     generic map (
         CLK_RATIO           => CLK_RATIO,
         COUNTER_WIDTH       => COUNTER_WIDTH,         

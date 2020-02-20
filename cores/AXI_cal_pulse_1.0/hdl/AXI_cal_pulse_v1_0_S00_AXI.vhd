@@ -12,11 +12,10 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity AXI_cal_DAC_v1_0_S00_AXI is
+entity AXI_cal_pulse_v1_0_S00_AXI is
 	generic (
 		-- Users to add parameters here
-        CLK_RATIO : integer := 50; -- spi clock freq is clk in freq / 2 / CLK_RATIO
-        COUNTER_WIDTH : integer := 8;
+
 		-- User parameters ends
 		-- Do not modify the parameters beyond this line
 
@@ -31,9 +30,6 @@ entity AXI_cal_DAC_v1_0_S00_AXI is
         vata_trigger_out : out std_logic;
         vata_fast_or_trigger_disable : out std_logic;
         
-        spi_sclk : out std_logic;
-        spi_mosi : out std_logic;
-        spi_syncn : out std_logic;
 
 		-- User ports ends
 		-- Do not modify the ports beyond this line
@@ -99,12 +95,12 @@ entity AXI_cal_DAC_v1_0_S00_AXI is
     		-- accept the read data and response information.
 		S_AXI_RREADY	: in std_logic
 	);
-end AXI_cal_DAC_v1_0_S00_AXI;
+end AXI_cal_pulse_v1_0_S00_AXI;
 
-architecture arch_imp of AXI_cal_DAC_v1_0_S00_AXI is
+architecture arch_imp of AXI_cal_pulse_v1_0_S00_AXI is
 
 
-    component spi_cal_dac is
+    component spi_cal_pulse is
         generic (
             CLK_RATIO : integer := 50; -- spi clock freq is clk in freq / 2 / CLK_RATIO
             COUNTER_WIDTH : integer := 8
@@ -118,7 +114,7 @@ architecture arch_imp of AXI_cal_DAC_v1_0_S00_AXI is
             spi_mosi : out std_logic;
             spi_syncn : out std_logic
             );
-    end component spi_cal_dac;
+    end component spi_cal_pulse;
 
     component pulse_trigger_fsm is
         generic (
@@ -494,22 +490,7 @@ begin
 	end process;
 
     
-	-- Add user logic here
-    spi_cal_dac_inst: spi_cal_dac
-        generic map (
-            CLK_RATIO => CLK_RATIO,
-            COUNTER_WIDTH => COUNTER_WIDTH
-        )
-        port map (
-            clk => S_AXI_ACLK,
-            rst_n => S_AXI_ARESETN,
-            trigger_send_data => slv_reg6(0),
-            data_in => slv_reg7(11 downto 0),
-            spi_sclk => spi_sclk,
-            spi_mosi => spi_mosi,
-            spi_syncn => spi_syncn            
-        );
-	       
+	-- Add user logic here  
 
     pulse_trigger_fsm_inst : pulse_trigger_fsm 
         generic map (

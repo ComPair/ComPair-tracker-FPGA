@@ -27,8 +27,8 @@ proc create_ipi_design { offsetfile design_name } {
 	connect_bd_net [get_bd_pins sys_reset_0/slowest_sync_clk] [get_bd_pins sys_clk_0/clk_out1]
 	connect_bd_net [get_bd_pins sys_clk_0/locked] [get_bd_pins sys_reset_0/dcm_locked]
 
-	# Create instance: AXI_cal_DAC_0, and set properties
-	set AXI_cal_DAC_0 [ create_bd_cell -type ip -vlnv nasa.gov:user:AXI_cal_DAC:1.0 AXI_cal_DAC_0 ]
+	# Create instance: AXI_cal_pulse_0, and set properties
+	set AXI_cal_pulse_0 [ create_bd_cell -type ip -vlnv nasa.gov:user:AXI_cal_pulse:1.0 AXI_cal_pulse_0 ]
 
 	# Create instance: jtag_axi_0, and set properties
 	set jtag_axi_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:jtag_axi jtag_axi_0 ]
@@ -49,31 +49,31 @@ proc create_ipi_design { offsetfile design_name } {
 	connect_bd_net [get_bd_pins axi_peri_interconnect/M00_ACLK] [get_bd_pins sys_clk_0/clk_out1]
 	connect_bd_net [get_bd_pins axi_peri_interconnect/M00_ARESETN] [get_bd_pins sys_reset_0/peripheral_aresetn]
 
-	# Connect all clock & reset of AXI_cal_DAC_0 slave interfaces..
-	connect_bd_intf_net [get_bd_intf_pins axi_peri_interconnect/M00_AXI] [get_bd_intf_pins AXI_cal_DAC_0/S00_AXI]
-	connect_bd_net [get_bd_pins AXI_cal_DAC_0/s00_axi_aclk] [get_bd_pins sys_clk_0/clk_out1]
-	connect_bd_net [get_bd_pins AXI_cal_DAC_0/s00_axi_aresetn] [get_bd_pins sys_reset_0/peripheral_aresetn]
+	# Connect all clock & reset of AXI_cal_pulse_0 slave interfaces..
+	connect_bd_intf_net [get_bd_intf_pins axi_peri_interconnect/M00_AXI] [get_bd_intf_pins AXI_cal_pulse_0/S00_AXI]
+	connect_bd_net [get_bd_pins AXI_cal_pulse_0/s00_axi_aclk] [get_bd_pins sys_clk_0/clk_out1]
+	connect_bd_net [get_bd_pins AXI_cal_pulse_0/s00_axi_aresetn] [get_bd_pins sys_reset_0/peripheral_aresetn]
 
 
 	# Auto assign address
 	assign_bd_address
 
-	# Copy all address to AXI_cal_DAC_v1_0_include.tcl file
+	# Copy all address to AXI_cal_pulse_v1_0_include.tcl file
 	set bd_path [get_property DIRECTORY [current_project]]/[current_project].srcs/[current_fileset]/bd
 	upvar 1 $offsetfile offset_file
-	set offset_file "${bd_path}/AXI_cal_DAC_v1_0_include.tcl"
+	set offset_file "${bd_path}/AXI_cal_pulse_v1_0_include.tcl"
 	set fp [open $offset_file "w"]
 	puts $fp "# Configuration address parameters"
 
-	set offset [get_property OFFSET [get_bd_addr_segs /jtag_axi_0/Data/SEG_AXI_cal_DAC_0_S00_AXI_* ]]
+	set offset [get_property OFFSET [get_bd_addr_segs /jtag_axi_0/Data/SEG_AXI_cal_pulse_0_S00_AXI_* ]]
 	puts $fp "set s00_axi_addr ${offset}"
 
 	close $fp
 }
 
 # Set IP Repository and Update IP Catalogue 
-set ip_path [file dirname [file normalize [get_property XML_FILE_NAME [ipx::get_cores nasa.gov:user:AXI_cal_DAC:1.0]]]]
-set hw_test_file ${ip_path}/example_designs/debug_hw_design/AXI_cal_DAC_v1_0_hw_test.tcl
+set ip_path [file dirname [file normalize [get_property XML_FILE_NAME [ipx::get_cores nasa.gov:user:AXI_cal_pulse:1.0]]]]
+set hw_test_file ${ip_path}/example_designs/debug_hw_design/AXI_cal_pulse_v1_0_hw_test.tcl
 
 set repo_paths [get_property ip_repo_paths [current_fileset]] 
 if { [lsearch -exact -nocase $repo_paths $ip_path ] == -1 } {
@@ -91,7 +91,7 @@ lappend all_bd $bd_name
 }
 
 for { set i 1 } { 1 } { incr i } {
-	set design_name "AXI_cal_DAC_v1_0_hw_${i}"
+	set design_name "AXI_cal_pulse_v1_0_hw_${i}"
 	if { [lsearch -exact -nocase $all_bd $design_name ] == -1 } {
 		break
 	}
