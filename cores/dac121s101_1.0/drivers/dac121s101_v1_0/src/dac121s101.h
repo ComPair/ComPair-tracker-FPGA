@@ -7,10 +7,10 @@
 #include "xil_types.h"
 #include "xstatus.h"
 
-#define DAC121S101_S0_AXI_SLV_REG0_OFFSET 0
-#define DAC121S101_S0_AXI_SLV_REG1_OFFSET 4
-#define DAC121S101_S0_AXI_SLV_REG2_OFFSET 8
-#define DAC121S101_S0_AXI_SLV_REG3_OFFSET 12
+#define DAC121S101_S00_AXI_SLV_REG0_OFFSET 0
+#define DAC121S101_S00_AXI_SLV_REG1_OFFSET 4
+#define DAC121S101_S00_AXI_SLV_REG2_OFFSET 8
+#define DAC121S101_S00_AXI_SLV_REG3_OFFSET 12
 
 
 /**************************** Type Definitions *****************************/

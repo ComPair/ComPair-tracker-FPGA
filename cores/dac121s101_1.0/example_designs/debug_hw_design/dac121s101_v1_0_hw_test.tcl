@@ -18,21 +18,21 @@ if { [llength [get_hw_axi_txns -quiet]] } {
 # Test all lite slaves.
 set wdata_1 abcd1234
 
-# Test: S0_AXI
-# Create a write transaction at s0_axi_addr address
-create_hw_axi_txn w_s0_axi_addr [get_hw_axis $jtag_axi_master] -type write -address $s0_axi_addr -data $wdata_1
-# Create a read transaction at s0_axi_addr address
-create_hw_axi_txn r_s0_axi_addr [get_hw_axis $jtag_axi_master] -type read -address $s0_axi_addr
+# Test: S00_AXI
+# Create a write transaction at S00_axi_addr address
+create_hw_axi_txn w_S00_axi_addr [get_hw_axis $jtag_axi_master] -type write -address $S00_axi_addr -data $wdata_1
+# Create a read transaction at S00_axi_addr address
+create_hw_axi_txn r_S00_axi_addr [get_hw_axis $jtag_axi_master] -type read -address $S00_axi_addr
 # Initiate transactions
-run_hw_axi r_s0_axi_addr
-run_hw_axi w_s0_axi_addr
-run_hw_axi r_s0_axi_addr
-set rdata_tmp [get_property DATA [get_hw_axi_txn r_s0_axi_addr]]
+run_hw_axi r_S00_axi_addr
+run_hw_axi w_S00_axi_addr
+run_hw_axi r_S00_axi_addr
+set rdata_tmp [get_property DATA [get_hw_axi_txn r_S00_axi_addr]]
 # Compare read data
 if { $rdata_tmp == $wdata_1 } {
-	puts "Data comparison test pass for - S0_AXI"
+	puts "Data comparison test pass for - S00_AXI"
 } else {
-	puts "Data comparison test fail for - S0_AXI, expected-$wdata_1 actual-$rdata_tmp"
+	puts "Data comparison test fail for - S00_AXI, expected-$wdata_1 actual-$rdata_tmp"
 	inc ec
 }
 
