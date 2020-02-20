@@ -12,7 +12,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity AXI_cal_pulse_v1_0_S00_AXI is
+entity AXI_cal_pulse_v1_1_S00_AXI is
 	generic (
 		-- Users to add parameters here
 
@@ -95,9 +95,9 @@ entity AXI_cal_pulse_v1_0_S00_AXI is
     		-- accept the read data and response information.
 		S_AXI_RREADY	: in std_logic
 	);
-end AXI_cal_pulse_v1_0_S00_AXI;
+end AXI_cal_pulse_v1_1_S00_AXI;
 
-architecture arch_imp of AXI_cal_pulse_v1_0_S00_AXI is
+architecture arch_imp of AXI_cal_pulse_v1_1_S00_AXI is
 
 
     component spi_cal_pulse is

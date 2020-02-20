@@ -3,7 +3,7 @@
   <spirit:vendor>nasa.gov</spirit:vendor>
   <spirit:library>user</spirit:library>
   <spirit:name>AXI_cal_pulse</spirit:name>
-  <spirit:version>1.0</spirit:version>
+  <spirit:version>1.1</spirit:version>
   <spirit:busInterfaces>
     <spirit:busInterface>
       <spirit:name>S00_AXI</spirit:name>
@@ -259,14 +259,14 @@
         <spirit:displayName>VHDL Synthesis</spirit:displayName>
         <spirit:envIdentifier>vhdlSource:vivado.xilinx.com:synthesis</spirit:envIdentifier>
         <spirit:language>vhdl</spirit:language>
-        <spirit:modelName>AXI_cal_pulse_v1_0</spirit:modelName>
+        <spirit:modelName>AXI_cal_pulse_v1_1</spirit:modelName>
         <spirit:fileSetRef>
           <spirit:localName>xilinx_vhdlsynthesis_view_fileset</spirit:localName>
         </spirit:fileSetRef>
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>ea21e90b</spirit:value>
+            <spirit:value>7dda4877</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -275,14 +275,14 @@
         <spirit:displayName>VHDL Simulation</spirit:displayName>
         <spirit:envIdentifier>vhdlSource:vivado.xilinx.com:simulation</spirit:envIdentifier>
         <spirit:language>vhdl</spirit:language>
-        <spirit:modelName>AXI_cal_pulse_v1_0</spirit:modelName>
+        <spirit:modelName>AXI_cal_pulse_v1_1</spirit:modelName>
         <spirit:fileSetRef>
           <spirit:localName>xilinx_vhdlbehavioralsimulation_view_fileset</spirit:localName>
         </spirit:fileSetRef>
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>ea21e90b</spirit:value>
+            <spirit:value>7dda4877</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -296,7 +296,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>94e80cdc</spirit:value>
+            <spirit:value>e8b6588c</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -310,7 +310,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>e6ef26ed</spirit:value>
+            <spirit:value>f2d9691b</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -358,45 +358,6 @@
       </spirit:port>
       <spirit:port>
         <spirit:name>vata_fast_or_trigger_disable</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>spi_sclk</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>spi_mosi</spirit:name>
-        <spirit:wire>
-          <spirit:direction>out</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>spi_syncn</spirit:name>
         <spirit:wire>
           <spirit:direction>out</spirit:direction>
           <spirit:wireTypeDefs>
@@ -731,16 +692,6 @@
         <spirit:description>Width of S_AXI address bus</spirit:description>
         <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_S00_AXI_ADDR_WIDTH" spirit:order="4" spirit:rangeType="long">5</spirit:value>
       </spirit:modelParameter>
-      <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>CLK_RATIO</spirit:name>
-        <spirit:displayName>Clk Ratio</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.CLK_RATIO">50</spirit:value>
-      </spirit:modelParameter>
-      <spirit:modelParameter spirit:dataType="integer">
-        <spirit:name>COUNTER_WIDTH</spirit:name>
-        <spirit:displayName>Counter Width</spirit:displayName>
-        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.COUNTER_WIDTH">8</spirit:value>
-      </spirit:modelParameter>
     </spirit:modelParameters>
   </spirit:model>
   <spirit:choices>
@@ -763,7 +714,7 @@
     <spirit:fileSet>
       <spirit:name>xilinx_vhdlsynthesis_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>hdl/AXI_cal_pulse_v1_0_S00_AXI.vhd</spirit:name>
+        <spirit:name>hdl/AXI_cal_pulse_v1_1_S00_AXI.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
@@ -771,15 +722,15 @@
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/AXI_cal_pulse_v1_0.vhd</spirit:name>
+        <spirit:name>hdl/AXI_cal_pulse_v1_1.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_09ef6d95</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_3cfa66f5</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
       <spirit:name>xilinx_vhdlbehavioralsimulation_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>hdl/AXI_cal_pulse_v1_0_S00_AXI.vhd</spirit:name>
+        <spirit:name>hdl/AXI_cal_pulse_v1_1_S00_AXI.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
@@ -787,38 +738,38 @@
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>hdl/AXI_cal_pulse_v1_0.vhd</spirit:name>
+        <spirit:name>hdl/AXI_cal_pulse_v1_1.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
       <spirit:name>xilinx_softwaredriver_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>drivers/AXI_cal_pulse_v1_0/data/AXI_cal_pulse.mdd</spirit:name>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/data/AXI_cal_pulse.mdd</spirit:name>
         <spirit:userFileType>mdd</spirit:userFileType>
         <spirit:userFileType>driver_mdd</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>drivers/AXI_cal_pulse_v1_0/data/AXI_cal_pulse.tcl</spirit:name>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/data/AXI_cal_pulse.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
         <spirit:userFileType>driver_tcl</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>drivers/AXI_cal_pulse_v1_0/src/Makefile</spirit:name>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/src/Makefile</spirit:name>
         <spirit:userFileType>driver_src</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>drivers/AXI_cal_pulse_v1_0/src/AXI_cal_pulse.h</spirit:name>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/src/AXI_cal_pulse.h</spirit:name>
         <spirit:fileType>cSource</spirit:fileType>
         <spirit:userFileType>driver_src</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>drivers/AXI_cal_pulse_v1_0/src/AXI_cal_pulse.c</spirit:name>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/src/AXI_cal_pulse.c</spirit:name>
         <spirit:fileType>cSource</spirit:fileType>
         <spirit:userFileType>driver_src</spirit:userFileType>
       </spirit:file>
       <spirit:file>
-        <spirit:name>drivers/AXI_cal_pulse_v1_0/src/AXI_cal_pulse_selftest.c</spirit:name>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/src/AXI_cal_pulse_selftest.c</spirit:name>
         <spirit:fileType>cSource</spirit:fileType>
         <spirit:userFileType>driver_src</spirit:userFileType>
       </spirit:file>
@@ -826,9 +777,9 @@
     <spirit:fileSet>
       <spirit:name>xilinx_xpgui_view_fileset</spirit:name>
       <spirit:file>
-        <spirit:name>xgui/AXI_cal_pulse_v1_0.tcl</spirit:name>
+        <spirit:name>xgui/AXI_cal_pulse_v1_1.tcl</spirit:name>
         <spirit:fileType>tclSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_e6ef26ed</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_f2d9691b</spirit:userFileType>
         <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
@@ -894,17 +845,7 @@
     </spirit:parameter>
     <spirit:parameter>
       <spirit:name>Component_Name</spirit:name>
-      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Component_Name" spirit:order="1">AXI_cal_pulse_v1_0</spirit:value>
-    </spirit:parameter>
-    <spirit:parameter>
-      <spirit:name>CLK_RATIO</spirit:name>
-      <spirit:displayName>Clk Ratio</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.CLK_RATIO" spirit:minimum="2" spirit:maximum="500" spirit:rangeType="long">50</spirit:value>
-    </spirit:parameter>
-    <spirit:parameter>
-      <spirit:name>COUNTER_WIDTH</spirit:name>
-      <spirit:displayName>Counter Width</spirit:displayName>
-      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.COUNTER_WIDTH" spirit:minimum="2" spirit:maximum="32" spirit:rangeType="long">8</spirit:value>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Component_Name" spirit:order="1">AXI_cal_pulse_v1_1</spirit:value>
     </spirit:parameter>
   </spirit:parameters>
   <spirit:vendorExtensions>
@@ -915,12 +856,12 @@
       <xilinx:taxonomies>
         <xilinx:taxonomy>AXI_Peripheral</xilinx:taxonomy>
       </xilinx:taxonomies>
-      <xilinx:displayName>AXI_cal_pulse_v1.0</xilinx:displayName>
+      <xilinx:displayName>AXI_cal_pulse_v1.1</xilinx:displayName>
       <xilinx:coreRevision>1</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>nasa.gov:user:AXI_cal_pulse:1.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-02-20T16:02:01Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-02-20T16:26:57Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@384880ba_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@43069b71_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
@@ -1186,16 +1127,39 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@6a39cc03_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@19634e3e_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@334f67e5_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7f42977f_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@262908ef_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@128ee92c_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5a080f0_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6e1d56c2_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@498034ae_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6d4e485_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@711e2e09_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2396db6f_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@64b0deef_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@273ccb9c_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3d039ef6_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@699ee3c2_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@cd8b77f_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@82f72f7_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7e0d458b_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@17b4c441_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@c453291_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@121509f7_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4d07b0d_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5f908c9c_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@53a39754_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5621589b_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2018.3</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="206b0a70"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="ed1368d5"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="c823bc1f"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="91ec6c5a"/>
-      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="ddd0839c"/>
-      <xilinx:checksum xilinx:scope="parameters" xilinx:value="c1834f4f"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="b17791f2"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="11a97b7c"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="2e811c89"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="d966573c"/>
     </xilinx:packagingInfo>
   </spirit:vendorExtensions>
 </spirit:component>

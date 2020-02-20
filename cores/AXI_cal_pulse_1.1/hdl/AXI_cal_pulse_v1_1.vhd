@@ -2,11 +2,9 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity AXI_cal_pulse_v1_0 is
+entity AXI_cal_pulse_v1_1 is
     generic (
         -- Users to add parameters here
-        CLK_RATIO : integer := 50; -- spi clock freq is clk in freq / 2 / CLK_RATIO
-        COUNTER_WIDTH : integer := 8;
         -- User parameters ends
         -- Do not modify the parameters beyond this line
 
@@ -20,9 +18,6 @@ entity AXI_cal_pulse_v1_0 is
         vata_trigger_out             : out std_logic;
         vata_fast_or_trigger_disable : out std_logic;
         
-        spi_sclk  : out std_logic;
-        spi_mosi  : out std_logic;
-        spi_syncn : out std_logic;
 
         -- User ports ends
         -- Do not modify the ports beyond this line
@@ -50,12 +45,12 @@ entity AXI_cal_pulse_v1_0 is
         s00_axi_rvalid  : out std_logic;
         s00_axi_rready  : in std_logic
     );
-end AXI_cal_pulse_v1_0;
+end AXI_cal_pulse_v1_1;
 
-architecture arch_imp of AXI_cal_pulse_v1_0 is
+architecture arch_imp of AXI_cal_pulse_v1_1 is
 
     -- component declaration
-    component AXI_cal_pulse_v1_0_S00_AXI is
+    component AXI_cal_pulse_v1_1_S00_AXI is
         generic (
             CLK_RATIO : integer := 50;
             COUNTER_WIDTH : integer := 8;
@@ -94,12 +89,12 @@ architecture arch_imp of AXI_cal_pulse_v1_0 is
             S_AXI_RVALID    : out std_logic;
             S_AXI_RREADY    : in std_logic
         );
-    end component AXI_cal_pulse_v1_0_S00_AXI;
+    end component AXI_cal_pulse_v1_1_S00_AXI;
 
 begin
 
 -- Instantiation of Axi Bus Interface S00_AXI
-AXI_cal_pulse_v1_0_S00_AXI_inst : AXI_cal_pulse_v1_0_S00_AXI
+AXI_cal_pulse_v1_1_S00_AXI_inst : AXI_cal_pulse_v1_1_S00_AXI
     generic map (
         CLK_RATIO           => CLK_RATIO,
         COUNTER_WIDTH       => COUNTER_WIDTH,         

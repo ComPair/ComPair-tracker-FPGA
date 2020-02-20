@@ -58,10 +58,10 @@ proc create_ipi_design { offsetfile design_name } {
 	# Auto assign address
 	assign_bd_address
 
-	# Copy all address to AXI_cal_pulse_v1_0_include.tcl file
+	# Copy all address to AXI_cal_pulse_v1_1_include.tcl file
 	set bd_path [get_property DIRECTORY [current_project]]/[current_project].srcs/[current_fileset]/bd
 	upvar 1 $offsetfile offset_file
-	set offset_file "${bd_path}/AXI_cal_pulse_v1_0_include.tcl"
+	set offset_file "${bd_path}/AXI_cal_pulse_v1_1_include.tcl"
 	set fp [open $offset_file "w"]
 	puts $fp "# Configuration address parameters"
 
@@ -73,7 +73,7 @@ proc create_ipi_design { offsetfile design_name } {
 
 # Set IP Repository and Update IP Catalogue 
 set ip_path [file dirname [file normalize [get_property XML_FILE_NAME [ipx::get_cores nasa.gov:user:AXI_cal_pulse:1.0]]]]
-set hw_test_file ${ip_path}/example_designs/debug_hw_design/AXI_cal_pulse_v1_0_hw_test.tcl
+set hw_test_file ${ip_path}/example_designs/debug_hw_design/AXI_cal_pulse_v1_1_hw_test.tcl
 
 set repo_paths [get_property ip_repo_paths [current_fileset]] 
 if { [lsearch -exact -nocase $repo_paths $ip_path ] == -1 } {
@@ -91,7 +91,7 @@ lappend all_bd $bd_name
 }
 
 for { set i 1 } { 1 } { incr i } {
-	set design_name "AXI_cal_pulse_v1_0_hw_${i}"
+	set design_name "AXI_cal_pulse_v1_1_hw_${i}"
 	if { [lsearch -exact -nocase $all_bd $design_name ] == -1 } {
 		break
 	}
