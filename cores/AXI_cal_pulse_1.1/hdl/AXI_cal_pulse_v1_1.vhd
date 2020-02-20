@@ -52,8 +52,6 @@ architecture arch_imp of AXI_cal_pulse_v1_1 is
     -- component declaration
     component AXI_cal_pulse_v1_1_S00_AXI is
         generic (
-            CLK_RATIO : integer := 50;
-            COUNTER_WIDTH : integer := 8;
             ---
             C_S_AXI_DATA_WIDTH  : integer   := 32;
             C_S_AXI_ADDR_WIDTH  : integer   := 5
@@ -61,10 +59,7 @@ architecture arch_imp of AXI_cal_pulse_v1_1 is
         port (
             cal_pulse_trigger_out : out std_logic;
             vata_trigger_out : out std_logic;
-            vata_fast_or_trigger_disable : out std_logic;
-            spi_sclk : out std_logic;
-            spi_mosi : out std_logic;
-            spi_syncn : out std_logic;              
+            vata_fast_or_trigger_disable : out std_logic;           
             ---
 
             S_AXI_ACLK  : in std_logic;
@@ -95,9 +90,7 @@ begin
 
 -- Instantiation of Axi Bus Interface S00_AXI
 AXI_cal_pulse_v1_1_S00_AXI_inst : AXI_cal_pulse_v1_1_S00_AXI
-    generic map (
-        CLK_RATIO           => CLK_RATIO,
-        COUNTER_WIDTH       => COUNTER_WIDTH,         
+    generic map (      
         C_S_AXI_DATA_WIDTH  => C_S00_AXI_DATA_WIDTH,
         C_S_AXI_ADDR_WIDTH  => C_S00_AXI_ADDR_WIDTH
     )
@@ -105,9 +98,6 @@ AXI_cal_pulse_v1_1_S00_AXI_inst : AXI_cal_pulse_v1_1_S00_AXI
         cal_pulse_trigger_out        => cal_pulse_trigger_out,
         vata_trigger_out             => vata_trigger_out,
         vata_fast_or_trigger_disable => vata_fast_or_trigger_disable,
-        spi_sclk                     => spi_sclk,
-        spi_mosi                     => spi_mosi,
-        spi_syncn                    => spi_syncn,
        ---
         S_AXI_ACLK  => s00_axi_aclk,
         S_AXI_ARESETN   => s00_axi_aresetn,

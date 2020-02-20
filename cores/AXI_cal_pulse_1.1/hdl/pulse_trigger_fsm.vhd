@@ -96,7 +96,7 @@ begin
     end process;
 
     --Handle state machine transfers.
-    p_STATE_XFER : process (rst_n, current_state, start_cal_pulses)
+    p_STATE_XFER : process (rst_n, current_state, start_cal_pulses, counter, cal_pulse_nhold, cal_pulse_nwait, n_pulses, run_pulses)
     begin
         counter_clr     <= '0';
         pulse_count_clr <= '0';
@@ -161,7 +161,7 @@ begin
         end if;
     end process p_STATE_XFER;
 
-    p_OUTPUTS : process (current_state)
+    p_OUTPUTS : process (current_state, cal_pulse_ena, vata_trigger_ena, vata_trig_delay_counter, vata_trig_delay_nhold )
     begin
         counter_ena <= '0';
         vata_trig_delay_counter_ena <= '0';
