@@ -47,7 +47,7 @@ int parse_args(int argc, char **argv) {
                 return DAC_DELAY_ERR;
             }
         } else if (strcmp("--get-delay", argv[i]) == 0) { 
-            std::cout << calctrl.get_delay() << std::endl;
+            std::cout << dacctrl.get_delay() << std::endl;
         } else if (strcmp("--set-input", argv[i]) == 0) { 
             if (++i >= argc) {
                 std::cerr << "ERROR: No input value specified." << std::endl;
@@ -58,7 +58,7 @@ int parse_args(int argc, char **argv) {
                 return DAC_VALUE_ERR;
             }
         } else if (strcmp("--get-input", argv[i]) == 0) { 
-            std::cout << calctrl.get_input() << std::endl;
+            std::cout << dacctrl.get_input() << std::endl;
         } else {
             std::cerr << "ERROR: Unrecognized command line option: " << argv[i] << std::endl;
             return PARSE_ARGS_ERR;
