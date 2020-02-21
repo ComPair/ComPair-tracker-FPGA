@@ -34,6 +34,7 @@ void usage(char *argv0) {
               << "    --reset-counters    : reset the 'running' and 'live' counters" << std::endl
               << "    --trigger-enable    : enable triggered data readout" << std::endl
               << "    --trigger-disable   : disable triggered data readout" << std::endl
+              << "    --force-trigger     : Force the ASIC to readout data." << std::endl
               << "    --get-event-count   : print event counter to stdout" << std::endl
               << "    --reset-event-count : reset the event counter" << std::endl
               << "    --get-n-fifo        : print number of data packets in fifo to stdout" << std::endl
@@ -98,6 +99,8 @@ int parse_args(VataCtrl vata, int argc, char **argv) {
             vata.trigger_enable();
         } else if (strcmp("--trigger-disable", argv[i]) == 0) { 
             vata.trigger_disable();
+        } else if (strcmp("--force-trigger", argv[i]) == 0) {
+            vata.force_trigger();
         } else if (strcmp("--get-event-count", argv[i]) == 0) { 
             std::cout << vata.get_event_count() << std::endl;
         } else if (strcmp("--reset-event-count", argv[i]) == 0) { 
