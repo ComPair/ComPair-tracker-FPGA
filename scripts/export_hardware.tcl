@@ -25,3 +25,5 @@ write_sysdef -force -hwdef [file normalize $BUILD_WORKSPACE/$PROJECT_NAME/$PROJE
 file copy -force [file normalize "$BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.runs/impl_1/$TOPLEVEL_NAME.sysdef"] [file normalize "$BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.sdk/$TOPLEVEL_NAME.hdf"]
 
 puts "Hardware exported!"
+# If successful, "touch" a file so the make utility will know it's done
+touch {.export_hw.done}

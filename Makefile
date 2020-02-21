@@ -65,7 +65,9 @@ compile : ./work/$(BUILD)/.compile.done
 save_bd:
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(SAVE_BD) $(POSTFIX)    
 
-export_hardware : 
+export_hardware : ./work/$(BUILD)/.export_hw.done 
+	
+./work/$(BUILD)/.export_hw.done : ./work/$(BUILD)/.compile.done
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(EXPORT_HW) $(POSTFIX)
 	exit 0
 
