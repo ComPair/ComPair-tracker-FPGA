@@ -80,7 +80,7 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 
 puts "INFO: Project created: $BUILD"
 add_files -norecurse $PROJECT_BASE/src/hdl/local_invert.vhd
-
+add_files -norecurse $PROJECT_BASE/src/hdl/conditional_invert.vhd
 ## ip_lib -> cores
 ## set IP_PATH $PROJECT_BASE/ip_lib
 set IP_PATH $CORES_BASE
@@ -143,4 +143,4 @@ set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.
 puts "--- $BUILD setup complete."
 
 # If successful, "touch" a file so the make utility will know it's done
-touch {.setup.done}
+touch {$.setup.done}
