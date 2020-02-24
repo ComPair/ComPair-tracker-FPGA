@@ -143,4 +143,4 @@ set_property synth_checkpoint_mode None [get_files  "$BUILD_WORKSPACE/zynq/zynq.
 puts "--- $BUILD setup complete."
 
 # If successful, "touch" a file so the make utility will know it's done
-touch {$.setup.done}
+touch {.setup.done}
