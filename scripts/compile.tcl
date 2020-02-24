@@ -37,8 +37,8 @@ if {[string equal [get_runs -quiet impl_1] ""]} {
 
 launch_runs impl_1 -to_step write_bitstream -jobs 4
 wait_on_run impl_1
-set timestamp_finish [clock format [clock seconds] -format {%YYYY-MM-DD--hh-mm}
-write_bitstream -force -bin_file $BUILD_WORKSPACE/timestamp_finish
+#set timestamp_finish [clock format [clock seconds] -format {%YYYY-MM-DD--hh-mm}]
+#write_bitstream -force -bin_file $BUILD_WORKSPACE/timestamp_finish
 
 # if everything is successful "touch" a file so make will not it's done
 touch {.compile.done}
