@@ -35,7 +35,7 @@ entity conditional_invert is
     Port ( din : in STD_LOGIC;
            inv_ena : in STD_LOGIC;
            dout : out STD_LOGIC);
-end local_invert;
+end conditional_invert;
 
 architecture Behavioral of conditional_invert is
 
