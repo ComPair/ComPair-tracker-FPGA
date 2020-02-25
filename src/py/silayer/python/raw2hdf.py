@@ -337,7 +337,7 @@ class DataPackets(object):
         self = cls()
         self.data_packets = [dp for dp in self.iter_data_packets(data, n_packet=n_packet)]
         self.n_packet = len(self.data_packets)
-        self.n_asic = dps[0].nasic
+        self.n_asic = self.data_packets[0].nasic
         self.alloc_data()
 
         for j, dp in enumerate(self.data_packets):
