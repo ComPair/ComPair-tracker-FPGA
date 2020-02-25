@@ -15,6 +15,7 @@
 #define DAC_AXI_HIGHADDR XPAR_DAC121S101_0_S00_AXI_HIGHADDR
 
 #define DAC_INPUT_REGOFF 0
+#define DAC_SELECT_REGOFF 2
 #define DAC_DELAY_REGOFF 1
 #define DAC_WRITE_REGOFF 3
 
@@ -24,7 +25,7 @@ class DacCtrl {
         ~DacCtrl();
         int set_delay(u32 delay);
         u32 get_delay();
-        int set_input(u32 input);
+        int set_counts(char *side, char *dac, u32 counts);
         u32 get_input();
                 
     private:
