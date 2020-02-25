@@ -293,7 +293,7 @@ class DataPackets(object):
     ]
     ## _hdf5_top_fields:
     ##      Top-level data that is common to all asic's,
-   with a single value per event.
+    ##      with a single value per event.
     _hdf5_top_fields = [
         "packet_size",
         "header_size",
