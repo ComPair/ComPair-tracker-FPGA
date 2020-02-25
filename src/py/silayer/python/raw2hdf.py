@@ -14,11 +14,14 @@ class DataSz:
     u32 = 4
     u64 = 8
 
-def byte2bits(byte):
+def byte2bits(byte, nbits=8):
     """
     Return a list of bits for the given byte, LSB..MSB
+    Defaults to interpret a byte.
+    Change nbits to interpret different sized unsigned data.
+    (for example, nbits=4 for a nibble)
     """
-    return [byte >> i & 1 for i in range(8)]
+    return [byte >> i & 1 for i in range(nbits)]
 
 
 def bits2val(bitarr):
@@ -42,6 +45,18 @@ def bytes2bits(bytestr):
         bits += byte2bits(byte)
     return bits
 
+def hexstr2bytes(hexstr):
+    """
+    Given a string of hex data, as printed out by `vatactrl --read-fifo`,
+    return the bytes this corresponds to.
+
+    Wrote up something quick and dirty, so this should probably be made more readable
+    in the future.
+    """
+    assert len(hexstr) % 8 == 0
+    axi_reads = [ hexstr[i:i+8][::-1] for i in range(0, len(hexstr), 8) ]
+    return bytes( int(s.encode(), 16) for s in axi_reads)
+    ##return bytes( int((b1 + b0).encode(), 16) for b0, b1 in zip(hexstr[:-1:2], hexstr[1::2]) )
 
 def bytes2val(bytestr):
     """
@@ -128,6 +143,7 @@ class AsicPacket(object):
         self.channel_status = bits[1:-1]
         self.cm_status = bits[-1]
 
+    
 
 class DataPacket(object):
     """
