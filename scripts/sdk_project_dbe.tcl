@@ -55,7 +55,7 @@ file delete -force $sdk_ws_dir/bsp_fsbl
 file delete -force $sdk_ws_dir/app_fsbl
 file delete -force $sdk_ws_dir/bsp_petalinux
 file delete -force $sdk_ws_dir/calctrl
-
+file delete -force $sdk_ws_dir/dacctrl
 
 
 sdk createhw -name hw_0 -hwspec $hdf_filename
@@ -79,7 +79,6 @@ updatemss -mss [file normalize $sdk_ws_dir/bsp_petalinux/system.mss]
 regenbsp -bsp bsp_petalinux
 
 sdk createapp -name calctrl -app "Empty Application" -proc ps7_cortexa9 -hwproject hw_0 -os linux -bsp bsp_petalinux -lang c++
-#exec cp -f -vr ${PROJECT_BASE}/src/sdk-apps/calctrl ${sdk_ws_dir}/calctrl/src
 puts "${PROJECT_BASE}/src/sdk-apps/calctrl"
 puts "${sdk_ws_dir}/calctrl"
 exec rm -rf ${sdk_ws_dir}/calctrl/src
@@ -87,6 +86,16 @@ exec cp -rf ${PROJECT_BASE}/src/sdk-apps/calctrl/ ${sdk_ws_dir}/calctrl/src
 
 sdk configapp -app calctrl build-config debug
 sdk configapp -app calctrl include-path ${sdk_ws_dir}/bsp_petalinux/ps7_cortexa9_0/include
+
+sdk createapp -name dacctrl -app "Empty Application" -proc ps7_cortexa9 -hwproject hw_0 -os linux -bsp bsp_petalinux -lang c++
+puts "${PROJECT_BASE}/src/sdk-apps/dacctrl"
+puts "${sdk_ws_dir}/dacctrl"
+exec rm -rf ${sdk_ws_dir}/dacctrl/src
+exec cp -rf ${PROJECT_BASE}/src/sdk-apps/dacctrl/ ${sdk_ws_dir}/dacctrl/src 
+
+sdk configapp -app dacctrl build-config debug
+sdk configapp -app dacctrl include-path ${sdk_ws_dir}/bsp_petalinux/ps7_cortexa9_0/include
+
 # projects -clean
 projects -build
 

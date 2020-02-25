@@ -80,7 +80,7 @@ if {[string equal [get_filesets -quiet sources_1] ""]} {
 
 puts "INFO: Project created: $BUILD"
 add_files -norecurse $PROJECT_BASE/src/hdl/local_invert.vhd
-
+add_files -norecurse $PROJECT_BASE/src/hdl/conditional_invert.vhd
 ## ip_lib -> cores
 ## set IP_PATH $PROJECT_BASE/ip_lib
 set IP_PATH $CORES_BASE
