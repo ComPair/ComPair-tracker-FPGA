@@ -11,6 +11,6 @@ SRC_URI = "file://vatactrl \
 S = "${WORKDIR}/vatactrl"
 COMPAIR_TRACKER_FPGA_ROOT = "${TOPDIR}/../../../../"
 
-CFLAGS_prepend = "-I ${S}/include -I${COMPAIR_TRACKER_FPGA_ROOT}/work/zynq/zynq.sdk/bsp_petalinux/ps7_cortexa9_0/include"
-CXXFLAGS_prepend = "-I ${S}/include -I${COMPAIR_TRACKER_FPGA_ROOT}/work/zynq/zynq.sdk/bsp_petalinux/ps7_cortexa9_0/include"
+CFLAGS_prepend = "-I ${S}/include -I${COMPAIR_TRACKER_FPGA_ROOT}/work/dbe_production/zynq/zynq.sdk/bsp_petalinux/ps7_cortexa9_0/include"
+CXXFLAGS_prepend = "-I ${S}/include -I${COMPAIR_TRACKER_FPGA_ROOT}/work/dbe_production/zynq/zynq.sdk/bsp_petalinux/ps7_cortexa9_0/include"
 inherit autotools

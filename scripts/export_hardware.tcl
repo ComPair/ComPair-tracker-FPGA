@@ -24,4 +24,6 @@ write_hwdef -force -file [file normalize $BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT
 write_sysdef -force -hwdef [file normalize $BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.runs/synth_1/$TOPLEVEL_NAME.hwdef] -bitfile [file normalize $BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.runs/impl_1/$TOPLEVEL_NAME.bit] -file [file normalize $BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.runs/impl_1/$TOPLEVEL_NAME.sysdef]
 file copy -force [file normalize "$BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.runs/impl_1/$TOPLEVEL_NAME.sysdef"] [file normalize "$BUILD_WORKSPACE/$PROJECT_NAME/$PROJECT_NAME.sdk/$TOPLEVEL_NAME.hdf"]
 
+# if everything is successful "touch" a file so make will not it's done
+touch {.export_hardware.done}
 puts "Hardware exported!"

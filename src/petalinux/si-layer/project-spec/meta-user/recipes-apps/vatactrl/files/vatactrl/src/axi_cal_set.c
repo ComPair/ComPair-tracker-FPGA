@@ -35,8 +35,8 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    u32 baseaddr = XPAR_AXI_CAL_DAC_0_S00_AXI_BASEADDR;
-    u32 highaddr = XPAR_AXI_CAL_DAC_0_S00_AXI_HIGHADDR;
+    u32 baseaddr = XPAR_AXI_CAL_PULSE_0_S00_AXI_BASEADDR;
+    u32 highaddr = XPAR_AXI_CAL_PULSE_0_S00_AXI_HIGHADDR;
     u32 axi_span = highaddr - baseaddr + 1;
 
     printf("baseaddr: %08X\n", baseaddr);
