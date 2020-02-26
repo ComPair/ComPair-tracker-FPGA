@@ -13,12 +13,15 @@ class DataSz:
     """
     Stupid thing to keep track of data sizes in bytes.
     """
-
     u8 = 1
     u16 = 2
     u32 = 4
     u64 = 8
-
+    ## Data types. Try and force lengths to be what we want.
+    to_type = {u8: np.dtype(f'<u{u8}'),
+               u16: np.dtype(f'<u{u16}'),
+               u32: np.dtype(f'<u{u32}'),
+               u64: np.dtype(f'<u{u64}')}
 
 def byte2bits(byte, nbits=8):
     """
@@ -337,7 +340,7 @@ class DataPackets(object):
         self = cls()
         self.data_packets = [dp for dp in self.iter_data_packets(data, n_packet=n_packet)]
         self.n_packet = len(self.data_packets)
-        self.n_asic = dps[0].nasic
+        self.n_asic = self.data_packets[0].nasic
         self.alloc_data()
 
         for j, dp in enumerate(self.data_packets):
@@ -346,7 +349,7 @@ class DataPackets(object):
             self.packet_size[j] = dp.packet_size
             self.header_size[j] = dp.header_size
             self.packet_flags[j] = dp.packet_flags
-            self.event_counter[j] = dp.real_time_counter
+            self.event_counter[j] = dp.event_counter
             self.real_time_counter[j] = dp.real_time_counter
             self.live_time_counter[j] = dp.live_time_counter
             for i, ap in enumerate(dp.asic_packets):
@@ -370,15 +373,21 @@ class DataPackets(object):
         """
         sz = (self.n_asic, self.n_packet)
         ##self.time = np.zeros(self.n_packet, dtype=np.uint64)
-        self.packet_size = np.zeros(self.n_packet, dtype=np.uint16)
-        self.header_size = np.zeros(self.n_packet, dtype=np.uint8)
-        self.packet_flags = np.zeros(self.n_packet, dtype=np.uint16)
-        self.event_type = np.zeros(self.n_packet, dtype=np.uint16)
-        self.event_counter = np.zeros(self.n_packet, dtype=np.uint32)
-        self.real_time_counter = np.zeros(self.n_packet, dtype=np.uint64)
-        self.live_time_counter = np.zeros(self.n_packet, dtype=np.uint64)
-        self.event_ids = np.zeros(sz, dtype=np.uint32)
-        self.event_times = np.zeros(sz, dtype=np.uint64)
+
+        u8 = DataSz.to_type[DataSz.u8]
+        u16 = DataSz.to_type[DataSz.u16]
+        u32 = DataSz.to_type[DataSz.u16]
+        u64 = DataSz.to_type[DataSz.u64]
+
+        self.packet_size = np.zeros(self.n_packet, dtype=u16)
+        self.header_size = np.zeros(self.n_packet, dtype=u8)
+        self.packet_flags = np.zeros(self.n_packet, dtype=u16)
+        self.event_type = np.zeros(self.n_packet, dtype=u16)
+        self.event_counter = np.zeros(self.n_packet, dtype=u32)
+        self.real_time_counter = np.zeros(self.n_packet, dtype=u64)
+        self.live_time_counter = np.zeros(self.n_packet, dtype=u64)
+        self.event_ids = np.zeros(sz, dtype=u32)
+        self.event_times = np.zeros(sz, dtype=u64)
         self.start_bits = np.zeros(sz, dtype=np.bool)
         self.stop_bits = np.zeros(sz, dtype=np.bool)
         self.trigger_bits = np.zeros(sz, dtype=np.bool)
@@ -387,9 +396,9 @@ class DataPackets(object):
         self.dummy_status = np.zeros(sz, dtype=np.bool)
         self.channel_status = np.zeros(sz + (AsicPacket.N_CHANNEL,), dtype=np.bool)
         self.cm_status = np.zeros(sz, dtype=np.bool)
-        self.cm_data = np.zeros(sz, dtype=np.uint16)
-        self.dummy_data = np.zeros(sz, dtype=np.uint16)
-        self.data = np.zeros(sz + (AsicPacket.N_CHANNEL,), dtype=np.uint16)
+        self.cm_data = np.zeros(sz, dtype=u16)
+        self.dummy_data = np.zeros(sz, dtype=u16)
+        self.data = np.zeros(sz + (AsicPacket.N_CHANNEL,), dtype=u16)
 
     def write_hdf5(self, fname):
         """
