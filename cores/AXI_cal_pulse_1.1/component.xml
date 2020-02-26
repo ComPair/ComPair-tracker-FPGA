@@ -1,0 +1,1177 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spirit:component xmlns:xilinx="http://www.xilinx.com" xmlns:spirit="http://www.spiritconsortium.org/XMLSchema/SPIRIT/1685-2009" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <spirit:vendor>nasa.gov</spirit:vendor>
+  <spirit:library>user</spirit:library>
+  <spirit:name>AXI_cal_pulse</spirit:name>
+  <spirit:version>1.1</spirit:version>
+  <spirit:busInterfaces>
+    <spirit:busInterface>
+      <spirit:name>S00_AXI</spirit:name>
+      <spirit:busType spirit:vendor="xilinx.com" spirit:library="interface" spirit:name="aximm" spirit:version="1.0"/>
+      <spirit:abstractionType spirit:vendor="xilinx.com" spirit:library="interface" spirit:name="aximm_rtl" spirit:version="1.0"/>
+      <spirit:slave>
+        <spirit:memoryMapRef spirit:memoryMapRef="S00_AXI"/>
+      </spirit:slave>
+      <spirit:portMaps>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>AWADDR</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_awaddr</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>AWPROT</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_awprot</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>AWVALID</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_awvalid</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>AWREADY</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_awready</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>WDATA</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_wdata</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>WSTRB</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_wstrb</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>WVALID</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_wvalid</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>WREADY</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_wready</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>BRESP</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_bresp</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>BVALID</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_bvalid</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>BREADY</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_bready</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>ARADDR</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_araddr</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>ARPROT</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_arprot</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>ARVALID</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_arvalid</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>ARREADY</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_arready</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>RDATA</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_rdata</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>RRESP</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_rresp</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>RVALID</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_rvalid</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>RREADY</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_rready</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+      </spirit:portMaps>
+      <spirit:parameters>
+        <spirit:parameter>
+          <spirit:name>WIZ_DATA_WIDTH</spirit:name>
+          <spirit:value spirit:format="long" spirit:id="BUSIFPARAM_VALUE.S00_AXI.WIZ_DATA_WIDTH" spirit:choiceRef="choice_list_6fc15197">32</spirit:value>
+        </spirit:parameter>
+        <spirit:parameter>
+          <spirit:name>WIZ_NUM_REG</spirit:name>
+          <spirit:value spirit:format="long" spirit:id="BUSIFPARAM_VALUE.S00_AXI.WIZ_NUM_REG" spirit:minimum="4" spirit:maximum="512" spirit:rangeType="long">8</spirit:value>
+        </spirit:parameter>
+        <spirit:parameter>
+          <spirit:name>SUPPORTS_NARROW_BURST</spirit:name>
+          <spirit:value spirit:format="long" spirit:id="BUSIFPARAM_VALUE.S00_AXI.SUPPORTS_NARROW_BURST" spirit:choiceRef="choice_pairs_ce1226b1">0</spirit:value>
+        </spirit:parameter>
+      </spirit:parameters>
+    </spirit:busInterface>
+    <spirit:busInterface>
+      <spirit:name>S00_AXI_RST</spirit:name>
+      <spirit:busType spirit:vendor="xilinx.com" spirit:library="signal" spirit:name="reset" spirit:version="1.0"/>
+      <spirit:abstractionType spirit:vendor="xilinx.com" spirit:library="signal" spirit:name="reset_rtl" spirit:version="1.0"/>
+      <spirit:slave/>
+      <spirit:portMaps>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>RST</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_aresetn</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+      </spirit:portMaps>
+      <spirit:parameters>
+        <spirit:parameter>
+          <spirit:name>POLARITY</spirit:name>
+          <spirit:value spirit:id="BUSIFPARAM_VALUE.S00_AXI_RST.POLARITY" spirit:choiceRef="choice_list_9d8b0d81">ACTIVE_LOW</spirit:value>
+        </spirit:parameter>
+      </spirit:parameters>
+    </spirit:busInterface>
+    <spirit:busInterface>
+      <spirit:name>S00_AXI_CLK</spirit:name>
+      <spirit:busType spirit:vendor="xilinx.com" spirit:library="signal" spirit:name="clock" spirit:version="1.0"/>
+      <spirit:abstractionType spirit:vendor="xilinx.com" spirit:library="signal" spirit:name="clock_rtl" spirit:version="1.0"/>
+      <spirit:slave/>
+      <spirit:portMaps>
+        <spirit:portMap>
+          <spirit:logicalPort>
+            <spirit:name>CLK</spirit:name>
+          </spirit:logicalPort>
+          <spirit:physicalPort>
+            <spirit:name>s00_axi_aclk</spirit:name>
+          </spirit:physicalPort>
+        </spirit:portMap>
+      </spirit:portMaps>
+      <spirit:parameters>
+        <spirit:parameter>
+          <spirit:name>ASSOCIATED_BUSIF</spirit:name>
+          <spirit:value spirit:id="BUSIFPARAM_VALUE.S00_AXI_CLK.ASSOCIATED_BUSIF">S00_AXI</spirit:value>
+        </spirit:parameter>
+        <spirit:parameter>
+          <spirit:name>ASSOCIATED_RESET</spirit:name>
+          <spirit:value spirit:id="BUSIFPARAM_VALUE.S00_AXI_CLK.ASSOCIATED_RESET">s00_axi_aresetn</spirit:value>
+        </spirit:parameter>
+      </spirit:parameters>
+    </spirit:busInterface>
+  </spirit:busInterfaces>
+  <spirit:memoryMaps>
+    <spirit:memoryMap>
+      <spirit:name>S00_AXI</spirit:name>
+      <spirit:addressBlock>
+        <spirit:name>S00_AXI_reg</spirit:name>
+        <spirit:displayName>cal_pulse_s00</spirit:displayName>
+        <spirit:baseAddress spirit:format="long" spirit:resolve="user">0</spirit:baseAddress>
+        <spirit:range spirit:format="long">4096</spirit:range>
+        <spirit:width spirit:format="long">32</spirit:width>
+        <spirit:usage>register</spirit:usage>
+        <spirit:parameters>
+          <spirit:parameter>
+            <spirit:name>OFFSET_BASE_PARAM</spirit:name>
+            <spirit:value spirit:id="ADDRBLOCKPARAM_VALUE.S00_AXI.S00_AXI_REG.OFFSET_BASE_PARAM">C_S00_AXI_BASEADDR</spirit:value>
+          </spirit:parameter>
+          <spirit:parameter>
+            <spirit:name>OFFSET_HIGH_PARAM</spirit:name>
+            <spirit:value spirit:id="ADDRBLOCKPARAM_VALUE.S00_AXI.S00_AXI_REG.OFFSET_HIGH_PARAM">C_S00_AXI_HIGHADDR</spirit:value>
+          </spirit:parameter>
+        </spirit:parameters>
+      </spirit:addressBlock>
+    </spirit:memoryMap>
+  </spirit:memoryMaps>
+  <spirit:model>
+    <spirit:views>
+      <spirit:view>
+        <spirit:name>xilinx_vhdlsynthesis</spirit:name>
+        <spirit:displayName>VHDL Synthesis</spirit:displayName>
+        <spirit:envIdentifier>vhdlSource:vivado.xilinx.com:synthesis</spirit:envIdentifier>
+        <spirit:language>vhdl</spirit:language>
+        <spirit:modelName>AXI_cal_pulse_v1_1</spirit:modelName>
+        <spirit:fileSetRef>
+          <spirit:localName>xilinx_vhdlsynthesis_view_fileset</spirit:localName>
+        </spirit:fileSetRef>
+        <spirit:parameters>
+          <spirit:parameter>
+            <spirit:name>viewChecksum</spirit:name>
+            <spirit:value>7dda4877</spirit:value>
+          </spirit:parameter>
+        </spirit:parameters>
+      </spirit:view>
+      <spirit:view>
+        <spirit:name>xilinx_vhdlbehavioralsimulation</spirit:name>
+        <spirit:displayName>VHDL Simulation</spirit:displayName>
+        <spirit:envIdentifier>vhdlSource:vivado.xilinx.com:simulation</spirit:envIdentifier>
+        <spirit:language>vhdl</spirit:language>
+        <spirit:modelName>AXI_cal_pulse_v1_1</spirit:modelName>
+        <spirit:fileSetRef>
+          <spirit:localName>xilinx_vhdlbehavioralsimulation_view_fileset</spirit:localName>
+        </spirit:fileSetRef>
+        <spirit:parameters>
+          <spirit:parameter>
+            <spirit:name>viewChecksum</spirit:name>
+            <spirit:value>7dda4877</spirit:value>
+          </spirit:parameter>
+        </spirit:parameters>
+      </spirit:view>
+      <spirit:view>
+        <spirit:name>xilinx_softwaredriver</spirit:name>
+        <spirit:displayName>Software Driver</spirit:displayName>
+        <spirit:envIdentifier>:vivado.xilinx.com:sw.driver</spirit:envIdentifier>
+        <spirit:fileSetRef>
+          <spirit:localName>xilinx_softwaredriver_view_fileset</spirit:localName>
+        </spirit:fileSetRef>
+        <spirit:parameters>
+          <spirit:parameter>
+            <spirit:name>viewChecksum</spirit:name>
+            <spirit:value>e8b6588c</spirit:value>
+          </spirit:parameter>
+        </spirit:parameters>
+      </spirit:view>
+      <spirit:view>
+        <spirit:name>xilinx_xpgui</spirit:name>
+        <spirit:displayName>UI Layout</spirit:displayName>
+        <spirit:envIdentifier>:vivado.xilinx.com:xgui.ui</spirit:envIdentifier>
+        <spirit:fileSetRef>
+          <spirit:localName>xilinx_xpgui_view_fileset</spirit:localName>
+        </spirit:fileSetRef>
+        <spirit:parameters>
+          <spirit:parameter>
+            <spirit:name>viewChecksum</spirit:name>
+            <spirit:value>f2d9691b</spirit:value>
+          </spirit:parameter>
+        </spirit:parameters>
+      </spirit:view>
+      <spirit:view>
+        <spirit:name>bd_tcl</spirit:name>
+        <spirit:displayName>Block Diagram</spirit:displayName>
+        <spirit:envIdentifier>:vivado.xilinx.com:block.diagram</spirit:envIdentifier>
+        <spirit:fileSetRef>
+          <spirit:localName>bd_tcl_view_fileset</spirit:localName>
+        </spirit:fileSetRef>
+        <spirit:parameters>
+          <spirit:parameter>
+            <spirit:name>viewChecksum</spirit:name>
+            <spirit:value>16328387</spirit:value>
+          </spirit:parameter>
+        </spirit:parameters>
+      </spirit:view>
+    </spirit:views>
+    <spirit:ports>
+      <spirit:port>
+        <spirit:name>cal_pulse_trigger_out</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>vata_trigger_out</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>vata_fast_or_trigger_disable</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_awaddr</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.C_S00_AXI_ADDR_WIDTH&apos;)) - 1)">4</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_awprot</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long">2</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_awvalid</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_awready</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_wdata</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.C_S00_AXI_DATA_WIDTH&apos;)) - 1)">31</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_wstrb</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="((spirit:decode(id(&apos;MODELPARAM_VALUE.C_S00_AXI_DATA_WIDTH&apos;)) / 8) - 1)">3</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_wvalid</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_wready</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_bresp</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long">1</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_bvalid</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_bready</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_araddr</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.C_S00_AXI_ADDR_WIDTH&apos;)) - 1)">4</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_arprot</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long">2</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_arvalid</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_arready</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_rdata</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long" spirit:resolve="dependent" spirit:dependency="(spirit:decode(id(&apos;MODELPARAM_VALUE.C_S00_AXI_DATA_WIDTH&apos;)) - 1)">31</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_rresp</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long">1</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_rvalid</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_rready</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_aclk</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>s00_axi_aresetn</spirit:name>
+        <spirit:wire>
+          <spirit:direction>in</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_vhdlsynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_vhdlbehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+    </spirit:ports>
+    <spirit:modelParameters>
+      <spirit:modelParameter xsi:type="spirit:nameValueTypeType" spirit:dataType="integer">
+        <spirit:name>C_S00_AXI_DATA_WIDTH</spirit:name>
+        <spirit:displayName>C S00 AXI DATA WIDTH</spirit:displayName>
+        <spirit:description>Width of S_AXI data bus</spirit:description>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_S00_AXI_DATA_WIDTH" spirit:order="3" spirit:rangeType="long">32</spirit:value>
+      </spirit:modelParameter>
+      <spirit:modelParameter spirit:dataType="integer">
+        <spirit:name>C_S00_AXI_ADDR_WIDTH</spirit:name>
+        <spirit:displayName>C S00 AXI ADDR WIDTH</spirit:displayName>
+        <spirit:description>Width of S_AXI address bus</spirit:description>
+        <spirit:value spirit:format="long" spirit:resolve="generated" spirit:id="MODELPARAM_VALUE.C_S00_AXI_ADDR_WIDTH" spirit:order="4" spirit:rangeType="long">5</spirit:value>
+      </spirit:modelParameter>
+    </spirit:modelParameters>
+  </spirit:model>
+  <spirit:choices>
+    <spirit:choice>
+      <spirit:name>choice_list_6fc15197</spirit:name>
+      <spirit:enumeration>32</spirit:enumeration>
+    </spirit:choice>
+    <spirit:choice>
+      <spirit:name>choice_list_9d8b0d81</spirit:name>
+      <spirit:enumeration>ACTIVE_HIGH</spirit:enumeration>
+      <spirit:enumeration>ACTIVE_LOW</spirit:enumeration>
+    </spirit:choice>
+    <spirit:choice>
+      <spirit:name>choice_pairs_ce1226b1</spirit:name>
+      <spirit:enumeration spirit:text="true">1</spirit:enumeration>
+      <spirit:enumeration spirit:text="false">0</spirit:enumeration>
+    </spirit:choice>
+  </spirit:choices>
+  <spirit:fileSets>
+    <spirit:fileSet>
+      <spirit:name>xilinx_vhdlsynthesis_view_fileset</spirit:name>
+      <spirit:file>
+        <spirit:name>hdl/AXI_cal_pulse_v1_1_S00_AXI.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/pulse_trigger_fsm.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/AXI_cal_pulse_v1_1.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+        <spirit:userFileType>CHECKSUM_773ceff4</spirit:userFileType>
+      </spirit:file>
+    </spirit:fileSet>
+    <spirit:fileSet>
+      <spirit:name>xilinx_vhdlbehavioralsimulation_view_fileset</spirit:name>
+      <spirit:file>
+        <spirit:name>hdl/AXI_cal_pulse_v1_1_S00_AXI.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/pulse_trigger_fsm.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>hdl/AXI_cal_pulse_v1_1.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+      </spirit:file>
+    </spirit:fileSet>
+    <spirit:fileSet>
+      <spirit:name>xilinx_softwaredriver_view_fileset</spirit:name>
+      <spirit:file>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/data/AXI_cal_pulse.mdd</spirit:name>
+        <spirit:userFileType>mdd</spirit:userFileType>
+        <spirit:userFileType>driver_mdd</spirit:userFileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/data/AXI_cal_pulse.tcl</spirit:name>
+        <spirit:fileType>tclSource</spirit:fileType>
+        <spirit:userFileType>driver_tcl</spirit:userFileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/src/Makefile</spirit:name>
+        <spirit:userFileType>driver_src</spirit:userFileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/src/AXI_cal_pulse.h</spirit:name>
+        <spirit:fileType>cSource</spirit:fileType>
+        <spirit:userFileType>driver_src</spirit:userFileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/src/AXI_cal_pulse.c</spirit:name>
+        <spirit:fileType>cSource</spirit:fileType>
+        <spirit:userFileType>driver_src</spirit:userFileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>drivers/AXI_cal_pulse_v1_1/src/AXI_cal_pulse_selftest.c</spirit:name>
+        <spirit:fileType>cSource</spirit:fileType>
+        <spirit:userFileType>driver_src</spirit:userFileType>
+      </spirit:file>
+    </spirit:fileSet>
+    <spirit:fileSet>
+      <spirit:name>xilinx_xpgui_view_fileset</spirit:name>
+      <spirit:file>
+        <spirit:name>xgui/AXI_cal_pulse_v1_1.tcl</spirit:name>
+        <spirit:fileType>tclSource</spirit:fileType>
+        <spirit:userFileType>CHECKSUM_f2d9691b</spirit:userFileType>
+        <spirit:userFileType>XGUI_VERSION_2</spirit:userFileType>
+      </spirit:file>
+    </spirit:fileSet>
+    <spirit:fileSet>
+      <spirit:name>bd_tcl_view_fileset</spirit:name>
+      <spirit:file>
+        <spirit:name>bd/bd.tcl</spirit:name>
+        <spirit:fileType>tclSource</spirit:fileType>
+      </spirit:file>
+    </spirit:fileSet>
+  </spirit:fileSets>
+  <spirit:description>AXI-based calibration pulser for AMEGO/COMPAIR DBE/AFE</spirit:description>
+  <spirit:parameters>
+    <spirit:parameter>
+      <spirit:name>C_S00_AXI_DATA_WIDTH</spirit:name>
+      <spirit:displayName>C S00 AXI DATA WIDTH</spirit:displayName>
+      <spirit:description>Width of S_AXI data bus</spirit:description>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.C_S00_AXI_DATA_WIDTH" spirit:choiceRef="choice_list_6fc15197" spirit:order="3">32</spirit:value>
+      <spirit:vendorExtensions>
+        <xilinx:parameterInfo>
+          <xilinx:enablement>
+            <xilinx:isEnabled xilinx:id="PARAM_ENABLEMENT.C_S00_AXI_DATA_WIDTH">false</xilinx:isEnabled>
+          </xilinx:enablement>
+        </xilinx:parameterInfo>
+      </spirit:vendorExtensions>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>C_S00_AXI_ADDR_WIDTH</spirit:name>
+      <spirit:displayName>C S00 AXI ADDR WIDTH</spirit:displayName>
+      <spirit:description>Width of S_AXI address bus</spirit:description>
+      <spirit:value spirit:format="long" spirit:resolve="user" spirit:id="PARAM_VALUE.C_S00_AXI_ADDR_WIDTH" spirit:order="4" spirit:rangeType="long">5</spirit:value>
+      <spirit:vendorExtensions>
+        <xilinx:parameterInfo>
+          <xilinx:enablement>
+            <xilinx:isEnabled xilinx:id="PARAM_ENABLEMENT.C_S00_AXI_ADDR_WIDTH">false</xilinx:isEnabled>
+          </xilinx:enablement>
+        </xilinx:parameterInfo>
+      </spirit:vendorExtensions>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>C_S00_AXI_BASEADDR</spirit:name>
+      <spirit:displayName>C S00 AXI BASEADDR</spirit:displayName>
+      <spirit:value spirit:format="bitString" spirit:resolve="user" spirit:id="PARAM_VALUE.C_S00_AXI_BASEADDR" spirit:order="5" spirit:bitStringLength="32">0xFFFFFFFF</spirit:value>
+      <spirit:vendorExtensions>
+        <xilinx:parameterInfo>
+          <xilinx:enablement>
+            <xilinx:isEnabled xilinx:id="PARAM_ENABLEMENT.C_S00_AXI_BASEADDR">false</xilinx:isEnabled>
+          </xilinx:enablement>
+        </xilinx:parameterInfo>
+      </spirit:vendorExtensions>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>C_S00_AXI_HIGHADDR</spirit:name>
+      <spirit:displayName>C S00 AXI HIGHADDR</spirit:displayName>
+      <spirit:value spirit:format="bitString" spirit:resolve="user" spirit:id="PARAM_VALUE.C_S00_AXI_HIGHADDR" spirit:order="6" spirit:bitStringLength="32">0x00000000</spirit:value>
+      <spirit:vendorExtensions>
+        <xilinx:parameterInfo>
+          <xilinx:enablement>
+            <xilinx:isEnabled xilinx:id="PARAM_ENABLEMENT.C_S00_AXI_HIGHADDR">false</xilinx:isEnabled>
+          </xilinx:enablement>
+        </xilinx:parameterInfo>
+      </spirit:vendorExtensions>
+    </spirit:parameter>
+    <spirit:parameter>
+      <spirit:name>Component_Name</spirit:name>
+      <spirit:value spirit:resolve="user" spirit:id="PARAM_VALUE.Component_Name" spirit:order="1">AXI_cal_pulse_v1_1</spirit:value>
+    </spirit:parameter>
+  </spirit:parameters>
+  <spirit:vendorExtensions>
+    <xilinx:coreExtensions>
+      <xilinx:supportedFamilies>
+        <xilinx:family xilinx:lifeCycle="Pre-Production">zynq</xilinx:family>
+      </xilinx:supportedFamilies>
+      <xilinx:taxonomies>
+        <xilinx:taxonomy>AXI_Peripheral</xilinx:taxonomy>
+      </xilinx:taxonomies>
+      <xilinx:displayName>AXI_cal_pulse_v1.1</xilinx:displayName>
+      <xilinx:coreRevision>1</xilinx:coreRevision>
+      <xilinx:upgrades>
+        <xilinx:canUpgradeFrom>nasa.gov:user:AXI_cal_pulse:1.0</xilinx:canUpgradeFrom>
+      </xilinx:upgrades>
+      <xilinx:coreCreationDateTime>2020-02-21T00:17:54Z</xilinx:coreCreationDateTime>
+      <xilinx:tags>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@384880ba_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@43069b71_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7d039b70_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5fc0470b_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4fae9912_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@12521667_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@77576d6_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@9f226aa_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@51853f20_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6291f6db_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@43782df9_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7904978f_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1921b824_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@24b53dc6_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4ddf190a_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@68e379d0_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@25861c38_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@61d1d644_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1af35f80_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6ab38b77_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@58e131bb_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6c37f09a_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1ea24340_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@58fc3190_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@d8c504a_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@dce30e4_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7bce52b_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5575708_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4c8ccf7f_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@38f7a3b7_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2cb50036_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7779d31a_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@162c4a7a_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5e9d93bc_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@49cf6689_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6137e4bb_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@33a40dff_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4f9af2e2_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2b034bc6_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1fcf84eb_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3b0f4e60_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5cba3c62_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@93d259c_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3e091873_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@516aee59_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@53f64923_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@18f01727_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@51d3d350_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1d006ce1_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@32156c7e_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@791f3204_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6756144b_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5727c612_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@39935f57_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3f481356_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@18fb5fe9_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@63546ce6_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@716c4f25_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3109a9aa_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@50330498_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@230997eb_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@58a05f25_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5b128710_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6189c982_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@24ff2fe4_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6e694a6b_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@151418f6_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2e6eda23_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22f7618d_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2895cde3_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@518d68be_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@483e53ef_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@52f2bec1_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@58e7b1e1_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3533afe2_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@707ae29f_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1607a738_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@180f8bfe_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@589228a3_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7af16105_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4bbfe89b_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1d386f4e_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@28f26f96_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6c31036f_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@539daa4b_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7f79134_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@67f8576a_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5a07b3fb_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1b4984f4_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b1780f5_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1aa47309_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4c9cab87_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3e1f977b_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@750dba77_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7dbc4ae2_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2265c659_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6fddb4e5_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1ecdfe77_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@43245aed_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@642a1aae_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@536cd4f4_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@447e1ee1_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@402ce120_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b8a018d_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2314160c_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@65e769ef_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4996c247_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@39e6d81c_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@341391c5_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3dde8bc9_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@36efaa80_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22176327_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@815acae_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@78ced19c_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2215a484_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7679b736_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6beb3063_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@ddce157_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2a214292_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@70c0532a_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@36939122_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2838a6b0_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5d86a823_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@309d8c64_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@421f41e8_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@12a4098f_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@665da170_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2a96b2a3_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4ec1c847_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@695209ed_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@398d59d1_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@46346905_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1d130280_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@74bf5ec8_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1721973f_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6ad52235_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@12188de3_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4115e86c_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@38a59a02_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@12368fc7_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@28d145bd_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5bdb6f3d_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@213f7ec6_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@53f79352_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@46f6189d_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2e3ee14_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3dbdc728_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3a44ce45_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@61dd5063_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2f7dd6db_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@64a792bb_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@120d36a8_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@77e53f0e_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1a4cbdf1_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@40a1fd9_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@18122c9_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@700c7c55_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@69a10181_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2e2b3379_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@78f23ff0_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22b3ac27_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@609e1f15_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3860e818_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4550741a_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4ef32b5e_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@48b3f9ae_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5376ff4e_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22b5692b_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7c737300_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@18ba2950_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2c7bc387_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4570c839_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3563fd23_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7efd99bd_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@205d6e44_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3be8678a_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1e1872f_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3dcae84a_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3184aad2_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7f13432f_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1acf3162_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@78ba308c_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@758f4c6d_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6ce4f32_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@34651497_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4f658b96_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@70bf695c_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@264e2742_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4883e095_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@181c701_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@61d32f68_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5b6be79b_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@412e764f_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@11b66c3f_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@53949439_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@523edc45_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2fbf0bf2_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@650ca37e_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@32fe9620_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@271256e3_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@63908e5b_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@53180f65_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7834ac49_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@18533e40_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@537280a8_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5936534f_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@27d69bfa_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1c3a8481_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@28e741cf_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@23952e_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1193f4c5_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@54dc07b9_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1f1b160a_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@768901a9_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@37847284_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@59876dc2_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1e0b79d3_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2f4a930a_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@20125eee_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7dc5fbb0_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@17075913_ARCHIVE_LOCATION">/home/lucas/fpga/dbe-production/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6830abc6_ARCHIVE_LOCATION">/home/lucas/fpga/dbe-production/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3252f9e_ARCHIVE_LOCATION">/home/lucas/fpga/dbe-production/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@32302005_ARCHIVE_LOCATION">/home/lucas/fpga/dbe-production/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@30dfd67c_ARCHIVE_LOCATION">/home/lucas/fpga/dbe-production/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6e5efcce_ARCHIVE_LOCATION">/home/lucas/fpga/dbe-production/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4b6e76c6_ARCHIVE_LOCATION">/home/lucas/fpga/dbe-production/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7b405fca_ARCHIVE_LOCATION">/home/lucas/fpga/dbe-production/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@67b4fdc2_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@109dd260_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@46ee4aef_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6605435e_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1c9f521f_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3d07afb4_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b89dba4_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@47a08c58_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2aad0d49_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@115cb885_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5f846766_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@709b2bca_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2931783_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6cd743f9_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1ad1a43e_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5442fcfc_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@31bc72fb_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2994ce4a_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@68504d01_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@e090765_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1db04f6c_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@650cf846_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@70670e0b_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3a23bd7_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@30ac11e1_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@128702e1_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7a277f45_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7fdb40ca_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6d3998cc_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@e370708_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4af1de89_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@65a7cd5e_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5550a550_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6a39cc03_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@19634e3e_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@334f67e5_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7f42977f_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@262908ef_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@128ee92c_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5a080f0_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6e1d56c2_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@498034ae_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6d4e485_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@711e2e09_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2396db6f_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@64b0deef_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@273ccb9c_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3d039ef6_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@699ee3c2_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@cd8b77f_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@82f72f7_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7e0d458b_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@17b4c441_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@c453291_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@121509f7_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4d07b0d_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5f908c9c_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@53a39754_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5621589b_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7074c62a_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b5c977c_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@358592d2_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6c92b1a1_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6f69c7e1_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@75d1d278_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@24443cb5_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2f975d3f_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1862c299_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@76262ed0_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@629d0363_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+      </xilinx:tags>
+    </xilinx:coreExtensions>
+    <xilinx:packagingInfo>
+      <xilinx:xilinxVersion>2018.3</xilinx:xilinxVersion>
+      <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="206b0a70"/>
+      <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="ed1368d5"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="b17791f2"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="11a97b7c"/>
+      <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="2e811c89"/>
+      <xilinx:checksum xilinx:scope="parameters" xilinx:value="d966573c"/>
+    </xilinx:packagingInfo>
+  </spirit:vendorExtensions>
+</spirit:component>

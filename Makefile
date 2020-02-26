@@ -21,6 +21,10 @@ POSTFIX = "
 endif
 
 ifndef BUILD
+	@echo "Need to set BUILD in environment"
+	@echo "On Linux: export BUILD=dbe_production"
+	@echo "On Windows: set BUILD=dbe_production"
+	@echo "Valid BUILD options = {dbe_production, dbe_production, breakout}"
 $(error BUILD is not set.)
 endif
 
@@ -47,8 +51,15 @@ launchgui :
 	@echo "    Launching GUI..."
 	cd work/$(BUILD); $(PREFIX) vivado zynq/zynq.xpr $(POSTFIX)
 
-setup : ./work/$(BUILD)/.setup.done
+launchsdk :
+	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+	@echo "    Launching XSDK..."
+	cd work/$(BUILD); $(PREFIX) xsdk -workspace zynq/zynq.sdk/ $(POSTFIX)
 
+save_bd:
+	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(SAVE_BD) $(POSTFIX)    
+
+setup : ./work/$(BUILD)/.setup.done
 ./work/$(BUILD)/.setup.done :
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
 	@echo "    Running $(BUILD) setup"
@@ -58,14 +69,11 @@ setup : ./work/$(BUILD)/.setup.done
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_PROJECT) $(POSTFIX)
 
 compile : ./work/$(BUILD)/.compile.done 
-
 ./work/$(BUILD)/.compile.done : ./work/$(BUILD)/.setup.done
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(COMPILE_PROJECT) $(POSTFIX)
 
-save_bd:
-	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(SAVE_BD) $(POSTFIX)    
-
-export_hardware : 
+export_hardware : ./work/$(BUILD)/.export_hardware.done 
+./work/$(BUILD)/.export_hardware.done : ./work/$(BUILD)/.compile.done
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(EXPORT_HW) $(POSTFIX)
 	exit 0
 
