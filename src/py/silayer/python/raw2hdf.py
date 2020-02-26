@@ -376,7 +376,7 @@ class DataPackets(object):
 
         u8 = DataSz.to_type[DataSz.u8]
         u16 = DataSz.to_type[DataSz.u16]
-        u32 = DataSz.to_type[DataSz.u16]
+        u32 = DataSz.to_type[DataSz.u32]
         u64 = DataSz.to_type[DataSz.u64]
 
         self.packet_size = np.zeros(self.n_packet, dtype=u16)
