@@ -301,7 +301,7 @@ class DataPackets(object):
         "packet_size",
         "header_size",
         "packet_flags",
-        "event_counter",
+        ##"event_counter",
         "event_type",
         "live_time_counter",
         "real_time_counter",
@@ -349,7 +349,7 @@ class DataPackets(object):
             self.packet_size[j] = dp.packet_size
             self.header_size[j] = dp.header_size
             self.packet_flags[j] = dp.packet_flags
-            self.event_counter[j] = dp.real_time_counter
+            ##self.event_counter[j] = dp.real_time_counter
             self.real_time_counter[j] = dp.real_time_counter
             self.live_time_counter[j] = dp.live_time_counter
             for i, ap in enumerate(dp.asic_packets):
