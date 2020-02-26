@@ -25,7 +25,7 @@ class DacCtrl {
         ~DacCtrl();
         int set_delay(u32 delay);
         u32 get_delay();
-        int set_counts(char *side, char *dac, u32 counts);
+        int set_counts(char *side, char *whichdac, u32 counts);
         u32 get_input();
                 
     private:

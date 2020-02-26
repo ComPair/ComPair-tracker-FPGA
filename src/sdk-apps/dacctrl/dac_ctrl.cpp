@@ -60,23 +60,26 @@ u32 DacCtrl::get_delay() {
 // Set the dac's input value
 // Return 1 if you try and set a crazy value.
 // Return 0 otherwise.
-int DacCtrl::set_counts(char *side, char *dac, u32 counts) {
+int DacCtrl::set_counts(char *side, char *whichdac, u32 counts) {
+    if (paxi == NULL)
+        this->mmap_axi();
+    std::cout << "Setting side " << side << " " << whichdac << " dac to " << counts << " of 4095" << std::endl;
     if (MAX_INPUT_VAL < counts) {
         return 1;
     }
-    if (strcmp("A",side) && strcmp("cal",dac))
+    if ((strncmp("A",side,2)==0) && (strncmp("cal",whichdac,3)==0))
     {
       paxi[DAC_SELECT_REGOFF] = u8(1); //0b0001
     } 
-    else if (strcmp("B",side) && strcmp("cal",dac)) 
+    else if ((strncmp("B",side,2)==0) && (strncmp("cal",whichdac,3)==0)) 
     {
       paxi[DAC_SELECT_REGOFF] = 4; //0b0100
     }
-    else if (strcmp("A",side) && strcmp("vth",dac)) 
+    else if ((strncmp("A",side,2)==0) && (strncmp("vth",whichdac,3)==0)) 
     {
-      paxi[DAC_SELECT_REGOFF] = 3; //0b0010
+      paxi[DAC_SELECT_REGOFF] = 2; //0b0010
     }
-    else if (strcmp("B",side) && strcmp("vth",dac)) 
+    else if ((strncmp("B",side,2)==0) && (strncmp("vth",whichdac,3)==0)) 
     {
       paxi[DAC_SELECT_REGOFF] = 8; //0b1000
     }
@@ -85,8 +88,7 @@ int DacCtrl::set_counts(char *side, char *dac, u32 counts) {
     std::cerr << "ERROR: Bad Options, nothing done." << std::endl;
         throw "ERROR: Bad Options, nothing done.";
     }
-    if (paxi == NULL)
-        this->mmap_axi();
+
     paxi[DAC_INPUT_REGOFF] = counts;
     paxi[DAC_WRITE_REGOFF] = 0;
     paxi[DAC_WRITE_REGOFF] = 1;

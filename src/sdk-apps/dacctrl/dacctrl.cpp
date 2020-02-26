@@ -58,6 +58,8 @@ int parse_args(int argc, char **argv) {
                 std::cerr << "ERROR: Input value too large." << std::endl;
                 return DAC_VALUE_ERR;
             }
+            i++;
+            i++;
         } else if (strcmp("--get-input", argv[i]) == 0) { 
             std::cout << dacctrl.get_input() << std::endl;
         } else {
