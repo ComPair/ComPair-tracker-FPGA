@@ -27,7 +27,7 @@ void usage(char *argv0) {
               << "  OPTIONS:" << std::endl
               << "    --set-delay DELAY : Set the delay value." << std::endl
               << "    --get-delay       : Print the current delay value." << std::endl
-              << "    --set-input INPUT : Set the dac input to the given value." << std::endl
+              << "    --set-counts SIDE DAC VALUE : Set the dac input to the given value." << std::endl
               << "    --get-input       : Print the current input value, according to the axi register." << std::endl;
 }
 
@@ -48,15 +48,18 @@ int parse_args(int argc, char **argv) {
             }
         } else if (strcmp("--get-delay", argv[i]) == 0) { 
             std::cout << dacctrl.get_delay() << std::endl;
-        } else if (strcmp("--set-input", argv[i]) == 0) { 
-            if (++i >= argc) {
-                std::cerr << "ERROR: No input value specified." << std::endl;
+            
+        } else if (strcmp("--set-counts", argv[i]) == 0) { 
+            if ((++i)+2 >= argc) {
+                std::cerr << "ERROR: Must pass <SIDE> <DAC> <VALUE> with --set_counts." << std::endl;
                 return PARSE_ARGS_ERR;
             }
-            if (dacctrl.set_input((u32)atoi(argv[i])) == 1) {
+            if (dacctrl.set_counts(argv[i], argv[i+1], (u32)atoi(argv[i+2])) == 1) {
                 std::cerr << "ERROR: Input value too large." << std::endl;
                 return DAC_VALUE_ERR;
             }
+            i++;
+            i++;
         } else if (strcmp("--get-input", argv[i]) == 0) { 
             std::cout << dacctrl.get_input() << std::endl;
         } else {
