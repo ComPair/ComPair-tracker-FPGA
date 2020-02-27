@@ -20,14 +20,20 @@ PREFIX = cmd //c "
 POSTFIX = "
 endif
 
+
 ifndef BUILD
-	@echo "Need to set BUILD in environment"
-	@echo "On Linux: export BUILD=dbe_production"
-	@echo "On Windows: set BUILD=dbe_production"
-	@echo "Valid BUILD options = {dbe_production, dbe_production, breakout}"
-$(error BUILD is not set.)
+$(info **********)
+$(info BUILD not set)
+$(info On Linux: export BUILD=dbe_production)
+$(info On Windows: set BUILD=dbe_production)
+$(info Valid BUILD options = {dbe_production, dbe_production, breakout})
+$(info **********)
+$(error Error: Need to set BUILD in environment.)
 endif
 
+#@echo "On Linux: export BUILD=dbe_production"
+#@echo ""
+#@echo ""
 ## By default we are using the Trenz 21FC3 FPGA module.
 ## To use the 1CFA module, uncomment the line below.
 #USING_1CFA_ARGS = -tclargs use_1cfa
