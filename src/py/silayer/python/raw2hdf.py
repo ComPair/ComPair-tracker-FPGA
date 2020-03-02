@@ -37,6 +37,8 @@ def byte2bits(byte, nbits=8):
     Change nbits to interpret different sized unsigned data.
     (for example, nbits=4 for a nibble)
     """
+    if type(byte) is not int:
+        byte = int(byte)
     return [byte >> i & 1 for i in range(nbits)]
 
 
@@ -88,6 +90,33 @@ def hexstr2bytes(hexstr):
     ## Get the bits
     bits = reduce(_add, [byte2bits(int(val, 16), nbits=4) for val in flipstr])
     return bits2bytes(bits)
+
+def lame_byte_iterator(fname, npacket=0):
+    """
+    This is a lame, temporary iterator that should
+    yield bytes, where each yielded bytes is an
+    entire data packet.
+
+    This will continue to yield data packets infinitely if npacket=0;
+    otherwise, it will yield `npacket` number of packets.
+    """
+    data = open(fname, "rb").read()
+    n = 0
+    while True:
+        ndata = len(data)
+        if ndata < 2:
+            data = open(fname, "rb").read()
+            continue
+        nbytes = bytes2val(data[:2])
+        if ndata < nbytes:
+            data = open(fname, "rb").read()
+            continue
+        packet = data[:nbytes]
+        yield packet
+        n += 1
+        if npacket > 0 and n >= npacket:
+            break
+        data = data[nbytes:]
 
 
 class AsicPacket(object):
@@ -273,6 +302,7 @@ class DataPacket(object):
         """
         bits = []
         for field, nbytes in self._HEADER_LAYOUT:
+            val = getattr(self, field)
             bits += byte2bits(getattr(self, field), nbits=8 * nbytes)
         for i in range(self.nasic):
             bits += byte2bits(self.asic_nbytes[i], nbits=8 * self._ASIC_NDATA_SZ)
@@ -371,16 +401,20 @@ class DataPackets(object):
                 break
 
     @classmethod
-    def from_binary(cls, data, n_packet=0):
+    def from_binary(cls, data, n_packet=0, use_c_ext=True):
         """
         Load the data from a flat binary file of data packets, or a byte string.
         If `n_packet` is 0, then entire data file/stream will be parsed.
         If `n_packet` > 0, then only read the requested number of packets.
         """
         self = cls()
-        self.data_packets = [
-            dp for dp in self.iter_data_packets(data, n_packet=n_packet)
-        ]
+        if use_c_ext:
+            ## We can currently only iterate from file paths...
+            assert type(data) is str
+            iter_method = self.c_iter_data_packets
+        else:
+            iter_method = self.iter_data_packets
+        self.data_packets = list(iter_method(data, n_packet=n_packet))
         self.n_packet = len(self.data_packets)
         self.n_asic = self.data_packets[0].nasic
         self.alloc_data()
@@ -488,19 +522,19 @@ class DataPackets(object):
         Return an iterator that will return the bytes for each packet upon iteration.
         This is the easiest way to get a single data packet at a time.
         """
-        for i in self.n_packet:
+        for j in range(self.n_packet):
             dp = DataPacket(None)
             for field_name, _ in dp._HEADER_LAYOUT:
                 if field_name == "nasic":
                     dp.nasic = self.n_asic
                 else:
-                    setattr(dp, field_name, getattr(self, field_name)[i])
+                    setattr(dp, field_name, getattr(self, field_name)[j])
             ## Assume that we have full data packets
             dp.asic_nbytes = [
-                AsicPacket.N_READS_PER_PACKET * DataSz.u32 for _ in dp.nasic
+                AsicPacket.N_READS_PER_PACKET * DataSz.u32 for _ in range(dp.nasic)
             ]
             dp.asic_packets = []
-            for j in self.n_asic:
+            for i in range(self.n_asic):
                 ap = AsicPacket(None)
                 ap.event_id = self.event_ids[i, j]
                 ap.event_time = self.event_times[i, j]
@@ -509,7 +543,7 @@ class DataPackets(object):
                 ap.stop_bit = self.stop_bits[i, j]
                 ap.trigger_bit = self.trigger_bits[i, j]
                 ap.chip_data_bit = self.chip_data_bits[i, j]
-                ap.seu_bit = self.seu_bit[i, j]
+                ap.seu_bit = self.seu_bits[i, j]
                 ap.dummy_status = self.dummy_status[i, j]
                 ap.channel_status = list(self.channel_status[i, j, :])
                 ap.cm_status = self.cm_status[i, j]
