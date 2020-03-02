@@ -3,25 +3,32 @@ from functools import reduce
 import numpy as np
 import h5py
 
+from . import _raw2hdf
+
 """
 This module should parse the raw, flat, binary file to produce an hdf5 file.
 """
 
 _add = lambda a, b: a + b
 
+
 class DataSz:
     """
     Stupid thing to keep track of data sizes in bytes.
     """
+
     u8 = 1
     u16 = 2
     u32 = 4
     u64 = 8
     ## Data types. Try and force lengths to be what we want.
-    to_type = {u8: np.dtype(f'<u{u8}'),
-               u16: np.dtype(f'<u{u16}'),
-               u32: np.dtype(f'<u{u32}'),
-               u64: np.dtype(f'<u{u64}')}
+    to_type = {
+        u8: np.dtype(f"<u{u8}"),
+        u16: np.dtype(f"<u{u16}"),
+        u32: np.dtype(f"<u{u32}"),
+        u64: np.dtype(f"<u{u64}"),
+    }
+
 
 def byte2bits(byte, nbits=8):
     """
@@ -54,12 +61,14 @@ def bytes2bits(bytestr):
         bits += byte2bits(byte)
     return bits
 
+
 def bits2bytes(bits):
     """
     Return the bytes corresponding to the list of bits.
     Length of bits list must be divisible by 8
     """
     return bytes(bits2val(bits[i : i + 8]) for i in range(0, len(bits), 8))
+
 
 def bytes2val(bytestr):
     """
@@ -79,6 +88,7 @@ def hexstr2bytes(hexstr):
     ## Get the bits
     bits = reduce(_add, [byte2bits(int(val, 16), nbits=4) for val in flipstr])
     return bits2bytes(bits)
+
 
 class AsicPacket(object):
     """
@@ -263,12 +273,13 @@ class DataPacket(object):
         """
         bits = []
         for field, nbytes in self._HEADER_LAYOUT:
-            bits += byte2bits(getattr(self, field), nbits=8*nbytes)
+            bits += byte2bits(getattr(self, field), nbits=8 * nbytes)
         for i in range(self.nasic):
-            bits += byte2bits(self.asic_nbytes[i], nbits=8*self._ASIC_NDATA_SZ)
+            bits += byte2bits(self.asic_nbytes[i], nbits=8 * self._ASIC_NDATA_SZ)
         for ap in self.asic_packets:
             bits += ap.to_bits()
         return bits2bytes(bits)
+
 
 class DataPackets(object):
     """
@@ -330,6 +341,35 @@ class DataPackets(object):
             if n_packet > 0 and n_dp >= n_packet:
                 break
 
+    @staticmethod
+    def c_iter_data_packets(fname, n_packet=0):
+        """
+        Use the _raw2hdf c extension to iterate data packets.
+        Here, you must supply a file name as opposed to filename/bytes
+        """
+        p = _raw2hdf.init_parser(fname)
+        n_dp = 0
+        while True:
+            dp = _raw2hdf.parse_data_packet(p)
+            if dp == {}:
+                ### Empty dictionary returned on EOF
+                break
+            self = DataPacket(None)
+            for attr, _ in self._HEADER_LAYOUT:
+                setattr(self, attr, dp[attr])
+            self.asic_nbytes = [
+                i + 1 for i in dp["asic_nbytes"]
+            ]  ## XXX i+1 for below indexing.
+            self.asic_packets = []
+            asic_data = dp["asic_data"]
+            for n in self.asic_nbytes:
+                self.asic_packets.append(AsicPacket(asic_data[:n]))
+                asic_data = asic_data[n:]
+            yield self
+            n_dp += 1
+            if n_packet > 0 and n_dp == n_packet:
+                break
+
     @classmethod
     def from_binary(cls, data, n_packet=0):
         """
@@ -338,7 +378,9 @@ class DataPackets(object):
         If `n_packet` > 0, then only read the requested number of packets.
         """
         self = cls()
-        self.data_packets = [dp for dp in self.iter_data_packets(data, n_packet=n_packet)]
+        self.data_packets = [
+            dp for dp in self.iter_data_packets(data, n_packet=n_packet)
+        ]
         self.n_packet = len(self.data_packets)
         self.n_asic = self.data_packets[0].nasic
         self.alloc_data()
@@ -449,38 +491,40 @@ class DataPackets(object):
         for i in self.n_packet:
             dp = DataPacket(None)
             for field_name, _ in dp._HEADER_LAYOUT:
-                if field_name == 'nasic':
+                if field_name == "nasic":
                     dp.nasic = self.n_asic
                 else:
                     setattr(dp, field_name, getattr(self, field_name)[i])
             ## Assume that we have full data packets
-            dp.asic_nbytes = [ AsicPacket.N_READS_PER_PACKET * DataSz.u32
-                               for _ in dp.nasic ]
+            dp.asic_nbytes = [
+                AsicPacket.N_READS_PER_PACKET * DataSz.u32 for _ in dp.nasic
+            ]
             dp.asic_packets = []
             for j in self.n_asic:
                 ap = AsicPacket(None)
-                ap.event_id = self.event_ids[i,j]
-                ap.event_time = self.event_times[i,j]
-                ap.start_bit = self.start_bits[i,j]
-                ap.stop_bit = self.stop_bits[i,j]
-                ap.stop_bit = self.stop_bits[i,j]
-                ap.trigger_bit = self.trigger_bits[i,j]
-                ap.chip_data_bit = self.chip_data_bits[i,j]
-                ap.seu_bit = self.seu_bit[i,j]
-                ap.dummy_status = self.dummy_status[i,j]
-                ap.channel_status = list(self.channel_status[i,j,:])
-                ap.cm_status = self.cm_status[i,j]
-                ap.cm_data = self.cm_data[i,j]
-                ap.dummy_data = self.dummy_data[i,j]
-                ap.data = list(self.data[i,j,:])
+                ap.event_id = self.event_ids[i, j]
+                ap.event_time = self.event_times[i, j]
+                ap.start_bit = self.start_bits[i, j]
+                ap.stop_bit = self.stop_bits[i, j]
+                ap.stop_bit = self.stop_bits[i, j]
+                ap.trigger_bit = self.trigger_bits[i, j]
+                ap.chip_data_bit = self.chip_data_bits[i, j]
+                ap.seu_bit = self.seu_bit[i, j]
+                ap.dummy_status = self.dummy_status[i, j]
+                ap.channel_status = list(self.channel_status[i, j, :])
+                ap.cm_status = self.cm_status[i, j]
+                ap.cm_data = self.cm_data[i, j]
+                ap.dummy_data = self.dummy_data[i, j]
+                ap.data = list(self.data[i, j, :])
                 dp.asic_packets.append(ap)
 
             yield dp.to_bytes()
-                
+
     def to_bytes(self):
         """
         Return the bytes for all data packets.
         """
         return reduce(_add, list(self.iter_byte_packets()))
+
 
 ## vim: set ts=4 sw=4 sts=4 et:
