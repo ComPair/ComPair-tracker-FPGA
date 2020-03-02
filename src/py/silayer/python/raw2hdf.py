@@ -3,6 +3,8 @@ from functools import reduce
 import numpy as np
 import h5py
 
+from . import _raw2hdf
+
 """
 This module should parse the raw, flat, binary file to produce an hdf5 file.
 """
@@ -328,6 +330,33 @@ class DataPackets(object):
             data = data[dp.packet_size :]
             n_dp += 1
             if n_packet > 0 and n_dp >= n_packet:
+                break
+
+    @staticmethod
+    def c_iter_data_packets(fname, n_packet=0):
+        """
+        Use the _raw2hdf c extension to iterate data packets.
+        Here, you must supply a file name as opposed to filename/bytes
+        """
+        p = _raw2hdf.init_parser(fname)
+        n_dp = 0
+        while True:
+            dp = _raw2hdf.parse_data_packet(p)
+            if dp == {}:
+                ### Empty dictionary returned on EOF
+                break
+            self = DataPacket(None)
+            for attr, _ in self._HEADER_LAYOUT:
+                setattr(self, attr, dp[attr])
+            self.asic_nbytes = [ i+1 for i in dp['asic_nbytes'] ] ## XXX i+1 for below indexing.
+            self.asic_packets = []
+            asic_data = dp['asic_data']
+            for n in self.asic_nbytes:
+                self.asic_packets.append(AsicPacket(asic_data[:n]))
+                asic_data = asic_data[n:]
+            yield self
+            n_dp += 1
+            if n_packet > 0 and n_dp == n_packet:
                 break
 
     @classmethod
