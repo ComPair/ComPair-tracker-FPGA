@@ -12,8 +12,8 @@ static PyMethodDef raw2hdf_methods[] = {
         "parse_data_packets(capsule): Parse a data packet."
         "                             Return a dictionary of parsed data."},
     {"bytes2packet", bytes2packet, METH_VARARGS,
-        "bytes2packet(b : bytes) -> (data_packet, nbytes)."
-        "   Parse bytes, returning a datapacket, and number of bytes parsed."},
+        "bytes2packet(b : bytes) -> dict()
+        "   Parse bytes, returns a dictionary with the data packet data."
     {NULL, NULL, 0, NULL}
 };
 
@@ -113,17 +113,16 @@ static PyObject *bytes2packet(PyObject *dummy, PyObject *args) {
     char *data = PyBytes_AsString(py_bytes);
 
     DataPacket dp;
-    unsigned long nread = 0;
-    memcpy(&(dp.packet_size), data, sizeof(u16)); data += sizeof(u16); nread += sizeof(u16);
-    memcpy(&(dp.header_size), data, sizeof(u8)); data += sizeof(u8); nread += sizeof(u8);
-    memcpy(&(dp.packet_flags), data, sizeof(u16)); data += sizeof(u16); nread += sizeof(u16);
-    memcpy(&(dp.real_time_counter), data, sizeof(u64)); data += sizeof(u64); nread += sizeof(u64);
-    memcpy(&(dp.live_time_counter), data, sizeof(u64)); data += sizeof(u64); nread += sizeof(u64);
-    memcpy(&(dp.event_type), data, sizeof(u16)); data += sizeof(u16); nread += sizeof(u16);
-    memcpy(&(dp.event_counter), data, sizeof(u32)); data += sizeof(u32); nread += sizeof(u32);
-    memcpy(&(dp.nasic), data, sizeof(u8)); data += sizeof(u8); nread += sizeof(u8);
-    dp.asic_nbytes = (u16 *)malloc(dp.nasic * sizeof(u16)); nread += sizeof(u16);
-    memcpy(dp.asic_nbytes, data, dp.nasic * sizeof(u16)); data += dp.nasic * sizeof(u16); nread += dp.nasic * sizeof(u16);
+    memcpy(&(dp.packet_size), data, sizeof(u16)); data += sizeof(u16);
+    memcpy(&(dp.header_size), data, sizeof(u8)); data += sizeof(u8);
+    memcpy(&(dp.packet_flags), data, sizeof(u16)); data += sizeof(u16);
+    memcpy(&(dp.real_time_counter), data, sizeof(u64)); data += sizeof(u64);
+    memcpy(&(dp.live_time_counter), data, sizeof(u64)); data += sizeof(u64);
+    memcpy(&(dp.event_type), data, sizeof(u16)); data += sizeof(u16);
+    memcpy(&(dp.event_counter), data, sizeof(u32)); data += sizeof(u32);
+    memcpy(&(dp.nasic), data, sizeof(u8)); data += sizeof(u8);
+    dp.asic_nbytes = (u16 *)malloc(dp.nasic * sizeof(u16));
+    memcpy(dp.asic_nbytes, data, dp.nasic * sizeof(u16)); data += dp.nasic * sizeof(u16);
     dp.total_asic_sz = 0;
     for(u8 i=0; i<dp.nasic; i++) {
         if (dp.asic_nbytes[i] > 0)
@@ -132,9 +131,10 @@ static PyObject *bytes2packet(PyObject *dummy, PyObject *args) {
     }
     dp.asic_data = malloc(dp.total_asic_sz * sizeof(u8));
     memcpy(dp.asic_data, data, dp.total_asic_sz * sizeof(u8));
-    nread += dp.total_asic_sz * sizeof(u8);
     PyObject *dp_dict = dp2dict(&dp);
-    return Py_BuildValue("Ok", dp_dict, nread);
+    free(dp.asic_nbytes);
+    free(dp.asic_data);
+    return dp_dict;
 }
 
 /*     dp2dict
