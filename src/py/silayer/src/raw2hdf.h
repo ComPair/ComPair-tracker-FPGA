@@ -35,8 +35,7 @@ typedef struct DataPacket {
 // Exported functions
 static PyObject *init_parser(PyObject *dummy, PyObject *args);
 static PyObject *parse_data_packet(PyObject *dummy, PyObject *args);
-
-static PyObject *bytes2packet(PyObject *dummy, PyObject *args);
+static PyObject *bytes2packet(PyObject *dummy, PyObject *args); // XXX NEEDS TESTING!!! XXX 
 
 // Private functions
 PyObject *dp2dict(DataPacket *dp);
