@@ -216,6 +216,24 @@ int VataCtrl::trigger_disable() {
     return 0;
 }
 
+// Set the trigger acknowledge timeout
+int VataCtrl::set_trigger_ack_timeout(u32 ack_timeout) {
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[TRIGGER_ACK_TIMEOUT_REG_OFFSET] = ack_timeout;
+    return 0;
+}
+
+// Get the current trigger acknowledge timeout
+u32 VataCtrl::get_trigger_ack_timeout() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    return paxi[TRIGGER_ACK_TIMEOUT_REG_OFFSET];
+}
+
+
+
+
 // Return the current event count.
 u32 VataCtrl::get_event_count() {
     if (paxi == NULL)
