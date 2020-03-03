@@ -4,6 +4,47 @@
 #include <cstring>
 #include "dac_ctrl.hpp"
 
+int parse_silayer_side(char *silayer_side_str, SilayerSide *silayer_side) {
+    if (strncmp("A", silayer_side_str, 1) == 0) {
+        *silayer_side = SideA;
+    } else if (strncmp("B", silayer_side_str, 1) == 0) {
+        *silayer_side = SideB;
+    } else {
+        return 1;
+    }
+    return 0;
+}
+
+int parse_dac_choice(char *dac_choice_str, DacChoice *dac_choice) {
+    if (strncmp("cal", dac_choice_str, 3) == 0) {
+        *dac_choice = CalDac;
+    } else if (strncmp("vth", silayer_side_str, 3) == 0) {
+        *dac_choice = VthDac;
+    } else {
+        return 1;
+    }
+    return 0;
+}
+
+int parse_set_counts_args(char *silayer_side_str, char *dac_choice_str, char *counts_str,
+        SilayerSide *silayer_side, DacChoice *dac_choice, u32 *counts) {
+    if (parse_silayer_side(silayer_side_str, silayer_side) != 0) {
+        return 1;
+    }
+    if (parse_dac_choice(dac_choice_str, silayer_side) != 0) {
+        return 1;
+    }
+    if (strncmp("cal", dac_choice_str, 3) == 0) {
+        *dac_choice = CalDac;
+    } else if (strncmp("vth", silayer_side_str, 3) == 0) {
+        *dac_choice = VthDac;
+    } else {
+        return 1;
+    }
+    *counts = (u32)atoi(counts_str); 
+    return 0; // success
+}
+
 // There should be only a single calibrator.
 DacCtrl::DacCtrl() {
     axi_baseaddr = DAC_AXI_BASEADDR;
@@ -60,32 +101,26 @@ u32 DacCtrl::get_delay() {
 // Set the dac's input value
 // Return 1 if you try and set a crazy value.
 // Return 0 otherwise.
-int DacCtrl::set_counts(char *side, char *whichdac, u32 counts) {
+int DacCtrl::set_counts(SilayerSide silayer_side, DacChoice dac_choice, u32 counts) {
     if (paxi == NULL)
         this->mmap_axi();
-    std::cout << "Setting side " << side << " " << whichdac << " dac to " << counts << " of 4095" << std::endl;
+    //std::cout << "Setting side " << side << " " << whichdac
+    //          << " dac to " << counts << " of 4095" << std::endl;
     if (MAX_INPUT_VAL < counts) {
         return 1;
     }
-    if ((strncmp("A",side,2)==0) && (strncmp("cal",whichdac,3)==0))
-    {
-      paxi[DAC_SELECT_REGOFF] = u8(1); //0b0001
-    } 
-    else if ((strncmp("B",side,2)==0) && (strncmp("cal",whichdac,3)==0)) 
-    {
-      paxi[DAC_SELECT_REGOFF] = 4; //0b0100
-    }
-    else if ((strncmp("A",side,2)==0) && (strncmp("vth",whichdac,3)==0)) 
-    {
-      paxi[DAC_SELECT_REGOFF] = 2; //0b0010
-    }
-    else if ((strncmp("B",side,2)==0) && (strncmp("vth",whichdac,3)==0)) 
-    {
-      paxi[DAC_SELECT_REGOFF] = 8; //0b1000
-    }
-    else
-    {
-    std::cerr << "ERROR: Bad Options, nothing done." << std::endl;
+
+    if (silayer_side == SideA && dac_choice == CalDac) {
+        paxi[DAC_SELECT_REGOFF] = 1 << SIDEA_CALDAC_SHIFT; //0b0001
+    } else if (silayer_side == SideA && dac_choice = VthDac) { 
+        paxi[DAC_SELECT_REGOFF] = 1 << SIDEA_VTH_SHIFT;    //0b0010
+    } else if (silayer_side == SideB && dac_choice == CalDac) {
+        paxi[DAC_SELECT_REGOFF] = 1 << SIDEB_CALDAC_SHIFT; //0b0100
+    } else if (silayer_side == SideB && dac_choice == VthDac) {
+        paxi[DAC_SELECT_REGOFF] = 1 << SIDEB_VTH_SHIFT;    //0b1000
+    } else {
+        // This should never happen now? I think.
+        std::cerr << "ERROR: How did you even provide bad options????" << std::endl;
         throw "ERROR: Bad Options, nothing done.";
     }
 

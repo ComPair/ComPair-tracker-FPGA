@@ -360,22 +360,29 @@ int LayerServer::_cal_n_pulses(char* &cmd) {
     return calctrl.n_pulses((u32)n);
 }
 
-int LayerServer::_cal_set_dac(char* &cmd) {
-    int cal_dac = _parse_positive_int(cmd);
-    if (cal_dac < 0) {
-        #ifdef VERBOSE
-        std::cerr << "ERROR: Could not parse cal-dac value." << std::endl;
-        #endif
-        return 1;
-    }
-    if (calctrl.set_cal_dac((u32)cal_dac) == 1) {
-        #ifdef VERBOSE
-        std::cerr << "ERROR: dac value out of range." << std::endl;
-        #endif
-        return 2;
-    }
-    return 0;
-}
+//int LayerServer::_dac_set_counts(SilayerSide silayer_side, DacChoice dac_choice, char* &cmd) {
+//    int cal_dac = _parse_positive_int(cmd);
+//    if (cal_dac < 0) {
+//        #ifdef VERBOSE
+//        std::cerr << "ERROR: Could not parse cal-dac value." << std::endl;
+//        #endif
+//        return 1;
+//    }
+//    if (dacctrl.set_counts(silayer_side, dac_choice, (u32)counts) == 1) {
+//        #ifdef VERBOSE
+//        std::cerr << "ERROR: dac value out of range." << std::endl;
+//        #endif
+//        return 2;
+//    }
+//    return 0;
+//    //if (calctrl.set_cal_dac((u32)cal_dac) == 1) {
+//    //    #ifdef VERBOSE
+//    //    std::cerr << "ERROR: dac value out of range." << std::endl;
+//    //    #endif
+//    //    return 2;
+//    //}
+//    //return 0;
+//}
 
 int LayerServer::_get_n_fifo(int nvata, char* &cmd) {
     u32 n_fifo = vatas[nvata].get_n_fifo();
@@ -460,7 +467,6 @@ int LayerServer::_process_emit_msg(char *msg) {
  * cal start-inf
  * cal stop-inf
  * cal n-pulses N
- * cal set-dac N
  * Nothing else.
  ***********************************/
 int LayerServer::_process_cal_msg(char *msg) {
@@ -527,22 +533,134 @@ int LayerServer::_process_cal_msg(char *msg) {
             _send_msg(retmsg, sizeof(retmsg));
             return 1;
         }
-    } else if (strncmp("set-dac", cmd, 7) == 0) { 
-        int ret = _cal_set_dac(cmd);
-        if (ret == 1) {
-            const char retmsg[] = "ERROR: could not parse set-dac command";
-            _send_msg(retmsg, sizeof(retmsg));
-            return 1;
-        } else if (ret == 2) {
-            const char retmsg[] = "ERROR: cal dac value too large ";
-            _send_msg(retmsg, sizeof(retmsg));
-            return 1;
-        }
-    } else {
+   } else {
         const char retmsg[] = "ERROR: unsupported cal command.";
         _send_msg(retmsg, sizeof(retmsg));
         return 1;
     }   
+    const char retmsg[] = "ok";
+    _send_msg(retmsg, sizeof(retmsg));
+    return 0;
+}
+
+/* Set the delay value from the command string.
+ *  Returns 0 on success.
+ *  Returns 1 if we could not parse the command.
+ *  Returns 2 ifdac value is out of range.
+ */
+int LayerServer::_dac_set_delay(char* &cmd) {
+    char *delay_str = strtok(NULL, " ");
+    if (delay_str == NULL) {
+        return 1;
+    }
+    u32 delay = (u32)atoi(delay_str);
+    if (dacctrl.set_delay(delay) != 0) {
+        return 2;
+    }
+    #ifdef VERBOSE
+    std::cout << "Set DAC delay to " << delay << std::endl;
+    #endif
+    return 0;
+}
+
+/* Get the delay value and send it out.
+ *  Returns 0.
+ */
+int LayerServer::_dac_get_delay() {
+    u32 delay = dacctrl.get_delay();
+    #ifdef VERBOSE
+    std::cout << "DAC delay: " << delay << std::endl;
+    #endif
+    zmq::message_t response(sizeof(u32));
+    std::memcpy(response.data(), &delay, sizeof(u32));
+    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
+int LayerServer::_dac_set_counts(char* &cmd) {
+    char *silayer_side_str = strtok(NULL, " ");
+    if (silayer_side_str == NULL)
+        return 1;
+    char *dac_choice_str = strtok(NULL, " ");
+    if (dac_choice_str == NULL)
+        return 1;
+    char *count_str = strtok(NULL, " ");
+    if (count_str == NULL)
+        return 1;
+    SilayerSide silayer_side;
+    DacChoice dac_choice;
+    if (parse_silayer_side(silayer_side_str, &silayer_side) != 0)
+        return 1;
+    if (parse_dac_choice(dac_choice_str, &dac_choice) != 0)
+        return 1;
+    u32 counts = (u32)atoi(count_str);
+    if (dacctrl.set_counts(silayer_side, dac_choice, counts) != 0) {
+        return 2;
+    }
+    return 0;
+}
+
+int LayerServer::_dac_get_input() {
+    u32 input = dacctrl.get_input();
+    #ifdef VERBOSE
+    std::cout << "DAC input: " << input << std::endl;
+    #endif
+    zmq::message_t response(sizeof(u32));
+    std::memcpy(response.data(), &input, sizeof(u32));
+    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
+
+/************************************
+ * Process dac message
+ * 
+ * dac set-delay DELAY
+ * dac get-delay
+ * dac set-counts SIDE DAC-CHOICE COUNTS
+ * dac get-input
+ * Nothing else.
+ ***********************************/
+int LayerServer::_process_dac_msg(char *msg) {
+    // Initialize strtok...
+    strtok(msg, " ");
+    // Now get next token. Should be the subcommand
+    char *cmd = strtok(NULL, " ");
+    if (strncmp("set-delay", cmd, 9) == 0) {
+        int ret = _dac_set_delay(&cmd);
+        if (ret == 1) {
+            const char retmsg[] = "ERROR: could not parse set-delay command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        } else if (ret == 2) {
+            const char retmsg[] = "ERROR: delay value out of range";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("get-delay", cmd, 10) == 0) {
+        // Get and send off delay..
+        _dac_get_delay();
+        return 0;
+    } else if (strncmp("set-counts", cmd, 10) == 0) {
+        int ret = _dac_set_counts(&cmd);
+        if (ret == 1) {
+            const char retmsg[] = "ERROR: could not parse set-counts command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        } else if (ret == 2) {
+            const char retmsg[] = "ERROR: count value out of range";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("get-input", cmd, 10) == 0) {
+        // Get and send off current input value at the axi register..
+        _dac_get_input();
+        return 0;
+    } else {
+        const char retmsg[] = "ERROR: unsupported dac command.";
+        _send_msg(retmsg, sizeof(retmsg));
+        return 1;
+    }
     const char retmsg[] = "ok";
     _send_msg(retmsg, sizeof(retmsg));
     return 0;

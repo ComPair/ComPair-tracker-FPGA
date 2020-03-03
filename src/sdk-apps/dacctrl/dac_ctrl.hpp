@@ -5,19 +5,28 @@
 #include "xparameters.h"
 #include "xil_types.h"
 
-#define DEFAULT_CAL_PULSE_WIDTH  200  // 2 us
-#define DEFAULT_REPETITION_DELAY 1000 // 1 ms
-
 #define MAX_INPUT_VAL 4095
 #define MAX_DELAY_VAL 65535
 
 #define DAC_AXI_BASEADDR XPAR_DAC121S101_0_S00_AXI_BASEADDR
 #define DAC_AXI_HIGHADDR XPAR_DAC121S101_0_S00_AXI_HIGHADDR
 
-#define DAC_INPUT_REGOFF 0
+#define DAC_INPUT_REGOFF  0
+#define DAC_DELAY_REGOFF  1
 #define DAC_SELECT_REGOFF 2
-#define DAC_DELAY_REGOFF 1
-#define DAC_WRITE_REGOFF 3
+#define DAC_WRITE_REGOFF  3
+
+// Where choices are in the select mask:
+#define SIDEA_CALDAC_SHIFT 0
+#define SIDEA_VTH_SHIFT    1
+#define SIDEB_CALDAC_SHIFT 2
+#define SIDEB_VTH_SHIFT    3
+
+typedef enum SilayerSide {SideA, SideB};
+typedef enum DacChoice {CalDac, VthDac};
+
+int parse_silayer_side(char *silayer_side_str, SilayerSide *silayer_side);
+int parse_dac_choice(char *dac_choice, DacChoice *silayer_side);
 
 class DacCtrl {
     public:
@@ -25,7 +34,7 @@ class DacCtrl {
         ~DacCtrl();
         int set_delay(u32 delay);
         u32 get_delay();
-        int set_counts(char *side, char *whichdac, u32 counts);
+        int set_counts(SilayerSide silayer_side, DacChoice dac_choice, u32 counts);
         u32 get_input();
                 
     private:
