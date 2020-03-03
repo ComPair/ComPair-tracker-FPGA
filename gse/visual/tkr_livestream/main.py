@@ -19,7 +19,7 @@ def loop(data_socket):
         dp = DataPacket(data)
         ## Then do whatever...
         
-def main(host="si-layer.local", data_port=9998):
+def connect_to_host(host="si-layer.local", data_port=9998):
     ctx = zmq.Context()
     data_addr = f"tcp://{host}:{data_port}"
     data_socket = ctx.socket(zmq.SUB)
@@ -29,7 +29,7 @@ def main(host="si-layer.local", data_port=9998):
     return data_socket
 
 
-socket = main("10.10.0.11")
+socket = connect_to_host("10.10.0.11")
 
 
 p = figure(title='ASIC_<x>', tools='', 
@@ -37,7 +37,6 @@ p = figure(title='ASIC_<x>', tools='',
        background_fill_color="#fafafa", )
 p.xaxis.axis_label = "channel"
 p.yaxis.axis_label = "adc counts (LSB)"
-#p.y_range = Range1d(0, 400)
 
 n_ch = 32
 channels = np.array(range(n_ch)) - 1.5
@@ -77,34 +76,64 @@ timeseries = channel_stream0.circle('time', 'adc1', source=datastream, color='gr
 
 #t = show(column(p, channel_stream0), notebook_handle=True)
 
-event_counter = 5000
+
+GO = False
+nclick = 0
+def clicky():
+  global button
+  global GO
+  global nclick 
+
+
+  button.label = "GO" if not GO else "STOP"
+
+  GO = not GO
+  nclick += 1
+  print(GO, nclick)
 
 def run():
-  for i in range(100000):
-    event_counter += 1
+    #while True:
+    if GO:
+      data = socket.recv()
+      dp = DataPacket(data)
+      ap = dp.asic_packets[0]
+      #if dp.event_counter % 10 == 0:     
+      #time.sleep(0.1)
+
+      steps.data_source.data['pedestals']  = ap.data
+
       
-    data = 250 + np.random.normal(scale=5, size=n_ch)
-    steps.data_source.data['pedestals'] = data
-    datastream.stream({'time': [event_counter], 
-                     'adc0':[data[0]], 
-                     'adc1':[data[1]]}, 
-                     rollover=100)
-      #data_dict['pedestals'] = 250 + np.random.normal(scale=5, size=n_ch)
-      #data.stream(data_dict)
-      #push_notebook(t)
-    time.sleep(np.abs(np.random.normal(0.05, scale=0.01)))
+      datastream.stream({'time': [dp.event_counter], 
+                         'adc0':[ap.data[0]], 
+                         'adc1':[ap.data[1]]}, 
+                         rollover=1000)      
+  # for event_counter in range(100000):
+
+      
+  #   data = 250 + np.random.normal(scale=5, size=n_ch)
+  #   steps.data_source.data['pedestals'] = data
+  #   datastream.stream({'time': [event_counter], 
+  #                    'adc0':[data[0]], 
+  #                    'adc1':[data[1]]}, 
+  #                    rollover=100)
+  #     #data_dict['pedestals'] = 250 + np.random.normal(scale=5, size=n_ch)
+  #     #data.stream(data_dict)
+  #     #push_notebook(t)
+  #   time.sleep(np.abs(np.random.normal(0.05, scale=0.01)))
         
 
 
 button = Button(label="GO", button_type="success")
 
-button.on_click(run)
+button.on_click(clicky)
 
 
 inputs = column(button)
 
-curdoc().add_root(row(inputs, column(p, channel_stream0), width=800))
+curdoc().add_root(column(inputs, column(p, channel_stream0), width=800))
 #curdoc().title = "Sliders"
 
 #curdoc().add_root(column(p, timeseries, button), width=800)
 #curdoc().title = "tkr_livestream"
+
+curdoc().add_periodic_callback(run, 100)
