@@ -679,10 +679,6 @@ int LayerServer::_process_vata_msg(char *msg) {
     char *chk;
     int nvata = strtol(cmd, &chk, 0);
 
-    std::cout << "XXX: msg: " << msg << std::endl;
-    std::cout << "XXX: cmd: " << cmd << std::endl;
-    std::cout << "XXX: chk: '" << *chk << "'" << std::endl;
-
     if (*chk != ' ' && *chk != '\0') {
         // Could not parse arg (or no command provided after arg)
         #ifdef VERBOSE
@@ -811,6 +807,11 @@ int LayerServer::process_req() {
         std::cout << "Processing calibrate message." << std::endl;
         #endif
         retval = _process_cal_msg(c_req);
+    } else if (strncmp("dac", c_req, 3) == 0) { 
+        #ifdef VERBOSE
+        std::cout << "Processing dac message." << std::endl;
+        #endif
+        retval = _process_dac_msg(c_req);
     } else if (strncmp("vata", c_req, 4) == 0) {
         #ifdef VERBOSE
         std::cout << "Processing vata message." << std::endl;
