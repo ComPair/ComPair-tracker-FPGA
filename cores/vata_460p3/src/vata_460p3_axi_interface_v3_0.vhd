@@ -17,7 +17,7 @@ entity vata_460p3_axi_interface_v3_0 is
         -- Users to add ports here
         trigger_ack           : in std_logic;
         trigger_ena           : in std_logic;
-        trigger_ena_ena       : in std_logic;
+        fast_or_trigger       : in std_logic;
         trigger_ena_force     : in std_logic;
         disable_fast_or_trigger : in std_logic;
         FEE_hit               : out std_logic;
@@ -52,6 +52,8 @@ entity vata_460p3_axi_interface_v3_0 is
         abort_daq         : out std_logic;
         trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
         trigger_ack_timeout_state : out std_logic_vector(3 downto 0);
+        FEE_hit0_out : out std_logic;
+        --FEE_ready0_out : out std_logic;
 
         -- User ports ends
         -- Do not modify the ports beyond this line
@@ -130,7 +132,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             rst_n              : in std_logic;
             trigger_ack        : in std_logic;
             trigger_ena        : in std_logic;
-            trigger_ena_ena    : in std_logic;
+            fast_or_trigger    : in std_logic;
             trigger_ena_force  : in std_logic;
             disable_fast_or_trigger : in std_logic;
             trigger_ack_timeout: in std_logic_vector(31 downto 0);
@@ -172,6 +174,8 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             trigger_acq_out       : out std_logic;
             trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
             trigger_ack_timeout_state : out std_logic_vector(3 downto 0);
+            FEE_hit0_out       : out std_logic;
+            --FEE_ready0_out     : out std_logic;
             state_out          : out std_logic_vector(7 downto 0));
         end component;
 
@@ -268,7 +272,7 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             rst_n               => s00_axi_aresetn,
             trigger_ack         => trigger_ack,
             trigger_ena         => trigger_ena,
-            trigger_ena_ena     => trigger_ena_ena,
+            fast_or_trigger     => fast_or_trigger,
             trigger_ena_force   => trigger_ena_force,
             disable_fast_or_trigger => disable_fast_or_trigger,
             trigger_ack_timeout => trigger_ack_timeout,
@@ -309,6 +313,8 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             trigger_acq_out   => trigger_acq_out,
             trigger_ack_timeout_counter => trigger_ack_timeout_counter,
             trigger_ack_timeout_state => trigger_ack_timeout_state,
+            FEE_hit0_out      => FEE_hit0_out,
+            --FEE_ready0_out    => FEE_ready0_out,
             state_out         => state_out
         );
 

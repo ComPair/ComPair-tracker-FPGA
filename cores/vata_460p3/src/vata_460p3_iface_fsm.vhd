@@ -8,7 +8,8 @@ entity vata_460p3_iface_fsm is
                 rst_n                 : in std_logic;
                 trigger_ack           : in std_logic;
                 trigger_ena           : in std_logic;
-                trigger_ena_ena       : in std_logic;
+                --trigger_ena_ena       : in std_logic;
+                fast_or_trigger       : in std_logic;
                 trigger_ena_force     : in std_logic;
                 disable_fast_or_trigger : in std_logic; 
                 trigger_ack_timeout   : in std_logic_vector(31 downto 0);
@@ -50,6 +51,7 @@ entity vata_460p3_iface_fsm is
                 trigger_acq_out       : out std_logic;
                 trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
                 trigger_ack_timeout_state   : out std_logic_vector(3 downto 0);
+                FEE_hit0_out          : out std_logic;
                 state_out             : out std_logic_vector(7 downto 0));
     end vata_460p3_iface_fsm;
 
@@ -71,12 +73,12 @@ architecture arch_imp of vata_460p3_iface_fsm is
         generic (
             EVENT_ID_WIDTH : integer := 32);
         port (
-            clk : in std_logic;
-            rst_n : in std_logic;
-            trigger_ack : in std_logic;
-            event_id_data : in std_logic;
+            clk            : in std_logic;
+            rst_n          : in std_logic;
+            event_id_data  : in std_logic;
             event_id_latch : in std_logic;
-            event_id_out : out std_logic_vector(EVENT_ID_WIDTH-1 downto 0));
+            event_id_clr   : in std_logic;
+            event_id_out   : out std_logic_vector(EVENT_ID_WIDTH-1 downto 0));
     end component event_id_s2p;
     
     component int_cal_toggle is
@@ -87,6 +89,18 @@ architecture arch_imp of vata_460p3_iface_fsm is
             cald            : out std_logic;
             caldb           : out std_logic);
     end component int_cal_toggle;
+
+    component stay_high_n_cycles is
+        generic (
+            N_CYCLES_WIDTH : integer := 4;
+            N_CYCLES : integer := 5);
+        port (
+            clk : in std_logic;
+            rst_n : in std_logic;
+            data_in : in std_logic;
+            data_out : out std_logic
+        );
+    end component stay_high_n_cycles;
 
     constant STATE_BITWIDTH : integer := 8;
     constant IDLE                     : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"00";
@@ -164,10 +178,15 @@ architecture arch_imp of vata_460p3_iface_fsm is
     signal shift_reg_right_1 : std_logic := '0';
     signal reg_clr           : std_logic := '0';
 
+    signal event_id_clr : std_logic := '0';
     signal event_id_out : std_logic_vector(EVENT_ID_WIDTH-1 downto 0);
     signal abort_daq : std_logic;
 
     signal trigger_acq            : std_logic := '0';
+
+    -- FEE outputs, before going into `stay_high_n_cycles`
+    signal FEE_hit0 : std_logic := '0';
+    signal FEE_busy_buf : std_logic;
 
     signal urunning_counter : unsigned(63 downto 0) := (others => '0');
     signal ulive_counter    : unsigned(63 downto 0) := (others => '0');
@@ -180,24 +199,24 @@ begin
 
     event_id_s2p_inst : event_id_s2p
         generic map (
-            EVENT_ID_WIDTH => EVENT_ID_WIDTH)
-        port map (
+            EVENT_ID_WIDTH => EVENT_ID_WIDTH
+        ) port map (
             clk            => clk_100MHz,
             rst_n          => rst_n,
-            trigger_ack    => trigger_ack,
             event_id_data  => event_id_data,
             event_id_latch => event_id_latch,
-            --event_id_out   => event_id_out
-            event_id_out   => open
+            event_id_clr   => event_id_clr,
+            event_id_out   => event_id_out
+            --event_id_out   => open
     );
     -- For debugging purposes:
-    event_id_out <= x"A1B2C3D4";
+    --event_id_out <= x"A1B2C3D4";
 
     trigger_ack_timeout_fsm_inst : trigger_ack_timeout_fsm
         port map (
             clk_100MHz          => clk_100MHz,
             rst_n               => rst_n,
-            trigger_ena         => trigger_ena,
+            trigger_ena         => fast_or_trigger,
             trigger_ack         => trigger_ack,
             trigger_ack_timeout => trigger_ack_timeout,
             abort_daq           => abort_daq_debug,
@@ -205,6 +224,29 @@ begin
             state_out           => trigger_ack_timeout_state
     );
     abort_daq <= '0';
+
+    fee_hit_stay_high : stay_high_n_cycles
+        generic map (
+            N_CYCLES_WIDTH => 4,
+            N_CYCLES       => 5
+        ) port map (
+            clk      => clk_100MHz,
+            rst_n    => rst_n,
+            data_in  => FEE_hit0,
+            data_out => FEE_hit
+        );
+
+    fee_ready_stay_high : stay_high_n_cycles
+        generic map (
+            N_CYCLES_WIDTH => 4,
+            N_CYCLES       => 5
+        ) port map (
+            clk      => clk_100MHz,
+            rst_n    => rst_n,
+            data_in  => not FEE_busy_buf,
+            data_out => FEE_ready
+        );
+    FEE_busy <= FEE_busy_buf;
 
     int_cal_toggle_inst : int_cal_toggle
         port map (
@@ -606,12 +648,14 @@ begin
     begin
         vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0'; vata_s_latch <= '0';
         data_tvalid <= '0'; data_tlast <= '0'; data_tdata <= (others => '0');
-        FEE_hit <= '0';
+        event_id_clr <= '0';
+        FEE_hit0 <= '0'; FEE_busy_buf <= '1';
         case (current_state) is
             when IDLE =>
                 vata_mode <= "010"; vata_s_latch <= '0';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
-                FEE_hit <= not vata_o6;
+                FEE_busy_buf <= '0';
+                FEE_hit0 <= not vata_o6;
             ---- Set config states ----
             when SC_SET_MODE_M1 =>
                 vata_mode <= "000"; vata_s_latch <= '0';
@@ -742,6 +786,8 @@ begin
                 data_tdata  <= event_id_out; -- Write event id at head of data packet
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_01 =>
+                -- We just wrote the event id, so now clear it:
+                event_id_clr <= '1';
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= event_time(31 downto 0); -- lowest 32 bits of event clock time.
@@ -927,21 +973,6 @@ begin
         end if;
     end process;
 
-    --process (rst_n, clk_100MHz)
-    --begin
-    --    if rst_n = '0' then
-    --        last_trigger_en <= '0';
-    --    elsif rising_edge(clk_100MHz) then
-    --        if last_trigger_en = '0' and trigger_ena = '1' then
-    --            rising_edge_trigger_en <= '1';
-    --        else
-    --            rising_edge_trigger_en <= '0';
-    --        end if;
-    --        last_trigger_en <= trigger_ena;
-    --    end if;
-    --end process;
-           
-
     vata_s0 <= vata_mode(0);
     vata_s1 <= vata_mode(1);
     vata_s2 <= vata_mode(2);
@@ -950,12 +981,15 @@ begin
     live_counter    <= std_logic_vector(ulive_counter);
     event_counter   <= std_logic_vector(uevent_counter);
     
-    trigger_acq <= (trigger_ena_force) or (trigger_ena_ena and trigger_ena);
+    -- Trigger acquisition:
+    --trigger_acq <= (trigger_ena_force) or (trigger_ena_ena and trigger_ena);
+    trigger_acq <= (trigger_ena_force) or (fast_or_trigger and trigger_ena);
 
     -- DEBUG --
-    state_out         <= current_state;
+    state_out          <= current_state;
     event_id_out_debug <= event_id_out;
     trigger_acq_out    <= trigger_acq;
+    FEE_hit0_out       <= FEE_hit0;
 
 end arch_imp;
 -- vim: set ts=4 sw=4 sts=4 et:

@@ -27,6 +27,8 @@ class VataCtrl {
         int reset_counters();
         int trigger_enable();
         int trigger_disable();
+        int set_trigger_ack_timeout(u32 ack_timeout);
+        u32 get_trigger_ack_timeout();
         u32 get_event_count();
         int reset_event_count();
         int get_n_fifo();

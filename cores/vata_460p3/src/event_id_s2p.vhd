@@ -3,7 +3,7 @@
 -- Simply does serial to parallel conversion by
 -- shifting data into register as it comes in, 
 -- does not keep track of number of bits.
--- Clears the `event_id_out` on rising edge of trigger_ack.
+-- Clears the `event_id_out` on rising edge of event_id_clr
 library ieee;
 use ieee.std_logic_1164.all;
 --use ieee.numeric_std.all;
@@ -14,35 +14,38 @@ entity event_id_s2p is
     port (
         clk            : in std_logic;
         rst_n          : in std_logic;
-        trigger_ack    : in std_logic;
     	event_id_data  : in std_logic;
     	event_id_latch : in std_logic;
+        event_id_clr   : in std_logic;
         event_id_out   : out std_logic_vector(EVENT_ID_WIDTH-1 downto 0));
 end event_id_s2p;
 
 architecture arch_imp of event_id_s2p is
     signal data: std_logic_vector(EVENT_ID_WIDTH-1 downto 0) := (others => '0');
-    signal trigger_data_clr : std_logic := '0';
-    signal last_trigger_ack : std_logic := '0';
+    signal trigger_event_id_clr : std_logic := '0';
+    signal last_event_id_clr : std_logic := '0';
 
 begin
 
     process (rst_n, clk)
     begin
-        if rising_edge(clk) then
-            if last_trigger_ack = '0' and trigger_ack = '1' then
-                trigger_data_clr <= '1';
+        if rst_n = '0' then
+            trigger_event_id_clr <= '0';
+            last_event_id_clr <= '0';
+        elsif rising_edge(clk) then
+            if last_event_id_clr = '0' and event_id_clr = '1' then
+                trigger_event_id_clr <= '1';
             else
-                trigger_data_clr <= '0';
+                trigger_event_id_clr <= '0';
             end if;
-            last_trigger_ack <= trigger_ack;
+            last_event_id_clr <= event_id_clr;
         end if;
     end process;
             
 
-    process (rst_n, trigger_data_clr, event_id_latch)
+    process (rst_n, trigger_event_id_clr, event_id_latch)
     begin
-        if rst_n = '0' or trigger_data_clr = '1' then
+        if rst_n = '0' or trigger_event_id_clr = '1' then
             data <= (others => '0');
         elsif rising_edge(event_id_latch) then
             data(EVENT_ID_WIDTH-1 downto 1) <= data(EVENT_ID_WIDTH-2 downto 0);
