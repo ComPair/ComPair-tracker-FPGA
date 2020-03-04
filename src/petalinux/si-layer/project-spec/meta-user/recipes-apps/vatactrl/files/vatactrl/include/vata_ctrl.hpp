@@ -25,8 +25,11 @@ class VataCtrl {
         u32 get_hold_delay();
         int get_counters(u64 &running, u64 &live);
         int reset_counters();
-        int trigger_enable();
-        int trigger_disable();
+        int trigger_enable(int mask_bit);
+        int trigger_enable_all();
+        int trigger_disable(int mask_bit);
+        int trigger_disable_all();
+        u32 get_trigger_ena_mask();
         int set_trigger_ack_timeout(u32 ack_timeout);
         u32 get_trigger_ack_timeout();
         u32 get_event_count();

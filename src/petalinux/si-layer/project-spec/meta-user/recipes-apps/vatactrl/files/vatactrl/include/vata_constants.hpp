@@ -14,21 +14,29 @@
 #define N_ASIC_PACKET   16                  // Each asic packet should be 16 x 32 bits.
 #define DATA_PACKET_HEADER_NBYTES       3   //  [N-DATA_TOT, TIME0, TIME1]
 
+// AXI register offsets
 #define CFG_REG_OFFSET                  1
 #define READ_CFG_REG_OFFSET             31
 #define HOLD_TIME_REG_OFFSET            18
 #define POWER_CYCLE_REG_OFFSET          19
 #define TRIGGER_ACK_TIMEOUT_REG_OFFSET  20
+#define TRIGGER_ENA_MASK_REG_OFFSET     21
 #define RUNNING_TIMER_OFFSET            48
 #define LIVE_TIMER_OFFSET               50
 #define EVENT_COUNT_OFFSET              52
 
+// AXI control register interpretation
 #define AXI0_CTRL_SET_CONF              0
 #define AXI0_CTRL_GET_CONF              1
 #define AXI0_CTRL_TRIGGER_INT_CAL       2
 #define AXI0_CTRL_POWER_CYCLE           3
 #define AXI0_CTRL_RST_COUNTERS          4
 #define AXI0_CTRL_RST_EV_COUNT          5
+
+// Trigger enable mask bit mapping
+#define TRIGGER_ENA_MASK_LEN            2 // Only 2 values at this point considered
+#define TRIGGER_ENA_BIT_FAST_OR_HIT     0
+#define TRIGGER_ENA_BIT_TRIGGER_ACK     1
 
 typedef uint8_t u8;
 typedef uint16_t u16;

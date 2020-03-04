@@ -200,20 +200,45 @@ int VataCtrl::reset_counters() {
     return 0;
 }
 
-// Enable trigger acceptance by the asic.
-int VataCtrl::trigger_enable() {
-    if (pgpio_trigger_ena == NULL)
-        this->mmap_gpio_trigger_ena();
-    pgpio_trigger_ena[0] = 1;
+// Return 0 if set.
+// Return 1 if called with illegal mask_bit
+int VataCtrl::trigger_enable(int mask_bit) {
+    if (paxi == NULL)
+        this->mmap_axi();
+    if (mask_bit >= TRIGGER_ENA_MASK_LEN)
+        return 1;
+    paxi[TRIGGER_ENA_MASK_REG_OFFSET] |= (1 << mask_bit);
+    return 0;
+}
+
+int VataCtrl::trigger_enable_all() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[TRIGGER_ENA_MASK_REG_OFFSET] = 0xFFFFFFFF;
     return 0;
 }
 
 // Disable trigger acceptance by the asic.
-int VataCtrl::trigger_disable() {
-    if (pgpio_trigger_ena == NULL)
-        this->mmap_gpio_trigger_ena();
-    pgpio_trigger_ena[0] = 0;
+int VataCtrl::trigger_disable(int mask_bit) {
+    if (paxi == NULL)
+        this->mmap_axi();
+    if (mask_bit >= TRIGGER_ENA_MASK_LEN)
+        return 1;
+    paxi[TRIGGER_ENA_MASK_REG_OFFSET] &= ~((u32)(1 << mask_bit));
     return 0;
+}
+
+int VataCtrl::trigger_disable_all() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[TRIGGER_ENA_MASK_REG_OFFSET] = 0;
+    return 0;
+}
+
+u32 VataCtrl::get_trigger_ena_mask() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    return paxi[TRIGGER_ENA_MASK_REG_OFFSET];
 }
 
 // Set the trigger acknowledge timeout

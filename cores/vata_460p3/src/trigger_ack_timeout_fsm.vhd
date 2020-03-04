@@ -19,19 +19,23 @@ end trigger_ack_timeout_fsm;
 architecture arch_imp of trigger_ack_timeout_fsm is
     --constant COUNTER_MAX : unsigned(31 downto 0) := to_unsigned(TIMEOUT, COUNTER_WIDTH);
     
-    constant IDLE          : std_logic_vector(3 downto 0) := x"0";
-    constant INC_COUNTER   : std_logic_vector(3 downto 0) := x"1";
-    constant ACQ_OK        : std_logic_vector(3 downto 0) := x"2";
-    constant ACQ_ABORT     : std_logic_vector(3 downto 0) := x"3";
-    constant ACK_ZEROS     : std_logic_vector(31 downto 0) := (others => '0');
+    constant IDLE        : std_logic_vector(3 downto 0)  := x"0";
+    constant INC_COUNTER : std_logic_vector(3 downto 0)  := x"1";
+    constant ACQ_OK      : std_logic_vector(3 downto 0)  := x"2";
+    constant ACQ_ABORT0  : std_logic_vector(3 downto 0)  := x"3";
+    constant ACQ_ABORT1  : std_logic_vector(3 downto 0)  := x"4";
+    constant ACK_ZEROS   : std_logic_vector(31 downto 0) := (others => '0');
 
     signal current_state : std_logic_vector(3 downto 0) := x"0";
-    signal next_state : std_logic_vector(3 downto 0) := x"0";
-    signal counter : unsigned(31 downto 0) := (others => '0');
-    signal counter_clr : std_logic;
-    signal counter_ena : std_logic;
+    signal next_state    : std_logic_vector(3 downto 0) := x"0";
+    signal counter       : unsigned(31 downto 0) := (others => '0');
+    signal counter_clr   : std_logic;
+    signal counter_ena   : std_logic;
 
 begin
+
+    state_out <= current_state;
+    counter_out <= std_logic_vector(counter);
 
     process (rst_n, clk_100MHz)
     begin
@@ -42,7 +46,7 @@ begin
         end if;
     end process;
 
-    process (rst_n, current_state, trigger_ena, trigger_ack)
+    process (rst_n, current_state, trigger_ena, trigger_ack, counter)
     begin
         counter_clr <= '0';
         if rst_n = '0' then
@@ -50,7 +54,7 @@ begin
         else
             case (current_state) is
                 when IDLE =>
-                    if trigger_ena = '1' and trigger_ack_timeout /= ACK_ZEROS then
+                    if trigger_ena = '1' and (unsigned(trigger_ack_timeout) > to_unsigned(0, trigger_ack_timeout'length)) then
                         counter_clr <= '1';
                         next_state <= INC_COUNTER;
                     else
@@ -58,13 +62,15 @@ begin
                     end if;
                 when INC_COUNTER =>
                     if counter >= unsigned(trigger_ack_timeout) then
-                        next_state <= ACQ_ABORT;
+                        next_state <= ACQ_ABORT0;
                     elsif trigger_ack = '1' then
                         next_state <= ACQ_OK;
                     else
                         next_state <= INC_COUNTER;
                     end if;
-                when ACQ_ABORT =>
+                when ACQ_ABORT0 =>
+                    next_state <= ACQ_ABORT1;
+                when ACQ_ABORT1 =>
                     next_state <= IDLE;
                 when ACQ_OK =>
                     next_state <= IDLE;
@@ -78,14 +84,17 @@ begin
     process (current_state)
     begin
         case (current_state) is
-            when ACQ_ABORT =>
-                abort_daq <= '1';
+            when ACQ_ABORT0 =>
+                abort_daq   <= '1';
+                counter_ena <= '0';
+            when ACQ_ABORT1 =>
+                abort_daq   <= '1';
                 counter_ena <= '0';
             when INC_COUNTER =>
-                abort_daq <= '0';
+                abort_daq   <= '0';
                 counter_ena <= '1';
             when others =>
-                abort_daq <= '0';
+                abort_daq   <= '0';
                 counter_ena <= '0';
         end case;
     end process;

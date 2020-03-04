@@ -25,7 +25,8 @@ architecture arch_imp of stay_high_n_cycles is
     signal current_state : std_logic := IDLE;
     signal next_state : std_logic := IDLE;
 
-    constant COUNTER_MAX : unsigned(N_CYCLES_WIDTH-1 downto 0) := to_unsigned(N_CYCLES, N_CYCLES_WIDTH);
+    -- Save as N_CYCLES-1 to get the correct widths
+    constant COUNTER_MAX : unsigned(N_CYCLES_WIDTH-1 downto 0) := to_unsigned(N_CYCLES-1, N_CYCLES_WIDTH);
     signal counter : unsigned(N_CYCLES_WIDTH-1 downto 0) := (others => '0');
     signal counter_clr : std_logic := '0';
     signal counter_ena : std_logic := '0';
