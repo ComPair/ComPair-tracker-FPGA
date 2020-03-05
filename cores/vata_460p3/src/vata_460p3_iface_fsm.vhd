@@ -8,8 +8,10 @@ entity vata_460p3_iface_fsm is
                 rst_n                 : in std_logic;
                 trigger_ack           : in std_logic;
                 ack_trigger_ena       : in std_logic;
-                fast_or_trigger_ena   : in std_logic;
                 fast_or_trigger       : in std_logic;
+                fast_or_trigger_ena   : in std_logic;
+                local_fast_or_trigger : in std_logic;
+                local_fast_or_trigger_ena : in std_logic;
                 force_trigger         : in std_logic;
                 disable_fast_or_trigger : in std_logic; 
                 trigger_ack_timeout   : in std_logic_vector(31 downto 0);
@@ -1001,7 +1003,8 @@ begin
     -- Trigger acquisition:
     trigger_acq <= force_trigger or
                    (fast_or_trigger and fast_or_trigger_ena) or
-                   (trigger_ack and ack_trigger_ena);
+                   (trigger_ack and ack_trigger_ena) or
+                   (local_fast_or_trigger and local_fast_or_trigger_ena);
 
     -- DEBUG --
     state_out          <= current_state;
