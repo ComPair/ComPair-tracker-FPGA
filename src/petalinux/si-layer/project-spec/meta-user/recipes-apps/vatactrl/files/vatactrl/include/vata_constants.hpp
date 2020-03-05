@@ -4,6 +4,7 @@
 #include "xllfifo_hw.h"
 
 // This uses the fact that number of MM-S Fifo's matches number of VATA's:
+// XXX UPDATE TO SOMETHING BETTER!!!!
 #define N_VATA XPAR_XLLFIFO_NUM_INSTANCES
 
 #define N_CFG_REG 17
@@ -32,17 +33,37 @@
 #define AXI0_CTRL_POWER_CYCLE           3
 #define AXI0_CTRL_RST_COUNTERS          4
 #define AXI0_CTRL_RST_EV_COUNT          5
+#define AXI0_CTRL_FORCE_TRIGGER         6
 
 // Trigger enable mask bit mapping
-#define TRIGGER_ENA_MASK_LEN            2 // Only 2 values at this point considered
+#define TRIGGER_ENA_MASK_LEN            3 // Only 3 values at this point considered
 #define TRIGGER_ENA_BIT_FAST_OR_HIT     0
 #define TRIGGER_ENA_BIT_TRIGGER_ACK     1
+#define TRIGGER_ENA_BIT_LOCAL_FAST_OR   2
 
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
+const u32 vata_addrs[N_VATA][4] =
+    {
+        { XPAR_VATA_460P3_AXI_INTER_0_BASEADDR
+        , XPAR_VATA_460P3_AXI_INTER_0_HIGHADDR
+        , XPAR_AXI_FIFO_MM_S_DATA0_BASEADDR
+        , XPAR_AXI_FIFO_MM_S_DATA0_HIGHADDR
+        }
+#   if N_VATA > 1
+    ,
+        { XPAR_VATA_460P3_AXI_INTER_1_BASEADDR
+        , XPAR_VATA_460P3_AXI_INTER_1_HIGHADDR
+        , XPAR_AXI_FIFO_MM_S_DATA1_BASEADDR
+        , XPAR_AXI_FIFO_MM_S_DATA1_HIGHADDR
+        }
+#   endif
+};
+
+/*
 const u32 vata_addrs[N_VATA][8] = {
     {XPAR_VATA_460P3_AXI_INTER_0_BASEADDR,
      XPAR_VATA_460P3_AXI_INTER_0_HIGHADDR,
@@ -63,6 +84,8 @@ const u32 vata_addrs[N_VATA][8] = {
      XPAR_AXI_GPIO_TRIGGER_ENA1_HIGHADDR}
 #   endif
 };
+*/
+
 
 #endif
 

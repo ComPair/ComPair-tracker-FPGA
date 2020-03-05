@@ -1,7 +1,10 @@
-CXX_FLAGS = -std=c++11 -I$(HOME)/local/include -I$(HOME)/include -Wall
+##CXX_FLAGS = -std=c++11 -I$(HOME)/local/include -I$(HOME)/include -Wall
+ZYNQ = $(HOME)/zynq
+LOCAL = $(HOME)/local
+CXX_FLAGS = -std=c++11 -I$(LOCAL)/include -I$(ZYNQ)/include -I$(ZYNQ)/include/xil -Wall
 TARGETS = silayer_server
 
-LD_FLAGS = -L$(HOME)/lib
+LD_FLAGS = -L$(ZYNQ)/lib -L$(LOCAL)/lib
 SERVER_LIBS = -lzmq -lsictrl
 
 all: $(TARGETS)
