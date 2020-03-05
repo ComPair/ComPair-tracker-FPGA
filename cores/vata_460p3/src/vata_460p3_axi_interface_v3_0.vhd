@@ -17,7 +17,8 @@ entity vata_460p3_axi_interface_v3_0 is
         -- Users to add ports here
         trigger_ack             : in std_logic;
         fast_or_trigger         : in std_logic;
-        force_trigger           : in std_logic;
+        local_fast_or_trigger   : in std_logic;
+        --force_trigger           : in std_logic;
         disable_fast_or_trigger : in std_logic;
         FEE_hit                 : out std_logic;
         FEE_ready               : out std_logic;
@@ -100,6 +101,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
         --TRIGGER_ENA_MASK    : out std_logic_vector(3 downto 0);
         FAST_OR_TRIGGER_ENA : out std_logic;
         ACK_TRIGGER_ENA     : out std_logic;
+        LOCAL_FAST_OR_TRIGGER_ENA : out std_logic;
         RUNNING_COUNTER     : in std_logic_vector(63 downto 0);
         LIVE_COUNTER        : in std_logic_vector(63 downto 0);
         EVENT_COUNTER       : in std_logic_vector(31 downto 0);
@@ -133,9 +135,11 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             clk_100MHz              : in std_logic; -- 10 ns
             rst_n                   : in std_logic;
             fast_or_trigger         : in std_logic;
-            trigger_ack             : in std_logic;
             fast_or_trigger_ena     : in std_logic;
+            trigger_ack             : in std_logic;
             ack_trigger_ena         : in std_logic;
+            local_fast_or_trigger   : in std_logic;
+            local_fast_or_trigger_ena : in std_logic;
             force_trigger           : in std_logic;
             disable_fast_or_trigger : in std_logic;
             trigger_ack_timeout     : in std_logic_vector(31 downto 0);
@@ -227,6 +231,8 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     signal event_counter         : std_logic_vector(31 downto 0);
     signal fast_or_trigger_ena   : std_logic := '0';
     signal ack_trigger_ena       : std_logic := '0';
+    signal force_trigger         : std_logic := '0';
+    signal local_fast_or_trigger_ena : std_logic := '0';
 begin
 
 -- Instantiation of Axi Bus Interface S00_AXI
@@ -244,6 +250,7 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
         --TRIGGER_ENA_MASK    => trigger_ena_mask,
         FAST_OR_TRIGGER_ENA => fast_or_trigger_ena,
         ACK_TRIGGER_ENA     => ack_trigger_ena,
+        LOCAL_FAST_OR_TRIGGER_ENA => local_fast_or_trigger_ena,
         RUNNING_COUNTER     => running_counter,
         LIVE_COUNTER        => live_counter,
         EVENT_COUNTER       => event_counter,
@@ -278,10 +285,12 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
         port map (
             clk_100MHz          => s00_axi_aclk,
             rst_n               => s00_axi_aresetn,
-            trigger_ack         => trigger_ack,
-            fast_or_trigger_ena => fast_or_trigger_ena,
-            ack_trigger_ena     => ack_trigger_ena,
             fast_or_trigger     => fast_or_trigger,
+            fast_or_trigger_ena => fast_or_trigger_ena,
+            trigger_ack         => trigger_ack,
+            ack_trigger_ena     => ack_trigger_ena,
+            local_fast_or_trigger => local_fast_or_trigger,
+            local_fast_or_trigger_ena => local_fast_or_trigger_ena,
             force_trigger       => force_trigger,
             disable_fast_or_trigger => disable_fast_or_trigger,
             trigger_ack_timeout => trigger_ack_timeout,
@@ -358,6 +367,7 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
     trigger_power_cycle <= ctrl_triggers(3);
     counter_rst         <= ctrl_triggers(4);
     event_counter_rst   <= ctrl_triggers(5);
+    force_trigger       <= ctrl_triggers(6);
 
     -- Debug
     trigger_ack_timeout_out <= trigger_ack_timeout;
