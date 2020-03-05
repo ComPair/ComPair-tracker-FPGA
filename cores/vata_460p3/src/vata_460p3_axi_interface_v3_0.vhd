@@ -15,36 +15,35 @@ entity vata_460p3_axi_interface_v3_0 is
     );
     port (
         -- Users to add ports here
-        trigger_ack           : in std_logic;
-        trigger_ena           : in std_logic;
-        fast_or_trigger       : in std_logic;
-        trigger_ena_force     : in std_logic;
+        trigger_ack             : in std_logic;
+        fast_or_trigger         : in std_logic;
+        force_trigger           : in std_logic;
         disable_fast_or_trigger : in std_logic;
-        FEE_hit               : out std_logic;
-        FEE_ready             : out std_logic;
-        FEE_busy              : out std_logic;
-        FEE_spare             : out std_logic;
-        event_id_latch        : in std_logic;
-        event_id_data         : in std_logic;
-        vata_s0               : out std_logic;
-        vata_s1               : out std_logic;
-        vata_s2               : out std_logic;
-        vata_s_latch          : out std_logic;
-        vata_i1               : out std_logic;
-        vata_i3               : out std_logic;
-        vata_i4               : out std_logic;
-        vata_o5               : in std_logic;
-        vata_o6               : in std_logic;
+        FEE_hit                 : out std_logic;
+        FEE_ready               : out std_logic;
+        FEE_busy                : out std_logic;
+        FEE_spare               : out std_logic;
+        event_id_latch          : in std_logic;
+        event_id_data           : in std_logic;
+        vata_s0                 : out std_logic;
+        vata_s1                 : out std_logic;
+        vata_s2                 : out std_logic;
+        vata_s_latch            : out std_logic;
+        vata_i1                 : out std_logic;
+        vata_i3                 : out std_logic;
+        vata_i4                 : out std_logic;
+        vata_o5                 : in std_logic;
+        vata_o6                 : in std_logic;
         -- data stream here:
-        data_tvalid           : out std_logic;
-        data_tlast            : out std_logic;
-        data_tready           : in std_logic;
-        data_tdata            : out std_logic_vector(31 downto 0);
+        data_tvalid             : out std_logic;
+        data_tlast              : out std_logic;
+        data_tready             : in std_logic;
+        data_tdata              : out std_logic_vector(31 downto 0);
         --
-        vss_shutdown_n        : out std_logic;
+        vss_shutdown_n          : out std_logic;
  
-        cald                  : out std_logic;
-        caldb                 : out std_logic;
+        cald                    : out std_logic;
+        caldb                   : out std_logic;
         -- Temporary debug ports
         state_out         : out std_logic_vector(7 downto 0);
         event_id_out      : out std_logic_vector(31 downto 0);
@@ -52,8 +51,8 @@ entity vata_460p3_axi_interface_v3_0 is
         abort_daq         : out std_logic;
         trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
         trigger_ack_timeout_state : out std_logic_vector(3 downto 0);
+        trigger_ack_timeout_out   : out std_logic_vector(31 downto 0);
         FEE_hit0_out : out std_logic;
-        --FEE_ready0_out : out std_logic;
 
         -- User ports ends
         -- Do not modify the ports beyond this line
@@ -98,6 +97,9 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
         HOLD_TIME           : out std_logic_vector(15 downto 0);
         POWER_CYCLE_TIMER   : out std_logic_vector(31 downto 0);
         TRIGGER_ACK_TIMEOUT : out std_logic_vector(31 downto 0);
+        --TRIGGER_ENA_MASK    : out std_logic_vector(3 downto 0);
+        FAST_OR_TRIGGER_ENA : out std_logic;
+        ACK_TRIGGER_ENA     : out std_logic;
         RUNNING_COUNTER     : in std_logic_vector(63 downto 0);
         LIVE_COUNTER        : in std_logic_vector(63 downto 0);
         EVENT_COUNTER       : in std_logic_vector(31 downto 0);
@@ -128,54 +130,54 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
 
     component vata_460p3_iface_fsm
         port (
-            clk_100MHz         : in std_logic; -- 10 ns
-            rst_n              : in std_logic;
-            trigger_ack        : in std_logic;
-            trigger_ena        : in std_logic;
-            fast_or_trigger    : in std_logic;
-            trigger_ena_force  : in std_logic;
+            clk_100MHz              : in std_logic; -- 10 ns
+            rst_n                   : in std_logic;
+            fast_or_trigger         : in std_logic;
+            trigger_ack             : in std_logic;
+            fast_or_trigger_ena     : in std_logic;
+            ack_trigger_ena         : in std_logic;
+            force_trigger           : in std_logic;
             disable_fast_or_trigger : in std_logic;
-            trigger_ack_timeout: in std_logic_vector(31 downto 0);
-            FEE_hit            : out std_logic;
-            FEE_ready          : out std_logic;
-            FEE_busy           : out std_logic;
-            FEE_spare          : out std_logic;
-            event_id_latch     : in std_logic;
-            event_id_data      : in std_logic;
-            get_config         : in std_logic;
-            set_config         : in std_logic;
-            int_cal_trigger    : in std_logic;
-            hold_time          : in std_logic_vector(15 downto 0);
-            vata_s0            : out std_logic;
-            vata_s1            : out std_logic;
-            vata_s2            : out std_logic;
-            vata_s_latch       : out std_logic;
-            vata_i1            : out std_logic;
-            vata_i3            : out std_logic;
-            vata_i4            : out std_logic;
-            vata_o5            : in std_logic;
-            vata_o6            : in std_logic;
-            cfg_reg_from_ps    : in std_logic_vector(519 downto 0);
-            cfg_reg_from_pl    : out std_logic_vector(519 downto 0);
-            data_tvalid        : out std_logic;
-            data_tlast         : out std_logic;
-            data_tready        : in std_logic;
-            data_tdata         : out std_logic_vector(31 downto 0);
-            cald               : out std_logic;
-            caldb              : out std_logic;
-            counter_rst        : in std_logic;
-            running_counter    : out std_logic_vector(63 downto 0);
-            live_counter       : out std_logic_vector(63 downto 0);
-            event_counter_rst  : in std_logic;
-            event_counter      : out std_logic_vector(31 downto 0);
+            trigger_ack_timeout     : in std_logic_vector(31 downto 0);
+            FEE_hit                 : out std_logic;
+            FEE_ready               : out std_logic;
+            FEE_busy                : out std_logic;
+            FEE_spare               : out std_logic;
+            event_id_latch          : in std_logic;
+            event_id_data           : in std_logic;
+            get_config              : in std_logic;
+            set_config              : in std_logic;
+            int_cal_trigger         : in std_logic;
+            hold_time               : in std_logic_vector(15 downto 0);
+            vata_s0                 : out std_logic;
+            vata_s1                 : out std_logic;
+            vata_s2                 : out std_logic;
+            vata_s_latch            : out std_logic;
+            vata_i1                 : out std_logic;
+            vata_i3                 : out std_logic;
+            vata_i4                 : out std_logic;
+            vata_o5                 : in std_logic;
+            vata_o6                 : in std_logic;
+            cfg_reg_from_ps         : in std_logic_vector(519 downto 0);
+            cfg_reg_from_pl         : out std_logic_vector(519 downto 0);
+            data_tvalid             : out std_logic;
+            data_tlast              : out std_logic;
+            data_tready             : in std_logic;
+            data_tdata              : out std_logic_vector(31 downto 0);
+            cald                    : out std_logic;
+            caldb                   : out std_logic;
+            counter_rst             : in std_logic;
+            running_counter         : out std_logic_vector(63 downto 0);
+            live_counter            : out std_logic_vector(63 downto 0);
+            event_counter_rst       : in std_logic;
+            event_counter           : out std_logic_vector(31 downto 0);
             -- DEBUG --
-            event_id_out_debug : out std_logic_vector(31 downto 0);
-            abort_daq_debug    : out std_logic;
-            trigger_acq_out       : out std_logic;
+            event_id_out_debug      : out std_logic_vector(31 downto 0);
+            abort_daq_debug         : out std_logic;
+            trigger_acq_out         : out std_logic;
             trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
-            trigger_ack_timeout_state : out std_logic_vector(3 downto 0);
+            trigger_ack_timeout_state   : out std_logic_vector(3 downto 0);
             FEE_hit0_out       : out std_logic;
-            --FEE_ready0_out     : out std_logic;
             state_out          : out std_logic_vector(7 downto 0));
         end component;
 
@@ -217,11 +219,14 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     signal trigger_power_cycle   : std_logic := '0';
     signal power_cycle_timer     : std_logic_vector(31 downto 0);
     signal trigger_ack_timeout   : std_logic_vector(31 downto 0);
+    signal trigger_ena_mask      : std_logic_vector(3 downto 0);
     signal counter_rst           : std_logic := '0';
     signal running_counter       : std_logic_vector(63 downto 0);
     signal live_counter          : std_logic_vector(63 downto 0);
     signal event_counter_rst     : std_logic := '0';
     signal event_counter         : std_logic_vector(31 downto 0);
+    signal fast_or_trigger_ena   : std_logic := '0';
+    signal ack_trigger_ena       : std_logic := '0';
 begin
 
 -- Instantiation of Axi Bus Interface S00_AXI
@@ -236,6 +241,9 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
         HOLD_TIME           => hold_time,
         POWER_CYCLE_TIMER   => power_cycle_timer,
         TRIGGER_ACK_TIMEOUT => trigger_ack_timeout,
+        --TRIGGER_ENA_MASK    => trigger_ena_mask,
+        FAST_OR_TRIGGER_ENA => fast_or_trigger_ena,
+        ACK_TRIGGER_ENA     => ack_trigger_ena,
         RUNNING_COUNTER     => running_counter,
         LIVE_COUNTER        => live_counter,
         EVENT_COUNTER       => event_counter,
@@ -271,9 +279,10 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             clk_100MHz          => s00_axi_aclk,
             rst_n               => s00_axi_aresetn,
             trigger_ack         => trigger_ack,
-            trigger_ena         => trigger_ena,
+            fast_or_trigger_ena => fast_or_trigger_ena,
+            ack_trigger_ena     => ack_trigger_ena,
             fast_or_trigger     => fast_or_trigger,
-            trigger_ena_force   => trigger_ena_force,
+            force_trigger       => force_trigger,
             disable_fast_or_trigger => disable_fast_or_trigger,
             trigger_ack_timeout => trigger_ack_timeout,
             FEE_hit           => FEE_hit,
@@ -349,6 +358,9 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
     trigger_power_cycle <= ctrl_triggers(3);
     counter_rst         <= ctrl_triggers(4);
     event_counter_rst   <= ctrl_triggers(5);
+
+    -- Debug
+    trigger_ack_timeout_out <= trigger_ack_timeout;
 
     -- User logic ends
 
