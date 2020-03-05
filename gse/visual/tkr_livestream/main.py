@@ -5,19 +5,27 @@ from bokeh.layouts import row, column
 from bokeh.io import push_notebook, show, output_notebook
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource, Range1d
-from bokeh.models.widgets import Button
+from bokeh.models.widgets import Button, Toggle
+from bokeh.models.widgets import TextInput
+
 import time
+
+from bokeh.palettes import Dark2_5 as palette
+# itertools handles the cycling
+import itertools  
+
+colors = itertools.cycle(palette)
 
 t0 = time.time()
 
 import zmq
 from silayer.raw2hdf import DataPacket
 
-def loop(data_socket):
-    while True:
-        data = data_socket.recv() ## This should block until data shows up
-        dp = DataPacket(data)
-        ## Then do whatever...
+#def loop(data_socket):
+#    while True:
+#        data = data_socket.recv() ## This should block until data shows up
+#        dp = DataPacket(data)
+#        ## Then do whatever...
         
 def connect_to_host(host="si-layer.local", data_port=9998):
     ctx = zmq.Context()
@@ -25,115 +33,99 @@ def connect_to_host(host="si-layer.local", data_port=9998):
     data_socket = ctx.socket(zmq.SUB)
     data_socket.setsockopt_string(zmq.SUBSCRIBE, "")
     data_socket.connect(data_addr)
-    
+
     return data_socket
 
 
-socket = connect_to_host("10.10.0.11")
+socket = None #
 
 
-p = figure(title='ASIC_<x>', tools='', 
-       plot_height=350, plot_width=800,
-       background_fill_color="#fafafa", )
-p.xaxis.axis_label = "channel"
-p.yaxis.axis_label = "adc counts (LSB)"
+def make_channel_display(datasource):
+    channel_display = figure(title='ASIC_<x>', tools='', 
+           plot_height=350, plot_width=800,
+           background_fill_color="#fafafa", )
+    channel_display.xaxis.axis_label = "channel"
+    channel_display.yaxis.axis_label = "adc counts (LSB)"
 
+    steps = channel_display.step('channel_number', 'channel_value', source=datasource)
+    
+    return channel_display
+
+def make_channel_timestream(datasource):
+    channel_stream = figure(title='ASIC_<x>', tools='', 
+           plot_height=350, plot_width=800,
+           background_fill_color="#fafafa", )
+
+    channel_stream.xaxis.axis_label = "time (s)"
+    channel_stream.yaxis.axis_label = "adc counts (LSB)"
+
+    for ch in range(3):
+        color=next(colors)
+        channel_stream.line('time', f'ch{ch:02d}', source=datasource, color=color)
+        channel_stream.circle('time', f'ch{ch:02d}', source=datasource, legend_label=f'ch{ch:02d}', color=color)
+
+    return channel_stream
+
+
+################################
+# Construct datasources.
+################################
+# Step plot
 n_ch = 32
-channels = np.array(range(n_ch)) - 1.5
+channel_ds = ColumnDataSource(data={'channel_value': np.zeros(n_ch), 'channel_number': np.array(range(n_ch))})
+               
+# Timeseries
+timeseries = {'time': np.zeros(0)}
+for ch in range(32):
+    timeseries[f'ch{ch:02d}'] = []
 
-data_dict = {} 
-data_dict['pedestals'] = np.zeros(n_ch) -100 #+ np.random.normal(scale=5, size=n_ch)
-data_dict['channels'] = channels
+timestream_ds = ColumnDataSource(data=timeseries)
 
-data = ColumnDataSource(data_dict)
-steps = p.step('channels', 'pedestals', source=data)
-
- 
-
-channel_stream0 = figure(title='ASIC_<x> ch<y>', tools='', 
-       plot_height=350, plot_width=800,
-       background_fill_color="#fafafa", )
-
-channel_stream0.xaxis.axis_label = "event number"
-channel_stream0.yaxis.axis_label = "adc counts (LSB)"
+# Generate the display handles
+ch_display = make_channel_display(channel_ds)
+ts_display = make_channel_timestream(timestream_ds)
 
 
-channel_stream1 = figure(title='ASIC_<x> ch<y>', tools='', 
-       plot_height=350, plot_width=800,
-       background_fill_color="#fafafa", )
 
-channel_stream1.xaxis.axis_label = "event number"
-channel_stream1.yaxis.axis_label = "adc counts (LSB)"
+###### Connections
+def click_connect():
+    global layer_server_ip_input
+    global socket 
+
+    socket = connect_to_host(layer_server_ip_input.value)
+    print(layer_server_ip_input.value)
+
+layer_server_ip = "10.10.0.11"
+
+layer_server_ip_input = TextInput(value=layer_server_ip, title="Data source IP")
+connect_buttion = Button(label='Connect', button_type="success")
+connect_buttion.on_click(click_connect)
 
 
-data = {'time': np.zeros(0), 'adc0': np.zeros(0), 'adc1': np.zeros(0)}
-datastream = ColumnDataSource(data=data)
 
-timeseries = channel_stream0.line('time', 'adc0', source=datastream)
-timeseries = channel_stream0.circle('time', 'adc0', source=datastream)
-timeseries = channel_stream0.line('time', 'adc1', source=datastream, color='green')
-timeseries = channel_stream0.circle('time', 'adc1', source=datastream, color='green')
+###### DAQ button
+def start_DAQ(button):
+    global GO
+    global nclick 
 
-#t = show(column(p, channel_stream0), notebook_handle=True)
+    nclick += 1
+    if button.label == "GO":
 
+        button.label = "STOP" 
+        GO = False
+    else:
+        button.label = "GO"
+        GO = True
+
+start_daq_button = Button(label='GO', button_type='danger')
 
 GO = False
 nclick = 0
-def clicky():
-  global button
-  global GO
-  global nclick 
+    
+start_daq_button.on_click(lambda : start_DAQ(start_daq_button))
 
+inputs = row(start_daq_button, column(layer_server_ip_input,connect_buttion))
 
-  button.label = "GO" if not GO else "STOP"
+curdoc().add_root(column(inputs, column(ch_display, ts_display), width=800))
 
-  GO = not GO
-  nclick += 1
-  print(GO, nclick)
-
-def run():
-    #while True:
-    if GO:
-      data = socket.recv()
-      dp = DataPacket(data)
-      ap = dp.asic_packets[0]
-      #if dp.event_counter % 10 == 0:     
-      #time.sleep(0.1)
-
-      steps.data_source.data['pedestals']  = ap.data
-
-      
-      datastream.stream({'time': [dp.event_counter], 
-                         'adc0':[ap.data[0]], 
-                         'adc1':[ap.data[1]]}, 
-                         rollover=1000)      
-  # for event_counter in range(100000):
-
-      
-  #   data = 250 + np.random.normal(scale=5, size=n_ch)
-  #   steps.data_source.data['pedestals'] = data
-  #   datastream.stream({'time': [event_counter], 
-  #                    'adc0':[data[0]], 
-  #                    'adc1':[data[1]]}, 
-  #                    rollover=100)
-  #     #data_dict['pedestals'] = 250 + np.random.normal(scale=5, size=n_ch)
-  #     #data.stream(data_dict)
-  #     #push_notebook(t)
-  #   time.sleep(np.abs(np.random.normal(0.05, scale=0.01)))
-        
-
-
-button = Button(label="GO", button_type="success")
-
-button.on_click(clicky)
-
-
-inputs = column(button)
-
-curdoc().add_root(column(inputs, column(p, channel_stream0), width=800))
-#curdoc().title = "Sliders"
-
-#curdoc().add_root(column(p, timeseries, button), width=800)
-#curdoc().title = "tkr_livestream"
-
-curdoc().add_periodic_callback(run, 100)
+#curdoc().add_periodic_callback(run, 100)
