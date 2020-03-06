@@ -11,7 +11,7 @@ colors = itertools.cycle(palette)
 def make_channel_display(datasource):
     channel_display = figure(title='channel', tools='', 
            plot_height=350, plot_width=800,
-           background_fill_color="#fafafa", )
+           background_fill_color="#fafafa",  output_backend="webgl")
     channel_display.xaxis.axis_label = "channel"
     channel_display.yaxis.axis_label = "adc counts (LSB)"
     #p.y_range = Range1d(0, 400)
@@ -23,7 +23,7 @@ def make_channel_display(datasource):
 def make_channel_timestream(datasource, show_ch = [0, 1, 2]):
     channel_stream = figure(title='ASIC_<x>', tools='', 
            plot_height=350, plot_width=400,
-           background_fill_color="#fafafa", )
+           background_fill_color="#fafafa",  output_backend="webgl")
 
     channel_stream.xaxis.axis_label = "time (s)"
     channel_stream.yaxis.axis_label = "adc counts (LSB)"
@@ -33,20 +33,16 @@ def make_channel_timestream(datasource, show_ch = [0, 1, 2]):
     for ch in show_ch:
         color=next(colors)
         channel_stream.line('time', f'ch{ch:02d}', source=datasource, color=color)
-        channel_stream.circle('time', f'ch{ch:02d}', source=datasource, legend_label=f'ch{ch:02d}', color=color)
+        channel_stream.circle('time', f'ch{ch:02d}', source=datasource, color=color)
 
     return channel_stream
 
 def make_channel_binner(datasource, show_ch = [0, 1, 2]):
     hist_fig = figure(title='ASIC_<x>', #tools='', 
                       plot_height=350, plot_width=400,
-                      background_fill_color="#fafafa", )
+                      background_fill_color="#fafafa",  output_backend="webgl")
 
     hist_fig.xaxis.axis_label = "adc counts (LSB)"
-
-    rate_fig = figure(title='event rate', tools='',
-                      plot_height=350, plot_width=400,
-                      background_fill_color="#fafafa", )                  
 
     colors = itertools.cycle(palette)        
 

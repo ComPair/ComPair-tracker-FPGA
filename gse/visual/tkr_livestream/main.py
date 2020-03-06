@@ -48,14 +48,15 @@ socket = None #
 ############## 
 # Main plot update loop
 ##############
-
+event_number = 0
 def patch_plots():
     global stats_ds, channel_ds, binned_data_ds, timestream_ds
     global socket
     global GO
+    global event_number
 
     if GO:
-
+        #print("Callback")
         data = socket.recv()
         
         #n_received += 1
@@ -63,9 +64,9 @@ def patch_plots():
         
         dp = DataPacket(data)
         ap = dp.asic_packets[0]
+        event_number += 1
         
-        
-        timeseries = {'time': [time.time()]}
+        timeseries = {'time': [event_number]}
         patches = {}
         
         for ch in range(n_ch):
@@ -176,6 +177,7 @@ def click_connect(button):
         socket.close()
         button.button_type = 'warning'
         button.label = "CONNECT"
+        socket = None
 
 #layer_server_ip = "10.10.0.11"
 layer_server_ip = "localhost"
@@ -196,13 +198,15 @@ def start_DAQ(button):
     if socket is not None:
         if GO:
 
-            button.label = "STOP" 
+            
             button.button_type = 'danger'
             GO = False
         else:
             button.label = "GO"
             button.button_type = 'success'
             GO = True
+        
+        button.label = "RUNNING" if GO else "STOPPED"
 
 start_daq_button = Button(label='STOPPED', button_type='warning')
 
@@ -213,8 +217,16 @@ start_daq_button.on_click(lambda : start_DAQ(start_daq_button))
 
 inputs = column(column(layer_server_ip_input,connect_buttion), start_daq_button)
 
+ASIC_layout = layout(column(ch_display, row(hist_display, ts_display), data_table))
+display_list = [ASIC_layout for i in range(12)]
+ASIC_tabs = Tabs(tabs=[Panel(child=display_list[i], title=f'ASIC {i:02d}') for i in range(12)])
+
+#ist_display_list = [make_channel_binner(binned_data_ds, [i]) for i in range(n_ch)]
+#show(Tabs(tabs=[Panel(child=hist_display_list[i], title=f'ch{i:02d}') for i in range(3)]))
+#ASIC_panels = [Panel()]
+#ASIC_tabs = Tabs(tabs=[i for i in ASIC_panels])
 #curdoc().add_root(column(inputs, column(ch_display, ts_display), width=800))
 
-curdoc().add_root(row(inputs, column(ch_display, row(hist_display, ts_display), data_table)))
+curdoc().add_root(row(inputs, ASIC_tabs))
 
-#curdoc().add_periodic_callback(patch_plots, 100)
+curdoc().add_periodic_callback(patch_plots, 100)
