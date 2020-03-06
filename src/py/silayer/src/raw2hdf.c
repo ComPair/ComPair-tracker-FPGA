@@ -12,8 +12,8 @@ static PyMethodDef raw2hdf_methods[] = {
         "parse_data_packets(capsule): Parse a data packet."
         "                             Return a dictionary of parsed data."},
     {"bytes2packet", bytes2packet, METH_VARARGS,
-        "bytes2packet(b : bytes) -> dict()
-        "   Parse bytes, returns a dictionary with the data packet data."
+        "bytes2packet(b : bytes) -> dict()"
+        "   Parse bytes, returns a dictionary with the data packet data."},
     {NULL, NULL, 0, NULL}
 };
 
