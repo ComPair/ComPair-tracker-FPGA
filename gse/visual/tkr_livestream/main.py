@@ -46,7 +46,6 @@ def connect_to_host(host="si-layer.local", data_port=9998):
 
     return data_socket
 
-
 socket = None #
 
 
