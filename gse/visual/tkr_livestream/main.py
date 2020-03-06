@@ -24,6 +24,7 @@ t0 = time.time()
 import zmq
 from silayer.raw2hdf import DataPacket
 
+from makefig import *
 
 def calc_mean(bin_centers, binned_data):
     return np.sum(bin_centers*binned_data) / np.sum(binned_data)
@@ -31,12 +32,6 @@ def calc_var(bin_centers, binned_data):
     mean = calc_mean(bin_centers, binned_data)
     return np.sum(binned_data*(bin_centers - mean)**2) / (np.sum(binned_data))
 
-#def loop(data_socket):
-#    while True:
-#        data = data_socket.recv() ## This should block until data shows up
-#        dp = DataPacket(data)
-#        ## Then do whatever...
-        
 def connect_to_host(host="si-layer.local", data_port=9998):
     ctx = zmq.Context()
     data_addr = f"tcp://{host}:{data_port}"
@@ -49,51 +44,63 @@ def connect_to_host(host="si-layer.local", data_port=9998):
 socket = None #
 
 
-def make_channel_display(datasource):
-    channel_display = figure(title='channel', tools='', 
-           plot_height=350, plot_width=800,
-           background_fill_color="#fafafa", )
-    channel_display.xaxis.axis_label = "channel"
-    channel_display.yaxis.axis_label = "adc counts (LSB)"
-    #p.y_range = Range1d(0, 400)
 
-    steps = channel_display.step('channels', 'values', source=datasource)
-    
-    return channel_display
+############## 
+# Main plot update loop
+##############
 
-def make_channel_timestream(datasource, show_ch = [0, 1, 2]):
-    channel_stream = figure(title='ASIC_<x>', tools='', 
-           plot_height=350, plot_width=400,
-           background_fill_color="#fafafa", )
+def patch_plots():
+    global stats_ds, channel_ds, binned_data_ds, timestream_ds
+    global socket
+    global GO
 
-    channel_stream.xaxis.axis_label = "time (s)"
-    channel_stream.yaxis.axis_label = "adc counts (LSB)"
+    if GO:
 
-    for ch in show_ch:
-        color=next(colors)
-        channel_stream.line('time', f'ch{ch:02d}', source=datasource, color=color)
-        channel_stream.circle('time', f'ch{ch:02d}', source=datasource, legend_label=f'ch{ch:02d}', color=color)
+        data = socket.recv()
+        
+        #n_received += 1
+        #i += 1
+        
+        dp = DataPacket(data)
+        ap = dp.asic_packets[0]
+        
+        
+        timeseries = {'time': [time.time()]}
+        patches = {}
+        
+        for ch in range(n_ch):
+            ch_name = f'ch{ch:02d}'
+            
+            timeseries[ch_name] = [ap.data[ch]]
+            
+            bin_number = int(np.histogram(ap.data[ch], bins=bin_edges)[0].argmax())   
+            
+            old_bin_content = binned_data_ds.data[ch_name][bin_number]
+            
+            patches[f'ch{ch:02d}'] = [(bin_number, old_bin_content+1)]
 
-    return channel_stream
+        channel_ds.data['values'] = ap.data
+        binned_data_ds.patch(patches)
+        timestream_ds.stream(timeseries, rollover=250)    
+        #print(timeseries['time'])
+        
+        #Downscale updating of rolling average. 
+        #if i %10 == 0 and i != 0:
+        stats_patches = {}
 
-def make_channel_binner(datasource, show_ch = [0, 1, 2]):
-    hist_fig = figure(title='ASIC_<x>', #tools='', 
-                      plot_height=350, plot_width=400,
-                      background_fill_color="#fafafa", )
-
-    hist_fig.xaxis.axis_label = "adc counts (LSB)"
-
-    rate_fig = figure(title='event rate', tools='',
-                      plot_height=350, plot_width=400,
-                      background_fill_color="#fafafa", )                  
+        stats_patches['mean'] = []
+        stats_patches['sigma'] = []
+        stats_patches['N'] = []
+        for ch in range(3):
+            ch_name = f'ch{ch:02d}'        
+            stats_patches['mean'] += [(ch, calc_mean(bin_centers, binned_data_ds.data[ch_name]))]   
+            stats_patches['sigma'] += [(ch, np.sqrt(calc_var(bin_centers, binned_data_ds.data[ch_name])))]   
+            stats_patches['N'] += [(ch, np.sum(binned_data_ds.data[ch_name]))]   
 
 
-    #print("Making histograms for channels: ", show_ch)
-    for ch in show_ch:
-        hist_fig.quad(top=f'ch{ch:02d}', left='left', right='right', bottom='bottom', 
-                      source=datasource, color=next(colors), legend_label=f'ch{ch:02d}')
-                
-    return hist_fig
+        stats_ds.patch(stats_patches)
+
+
 
 
 ################################
@@ -155,37 +162,49 @@ data_table = DataTable(source=stats_ds, columns=columns, width=400, height=280,
 
 
 ###### Connections
-def click_connect():
+def click_connect(button):
     global layer_server_ip_input
     global socket 
 
-    socket = connect_to_host(layer_server_ip_input.value)
-    print(layer_server_ip_input.value)
-    print(socket)
+    if socket is None:
+        socket = connect_to_host(layer_server_ip_input.value)
+        button.button_type = 'success'
+        button.label = "CONNECTED"
+        print(layer_server_ip_input.value)
+        print(socket)
+    else:
+        socket.close()
+        button.button_type = 'warning'
+        button.label = "CONNECT"
 
-layer_server_ip = "10.10.0.11"
+#layer_server_ip = "10.10.0.11"
+layer_server_ip = "localhost"
 
 layer_server_ip_input = TextInput(value=layer_server_ip, title="Data source IP")
 connect_buttion = Button(label='Connect', button_type="success")
-connect_buttion.on_click(click_connect)
+connect_buttion.on_click(lambda : click_connect(connect_buttion))
 
 
 
 ###### DAQ button
 def start_DAQ(button):
     global GO
-    global nclick 
+    global nclick
+    global socket
 
     nclick += 1
-    if button.label == "GO":
+    if socket is not None:
+        if GO:
 
-        button.label = "STOP" 
-        GO = False
-    else:
-        button.label = "GO"
-        GO = True
+            button.label = "STOP" 
+            button.button_type = 'danger'
+            GO = False
+        else:
+            button.label = "GO"
+            button.button_type = 'success'
+            GO = True
 
-start_daq_button = Button(label='GO', button_type='danger')
+start_daq_button = Button(label='STOPPED', button_type='warning')
 
 GO = False
 nclick = 0
@@ -198,4 +217,4 @@ inputs = column(column(layer_server_ip_input,connect_buttion), start_daq_button)
 
 curdoc().add_root(row(inputs, column(ch_display, row(hist_display, ts_display), data_table)))
 
-#curdoc().add_periodic_callback(run, 100)
+#curdoc().add_periodic_callback(patch_plots, 100)
