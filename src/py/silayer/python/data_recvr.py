@@ -29,7 +29,7 @@ def main(ctrl_port, host="si-layer.local", data_port=9998):
             data_socket.setsockopt_string(zmq.SUBSCRIBE, "")
             data_socket.connect(data_addr)
             ctrl_socket.send(b"ok")
-            with open(fname, "wb") as f:
+            with open(fname, "wb", 0) as f:
                 data_recv_loop(ctrl_socket, data_socket, f)
         elif msg == "exit":
             ctrl_socket.send(b"ok")

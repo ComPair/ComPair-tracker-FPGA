@@ -4,15 +4,17 @@ use IEEE.std_logic_unsigned.all;
 
 entity dac121s101_fsm is
   generic (
-    REGISTER_DATA_WIDTH : integer := 16);
+    REGISTER_DATA_WIDTH : integer := 16;
+    SELECT_MASK_WIDTH : integer := 4);
     Port ( 
       clk                      : in  std_logic;
       rst_n                    : in  std_logic;
       delay_register           : in std_logic_vector(REGISTER_DATA_WIDTH-1 downto 0);
       input_word               : in  std_logic_vector(15 downto 0);
       write_trig               : in  std_logic;
+      select_mask              : in  std_logic_vector(SELECT_MASK_WIDTH-1 downto 0);
       fsm_done                 : out std_logic;
-      out_sync                 : out std_logic;
+      out_sync                 : out std_logic_vector(SELECT_MASK_WIDTH-1 downto 0);
       out_mosi                 : out std_logic;
       out_sclk                 : out std_logic);
 end dac121s101_fsm;
@@ -76,11 +78,14 @@ architecture behave of dac121s101_fsm is
   signal counter_stay_enable : std_logic;
   signal counter_stay_clr    : std_logic;
   signal counter_stay_value  : std_logic_vector(REGISTER_DATA_WIDTH-1 downto 0);
-  
+  signal select_mask_inverted : std_logic_vector(SELECT_MASK_WIDTH-1 downto 0);
   
 begin
 
 
+gen: for i in 0 to SELECT_MASK_WIDTH-1 generate
+    select_mask_inverted(i) <= not select_mask(I);
+end generate;
 
   process (rst_n, clk)
   begin
@@ -440,51 +445,51 @@ begin
   end if;
 end process;
 
-output_logic : process(current_state, input_word)
+output_logic : process(current_state, input_word, select_mask)
 begin
   case (current_state) is
-    when IDLE         => out_sclk <= '0';  out_sync <= '0';  out_mosi <= '0';             fsm_done <= '1';
-    when SCLK_ONLY_a  => out_sclk <= '0';  out_sync <= '0';  out_mosi <= '0';             fsm_done <= '0';
-    when SCLK_ONLY_b  => out_sclk <= '0';  out_sync <= '0';  out_mosi <= '0';             fsm_done <= '0';
-    when SCLK_ONLY_c  => out_sclk <= '0';  out_sync <= '0';  out_mosi <= '0';             fsm_done <= '0';
-    when SCLK_ONLY_d  => out_sclk <= '0';  out_sync <= '0';  out_mosi <= '0';             fsm_done <= '0';
-    when SYNC_set     => out_sclk <= '1';  out_sync <= '1';  out_mosi <= '0';             fsm_done <= '0';
-    when SYNC_clk     => out_sclk <= '0';  out_sync <= '1';  out_mosi <= '0';             fsm_done <= '0';
-    when DB15_set     => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(15);  fsm_done <= '0';
-    when DB15_clk     => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(15);  fsm_done <= '0';
-    when DB14_set     => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(14);  fsm_done <= '0';
-    when DB14_clk     => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(14);  fsm_done <= '0';
-    when DB13_set     => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(13);  fsm_done <= '0';
-    when DB13_clk     => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(13);  fsm_done <= '0';
-    when DB12_set     => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(12);  fsm_done <= '0';
-    when DB12_clk     => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(12);  fsm_done <= '0';
-    when DB11_set     => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(11);  fsm_done <= '0';
-    when DB11_clk     => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(11);  fsm_done <= '0';
-    when DB10_set     => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(10);  fsm_done <= '0';
-    when DB10_clk     => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(10);  fsm_done <= '0';
-    when DB9_set      => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(9);   fsm_done <= '0';
-    when DB9_clk      => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(9);   fsm_done <= '0';
-    when DB8_set      => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(8);   fsm_done <= '0';
-    when DB8_clk      => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(8);   fsm_done <= '0';
-    when DB7_set      => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(7);   fsm_done <= '0';
-    when DB7_clk      => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(7);   fsm_done <= '0';
-    when DB6_set      => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(6);   fsm_done <= '0';
-    when DB6_clk      => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(6);   fsm_done <= '0';
-    when DB5_set      => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(5);   fsm_done <= '0';
-    when DB5_clk      => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(5);   fsm_done <= '0';
-    when DB4_set      => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(4);   fsm_done <= '0';
-    when DB4_clk      => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(4);   fsm_done <= '0';
-    when DB3_set      => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(3);   fsm_done <= '0';
-    when DB3_clk      => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(3);   fsm_done <= '0';
-    when DB2_set      => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(2);   fsm_done <= '0';
-    when DB2_clk      => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(2);   fsm_done <= '0';
-    when DB1_set      => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(1);   fsm_done <= '0';
-    when DB1_clk      => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(1);   fsm_done <= '0';
-    when DB0_set      => out_sclk <= '1';  out_sync <= '0';  out_mosi <= input_word(0);   fsm_done <= '0';
-    when DB0_clk      => out_sclk <= '0';  out_sync <= '0';  out_mosi <= input_word(0);   fsm_done <= '0';
-    when SYNC_END_set => out_sclk <= '1';  out_sync <= '1';  out_mosi <= '0';             fsm_done <= '0';
-    when SYNC_END_clk => out_sclk <= '0';  out_sync <= '1';  out_mosi <= '0';             fsm_done <= '0';
-    when others       => out_sclk <= '0';  out_sync <= '0';  out_mosi <= '0';             fsm_done <= '0';
+    when IDLE         => out_sclk <= '0';  out_sync <= (others => '1');       out_mosi <= '0';             fsm_done <= '1';
+    when SCLK_ONLY_a  => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= '0';             fsm_done <= '0';
+    when SCLK_ONLY_b  => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= '0';             fsm_done <= '0';
+    when SCLK_ONLY_c  => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= '0';             fsm_done <= '0';
+    when SCLK_ONLY_d  => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= '0';             fsm_done <= '0';
+    when SYNC_set     => out_sclk <= '1';  out_sync <= (others => '1');       out_mosi <= '0';             fsm_done <= '0';
+    when SYNC_clk     => out_sclk <= '0';  out_sync <= (others => '1');       out_mosi <= '0';             fsm_done <= '0';
+    when DB15_set     => out_sclk <= '1';  out_sync <= (others => '0');       out_mosi <= input_word(15);  fsm_done <= '0';
+    when DB15_clk     => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= input_word(15);  fsm_done <= '0';
+    when DB14_set     => out_sclk <= '1';  out_sync <= (others => '0');       out_mosi <= input_word(14);  fsm_done <= '0';
+    when DB14_clk     => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= input_word(14);  fsm_done <= '0';
+    when DB13_set     => out_sclk <= '1';  out_sync <= (others => '0');       out_mosi <= input_word(13);  fsm_done <= '0';
+    when DB13_clk     => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= input_word(13);  fsm_done <= '0';
+    when DB12_set     => out_sclk <= '1';  out_sync <= (others => '0');       out_mosi <= input_word(12);  fsm_done <= '0';
+    when DB12_clk     => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= input_word(12);  fsm_done <= '0';
+    when DB11_set     => out_sclk <= '1';  out_sync <= (others => '0');       out_mosi <= input_word(11);  fsm_done <= '0';
+    when DB11_clk     => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= input_word(11);  fsm_done <= '0';
+    when DB10_set     => out_sclk <= '1';  out_sync <= (others => '0');       out_mosi <= input_word(10);  fsm_done <= '0';
+    when DB10_clk     => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= input_word(10);  fsm_done <= '0';
+    when DB9_set      => out_sclk <= '1';  out_sync <= (others => '0');       out_mosi <= input_word(9);   fsm_done <= '0';
+    when DB9_clk      => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= input_word(9);   fsm_done <= '0';
+    when DB8_set      => out_sclk <= '1';  out_sync <= (others => '0');       out_mosi <= input_word(8);   fsm_done <= '0';
+    when DB8_clk      => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= input_word(8);   fsm_done <= '0';
+    when DB7_set      => out_sclk <= '1';  out_sync <= (others => '0');       out_mosi <= input_word(7);   fsm_done <= '0';
+    when DB7_clk      => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= input_word(7);   fsm_done <= '0';
+    when DB6_set      => out_sclk <= '1';  out_sync <= (others => '0');       out_mosi <= input_word(6);   fsm_done <= '0';
+    when DB6_clk      => out_sclk <= '0';  out_sync <= (others => '0');       out_mosi <= input_word(6);   fsm_done <= '0';
+    when DB5_set      => out_sclk <= '1';  out_sync <= select_mask_inverted;  out_mosi <= input_word(5);   fsm_done <= '0';
+    when DB5_clk      => out_sclk <= '0';  out_sync <= select_mask_inverted;  out_mosi <= input_word(5);   fsm_done <= '0';
+    when DB4_set      => out_sclk <= '1';  out_sync <= select_mask_inverted;  out_mosi <= input_word(4);   fsm_done <= '0';
+    when DB4_clk      => out_sclk <= '0';  out_sync <= select_mask_inverted;  out_mosi <= input_word(4);   fsm_done <= '0';
+    when DB3_set      => out_sclk <= '1';  out_sync <= select_mask_inverted;  out_mosi <= input_word(3);   fsm_done <= '0';
+    when DB3_clk      => out_sclk <= '0';  out_sync <= select_mask_inverted;  out_mosi <= input_word(3);   fsm_done <= '0';
+    when DB2_set      => out_sclk <= '1';  out_sync <= select_mask_inverted;  out_mosi <= input_word(2);   fsm_done <= '0';
+    when DB2_clk      => out_sclk <= '0';  out_sync <= select_mask_inverted;  out_mosi <= input_word(2);   fsm_done <= '0';
+    when DB1_set      => out_sclk <= '1';  out_sync <= select_mask_inverted;  out_mosi <= input_word(1);   fsm_done <= '0';
+    when DB1_clk      => out_sclk <= '0';  out_sync <= select_mask_inverted;  out_mosi <= input_word(1);   fsm_done <= '0';
+    when DB0_set      => out_sclk <= '1';  out_sync <= select_mask_inverted;  out_mosi <= input_word(0);   fsm_done <= '0';
+    when DB0_clk      => out_sclk <= '0';  out_sync <= select_mask_inverted;  out_mosi <= input_word(0);   fsm_done <= '0';
+    when SYNC_END_set => out_sclk <= '1';  out_sync <= (others => '1');       out_mosi <= '0';             fsm_done <= '0';
+    when SYNC_END_clk => out_sclk <= '1';  out_sync <= (others => '1');       out_mosi <= '0';             fsm_done <= '0';
+    when others       => out_sclk <= '1';  out_sync <= (others => '1');       out_mosi <= '0';             fsm_done <= '0';
   end case;
 end process;
 

@@ -27,9 +27,19 @@ void usage(char *argv0) {
               << "  OPTIONS:" << std::endl
               << "    --set-delay DELAY : Set the delay value." << std::endl
               << "    --get-delay       : Print the current delay value." << std::endl
-              << "    --set-input INPUT : Set the dac input to the given value." << std::endl
+              << "    --set-counts SIDE DAC VALUE : Set the dac input to the given value." << std::endl
               << "    --get-input       : Print the current input value, according to the axi register." << std::endl;
 }
+
+//int parse_set_counts_args(char *silayer_side_str, char *dac_choice_str, char *counts_str,
+//        enum SilayerSide *silayer_side, enum DacChoice *dac_choice, u32 *counts) {
+//    if (parse_silayer_side(silayer_side_str, silayer_side) != 0)
+//        return 1;
+//    if (parse_dac_choice(dac_choice_str, dac_choice) != 0)
+//        return 1;
+//    *counts = (u32)atoi(counts_str); 
+//    return 0; // success
+//}
 
 int parse_args(int argc, char **argv) {
     DacCtrl dacctrl;
@@ -48,15 +58,26 @@ int parse_args(int argc, char **argv) {
             }
         } else if (strcmp("--get-delay", argv[i]) == 0) { 
             std::cout << dacctrl.get_delay() << std::endl;
-        } else if (strcmp("--set-input", argv[i]) == 0) { 
-            if (++i >= argc) {
-                std::cerr << "ERROR: No input value specified." << std::endl;
+            
+        } else if (strcmp("--set-counts", argv[i]) == 0) { 
+            if ((++i)+2 >= argc) {
+                std::cerr << "ERROR: Must pass <SIDE> <DAC> <VALUE> with --set_counts." << std::endl;
                 return PARSE_ARGS_ERR;
             }
-            if (dacctrl.set_input((u32)atoi(argv[i])) == 1) {
+            enum SilayerSide silayer_side;
+            enum DacChoice dac_choice;
+            u32 counts;
+            if (parse_set_counts_args(argv[i], argv[i+1], argv[i+2], &silayer_side, &dac_choice, &counts) != 0) {
+                // Could not parse silayer_side and/or dac_choice
+                std::cerr << "ERROR: Could not parse " << argv[i] << " as SilayerSide, " 
+                          << argv[i+1] << " as DacChoice." << std::endl;
+                return PARSE_ARGS_ERR;
+            }
+            if (dacctrl.set_counts(silayer_side, dac_choice, counts) == 1) {
                 std::cerr << "ERROR: Input value too large." << std::endl;
                 return DAC_VALUE_ERR;
             }
+            i += 2;
         } else if (strcmp("--get-input", argv[i]) == 0) { 
             std::cout << dacctrl.get_input() << std::endl;
         } else {

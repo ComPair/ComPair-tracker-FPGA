@@ -235,6 +235,7 @@
       <spirit:name>S00_AXI</spirit:name>
       <spirit:addressBlock>
         <spirit:name>S00_AXI_reg</spirit:name>
+        <spirit:displayName>cal_pulse_s00</spirit:displayName>
         <spirit:baseAddress spirit:format="long" spirit:resolve="user">0</spirit:baseAddress>
         <spirit:range spirit:format="long">4096</spirit:range>
         <spirit:width spirit:format="long">32</spirit:width>
@@ -724,7 +725,7 @@
       <spirit:file>
         <spirit:name>hdl/AXI_cal_pulse_v1_1.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_3cfa66f5</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_773ceff4</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -861,7 +862,7 @@
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>nasa.gov:user:AXI_cal_pulse:1.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-02-20T16:26:57Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-02-21T00:17:54Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@384880ba_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@43069b71_ARCHIVE_LOCATION">c:/Users/sgriffi4/Documents/xilinx/ComPair/ip_repo/AXI_cal_pulse_1.0</xilinx:tag>
@@ -1150,6 +1151,17 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@5f908c9c_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@53a39754_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@5621589b_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.0</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7074c62a_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b5c977c_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@358592d2_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6c92b1a1_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6f69c7e1_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@75d1d278_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@24443cb5_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2f975d3f_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1862c299_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@76262ed0_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@629d0363_ARCHIVE_LOCATION">c:/fpga/ComPair-tracker-FPGA/cores/AXI_cal_pulse_1.1</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>

@@ -14,30 +14,32 @@ VataCtrl::VataCtrl(int n) {
     axi_highaddr = vata_addrs[n][1];
     data_fifo_baseaddr = vata_addrs[n][2];
     data_fifo_highaddr = vata_addrs[n][3];
-    gpio_trigger_baseaddr = vata_addrs[n][4];
-    gpio_trigger_highaddr = vata_addrs[n][5];
-    gpio_trigger_ena_baseaddr = vata_addrs[n][6];
-    gpio_trigger_ena_highaddr = vata_addrs[n][7];
-    paxi = pfifo = pgpio_trigger = pgpio_trigger_ena = NULL;
+    //gpio_trigger_baseaddr = vata_addrs[n][4];
+    //gpio_trigger_highaddr = vata_addrs[n][5];
+    paxi = pfifo = NULL; 
+    //gpio_trigger_ena_baseaddr = vata_addrs[n][6];
+    //gpio_trigger_ena_highaddr = vata_addrs[n][7];
+    //paxi = pfifo = pgpio_trigger = pgpio_trigger_ena = NULL;
 }
 
 // Destructor performs un-mmapping.
 VataCtrl::~VataCtrl() {
-    bool axi_ok = true, fifo_ok = true, trigger_ok = true, trigger_ena_ok = true;
+    bool axi_ok = true, fifo_ok = true; //, trigger_ok = true;
     // Unmap anything that needs unmapping...
     if (paxi != NULL)
         axi_ok = (this->unmmap_addr(paxi, axi_baseaddr, axi_highaddr) == 0);
     if (pfifo != NULL)
         fifo_ok = (this->unmmap_addr(pfifo, data_fifo_baseaddr, data_fifo_highaddr) == 0);
-    if (pgpio_trigger != NULL)
-        trigger_ok = (this->unmmap_addr(pgpio_trigger,
-                                        gpio_trigger_baseaddr,
-                                        gpio_trigger_highaddr) == 0);
-    if (pgpio_trigger_ena != NULL)
-        trigger_ena_ok = (this->unmmap_addr(pgpio_trigger_ena,
-                                            gpio_trigger_ena_baseaddr,
-                                            gpio_trigger_ena_highaddr) == 0);
-    if (!axi_ok || !fifo_ok || !trigger_ok || !trigger_ena_ok) {
+    //if (pgpio_trigger != NULL)
+    //    trigger_ok = (this->unmmap_addr(pgpio_trigger,
+    //                                    gpio_trigger_baseaddr,
+    //                                    gpio_trigger_highaddr) == 0);
+    //if (pgpio_trigger_ena != NULL)
+    //    trigger_ena_ok = (this->unmmap_addr(pgpio_trigger_ena,
+    //                                        gpio_trigger_ena_baseaddr,
+    //                                        gpio_trigger_ena_highaddr) == 0);
+    //if (!axi_ok || !fifo_ok || !trigger_ok || !trigger_ena_ok) {
+    if (!axi_ok || !fifo_ok) {
         std::cerr << "ERROR: an unmmap_addr call failed in destructor." << std::endl;
     }
 }
@@ -77,23 +79,23 @@ int VataCtrl::mmap_fifo() {
     return 0;
 }
 
-int VataCtrl::mmap_gpio_trigger() {
-    if ((pgpio_trigger = this->mmap_vata_addr(trigger_fd,
-                                              gpio_trigger_baseaddr,
-                                              gpio_trigger_highaddr)) == NULL ) {
-        throw "ERROR: could not mmap trigger gpio.";
-    }
-    return 0;
-}
-
-int VataCtrl::mmap_gpio_trigger_ena() {
-    if ((pgpio_trigger_ena = this->mmap_vata_addr(trigger_ena_fd,
-                                                  gpio_trigger_ena_baseaddr,
-                                                  gpio_trigger_ena_highaddr)) == NULL ) {
-        throw "ERROR: could not mmap trigger gpio.";
-    }
-    return 0;
-}
+//int VataCtrl::mmap_gpio_trigger() {
+//    if ((pgpio_trigger = this->mmap_vata_addr(trigger_fd,
+//                                              gpio_trigger_baseaddr,
+//                                              gpio_trigger_highaddr)) == NULL ) {
+//        throw "ERROR: could not mmap trigger gpio.";
+//    }
+//    return 0;
+//}
+//
+//int VataCtrl::mmap_gpio_trigger_ena() {
+//    if ((pgpio_trigger_ena = this->mmap_vata_addr(trigger_ena_fd,
+//                                                  gpio_trigger_ena_baseaddr,
+//                                                  gpio_trigger_ena_highaddr)) == NULL ) {
+//        throw "ERROR: could not mmap trigger gpio.";
+//    }
+//    return 0;
+//}
 
 // Set the configuration register from the given data vector.
 int VataCtrl::set_config(std::vector<u32> &data) { 
@@ -200,20 +202,60 @@ int VataCtrl::reset_counters() {
     return 0;
 }
 
-// Enable trigger acceptance by the asic.
-int VataCtrl::trigger_enable() {
-    if (pgpio_trigger_ena == NULL)
-        this->mmap_gpio_trigger_ena();
-    pgpio_trigger_ena[0] = 1;
+// Return 0 if set.
+// Return 1 if called with illegal mask_bit
+int VataCtrl::trigger_enable(int mask_bit) {
+    if (paxi == NULL)
+        this->mmap_axi();
+    if (mask_bit >= TRIGGER_ENA_MASK_LEN)
+        return 1;
+    paxi[TRIGGER_ENA_MASK_REG_OFFSET] |= (1 << mask_bit);
+    return 0;
+}
+
+int VataCtrl::trigger_enable_all() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[TRIGGER_ENA_MASK_REG_OFFSET] = 0xFFFFFFFF;
     return 0;
 }
 
 // Disable trigger acceptance by the asic.
-int VataCtrl::trigger_disable() {
-    if (pgpio_trigger_ena == NULL)
-        this->mmap_gpio_trigger_ena();
-    pgpio_trigger_ena[0] = 0;
+int VataCtrl::trigger_disable(int mask_bit) {
+    if (paxi == NULL)
+        this->mmap_axi();
+    if (mask_bit >= TRIGGER_ENA_MASK_LEN)
+        return 1;
+    paxi[TRIGGER_ENA_MASK_REG_OFFSET] &= ~((u32)(1 << mask_bit));
     return 0;
+}
+
+int VataCtrl::trigger_disable_all() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[TRIGGER_ENA_MASK_REG_OFFSET] = 0;
+    return 0;
+}
+
+u32 VataCtrl::get_trigger_ena_mask() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    return paxi[TRIGGER_ENA_MASK_REG_OFFSET];
+}
+
+// Set the trigger acknowledge timeout
+int VataCtrl::set_trigger_ack_timeout(u32 ack_timeout) {
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[TRIGGER_ACK_TIMEOUT_REG_OFFSET] = ack_timeout;
+    return 0;
+}
+
+// Get the current trigger acknowledge timeout
+u32 VataCtrl::get_trigger_ack_timeout() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    return paxi[TRIGGER_ACK_TIMEOUT_REG_OFFSET];
 }
 
 // Return the current event count.
@@ -288,13 +330,11 @@ int VataCtrl::read_fifo(u32 *data, int nbuffer, u32 &nread) {
 
 // Force a trigger.
 int VataCtrl::force_trigger() {
-    if ( pgpio_trigger == NULL )
-        this->mmap_gpio_trigger();
-    pgpio_trigger[0] = 0;
-    pgpio_trigger[0] = 1;
-    pgpio_trigger[0] = 0;
+    if (paxi == NULL)
+        this->mmap_axi();
+    //#define AXI0_CTRL_
+    paxi[0] = AXI0_CTRL_FORCE_TRIGGER;
     return 0;
 }
-
 
 // vim: set ts=4 sw=4 sts=4 et:

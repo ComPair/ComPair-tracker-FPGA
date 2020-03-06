@@ -17,28 +17,33 @@
 
 #include "vata_ctrl.hpp"
 
-#define VT_PARSE_ARGS_ERR 1
-#define VT_VATA_NUM_ERR   2
-#define VT_SET_CONFIG_ERR 3
-#define VT_CAL_DAC_ERR    4
+#define VT_PARSE_ARGS_ERR      1
+#define VT_VATA_NUM_ERR        2
+#define VT_SET_CONFIG_ERR      3
+#define VT_CAL_DAC_ERR         4
+#define VT_TRIGGER_ENA_BIT_ERR 5
 
 void usage(char *argv0) {
     std::cout << "Usage: " << argv0 << " ASIC-NUM [OPTIONS]" << std::endl
               << "  ASIC-NUM : Number of the ASIC we are targeting" << std::endl
               << "  OPTIONS:" << std::endl
-              << "    --set-config FNAME  : set configuration from file FNAME" << std::endl
-              << "    --get-config FNAME  : get configuration, write to file FNAME" << std::endl
-              << "    --set-hold HOLD     : set the ASIC hold time to HOLD clk-cycles" << std::endl
-              << "    --get-hold          : write ASIC hold time to stdout" << std::endl
-              << "    --get-counters      : print 'running' and 'live' counters to stdout" << std::endl
-              << "    --reset-counters    : reset the 'running' and 'live' counters" << std::endl
-              << "    --trigger-enable    : enable triggered data readout" << std::endl
-              << "    --trigger-disable   : disable triggered data readout" << std::endl
-              << "    --get-event-count   : print event counter to stdout" << std::endl
-              << "    --reset-event-count : reset the event counter" << std::endl
-              << "    --get-n-fifo        : print number of data packets in fifo to stdout" << std::endl
-              << "    --single-read-fifo  : read a single data packet, print to stdout" << std::endl
-              << "    --read-fifo         : read the entire fifo, each packet to a single line of stdout" << std::endl;
+              << "    --set-config FNAME        : set configuration from file FNAME" << std::endl
+              << "    --get-config FNAME        : get configuration, write to file FNAME" << std::endl
+              << "    --set-hold HOLD           : set the ASIC hold time to HOLD clk-cycles" << std::endl
+              << "    --get-hold                : write ASIC hold time to stdout" << std::endl
+              << "    --get-counters            : print 'running' and 'live' counters to stdout" << std::endl
+              << "    --reset-counters          : reset the 'running' and 'live' counters" << std::endl
+              << "    --trigger-enable ENA-BIT  : enable triggering from source associated with ENA-BIT" << std::endl
+              << "    --trigger-disable ENA-BIT : disable triggering from source associated with ENA-BIT" << std::endl
+              << "    --get-trigger-ena-mask    : print the trigger-enable mask to stdout" <<std::endl
+              << "    --force-trigger           : force ASIC to perform data readout" << std::endl
+              << "    --set-ack-timeout TIMEOUT : set the trigger ack timeout to TIMEOUT" << std::endl
+              << "    --get-ack-timeout         : print the current trigger ack timeout to stdout" << std::endl
+              << "    --get-event-count         : print event counter to stdout" << std::endl
+              << "    --reset-event-count       : reset the event counter" << std::endl
+              << "    --get-n-fifo              : print number of data packets in fifo to stdout" << std::endl
+              << "    --single-read-fifo        : read a single data packet, print to stdout" << std::endl
+              << "    --read-fifo               : read the entire fifo, each packet to a single line of stdout" << std::endl;
 }
 
 VataCtrl get_vata_from_args(int argc, char **argv) {
@@ -95,28 +100,46 @@ int parse_args(VataCtrl vata, int argc, char **argv) {
         } else if (strcmp("--reset-counters", argv[i]) == 0) { 
             vata.reset_counters();
         } else if (strcmp("--trigger-enable", argv[i]) == 0) { 
-            vata.trigger_enable();
+            if (++i >= argc) {
+                std::cerr << "ERROR: No trigger enable bit specified." << std::endl;
+                return VT_PARSE_ARGS_ERR;
+            }
+            if (strcmp("all", argv[i]) == 0) {
+                vata.trigger_enable_all();
+            } else if (vata.trigger_enable(atoi(argv[i])) != 0) {
+                std::cerr << "ERROR: Bad trigger enable bit specified." << std::endl;
+                return VT_TRIGGER_ENA_BIT_ERR;
+            }
         } else if (strcmp("--trigger-disable", argv[i]) == 0) { 
-            vata.trigger_disable();
+            if (++i >= argc) {
+                std::cerr << "ERROR: No trigger enable bit specified." << std::endl;
+                return VT_PARSE_ARGS_ERR;
+            }
+            if (strcmp("all", argv[i]) == 0) {
+                vata.trigger_disable_all();
+            } else if (vata.trigger_disable(atoi(argv[i])) != 0) {
+                std::cerr << "ERROR: Bad trigger enable bit specified." << std::endl;
+                return VT_TRIGGER_ENA_BIT_ERR;
+            }
+        } else if (strcmp("--get-trigger-ena-mask", argv[i]) == 0) {
+            u32 ena_mask = vata.get_trigger_ena_mask();
+            std::cout << ena_mask << std::endl;
+        } else if (strcmp("--force-trigger", argv[i]) == 0) { 
+            vata.force_trigger();
+        } else if (strcmp("--set-ack-timeout", argv[i]) == 0) {
+            if (++i >= argc) {
+                std::cerr << "ERROR: No timeout specified." << std::endl;
+                return VT_PARSE_ARGS_ERR;
+            }
+            u32 timeout = (u32)atoi(argv[i]);
+            vata.set_trigger_ack_timeout(timeout);
+        } else if (strcmp("--get-ack-timeout", argv[i]) == 0) {
+            u32 timeout = vata.get_trigger_ack_timeout();
+            std::cout << timeout << std::endl;
         } else if (strcmp("--get-event-count", argv[i]) == 0) { 
             std::cout << vata.get_event_count() << std::endl;
         } else if (strcmp("--reset-event-count", argv[i]) == 0) { 
             vata.reset_event_count();
-        //} else if (strcmp("--cal-pulse", argv[i]) == 0) { 
-        //    vata.cal_pulse_trigger();
-        //} else if (strcmp("--set-cal-dac", argv[i]) == 0) { 
-        //    if (++i >= argc) {
-        //        std::cerr << "ERROR: No calibration dac value provided." << std::endl;
-        //        return VT_PARSE_ARGS_ERR;
-        //    }
-        //    u32 dac_value = (u32)atoi(argv[i]);
-        //    if (vata.set_cal_dac(dac_value) != 0) {
-        //        std::cerr << "ERROR: Invalid dac value (" << dac_value << ")." << std::endl
-        //                  << "       dac_value must be in [0, " << MAX_CAL_DAC_VAL << ")." << std::endl;
-        //        return VT_CAL_DAC_ERR;
-        //    }
-        //} else if (strcmp("--cal-pulse", argv[i]) == 0) { 
-        //    vata.cal_pulse_trigger();
         } else if (strcmp("--get-n-fifo", argv[i]) == 0) { 
             std::cout << vata.get_n_fifo() << std::endl;
         } else if (strcmp("--single-read-fifo", argv[i]) == 0) { 

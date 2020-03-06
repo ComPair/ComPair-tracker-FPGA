@@ -40,7 +40,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 # The design that will be created by this Tcl script contains the following 
 # module references:
-# local_invert, local_invert
+# local_invert, local_invert, local_invert, local_invert, local_invert, local_invert, local_invert
 
 # Please add the sources of those modules before sourcing this Tcl script.
 
@@ -168,6 +168,11 @@ xilinx.com:ip:xlslice:1.0\
 set bCheckModules 1
 if { $bCheckModules == 1 } {
    set list_check_mods "\ 
+local_invert\
+local_invert\
+local_invert\
+local_invert\
+local_invert\
 local_invert\
 local_invert\
 "
@@ -356,7 +361,7 @@ proc create_root_design { parentCell } {
   set DIG_ASIC_9_S1 [ create_bd_port -dir O DIG_ASIC_9_S1 ]
   set DIG_ASIC_9_S2 [ create_bd_port -dir O DIG_ASIC_9_S2 ]
   set DIG_ASIC_9_S_LATCH [ create_bd_port -dir O DIG_ASIC_9_S_LATCH ]
-  set DIG_A_CAL_DAC_SYNCn_P [ create_bd_port -dir O DIG_A_CAL_DAC_SYNCn_P ]
+  set DIG_A_CAL_DAC_SYNCn_P [ create_bd_port -dir O -from 0 -to 0 DIG_A_CAL_DAC_SYNCn_P ]
   set DIG_A_CAL_PULSE_TRIGGER_P [ create_bd_port -dir O DIG_A_CAL_PULSE_TRIGGER_P ]
   set DIG_A_TELEM1_CSn_P [ create_bd_port -dir O -from 0 -to 0 DIG_A_TELEM1_CSn_P ]
   set DIG_A_TELEM1_SCLK_P [ create_bd_port -dir O DIG_A_TELEM1_SCLK_P ]
@@ -365,8 +370,8 @@ proc create_root_design { parentCell } {
   set DIG_A_TELEMX_MOSI_P [ create_bd_port -dir O DIG_A_TELEMX_MOSI_P ]
   set DIG_A_VTH_CAL_DAC_MOSI_P [ create_bd_port -dir O DIG_A_VTH_CAL_DAC_MOSI_P ]
   set DIG_A_VTH_CAL_DAC_SCLK_P [ create_bd_port -dir O DIG_A_VTH_CAL_DAC_SCLK_P ]
-  set DIG_A_VTH_DAC_SYNCn_P [ create_bd_port -dir O DIG_A_VTH_DAC_SYNCn_P ]
-  set DIG_B_CAL_DAC_SYNCn_P [ create_bd_port -dir O DIG_B_CAL_DAC_SYNCn_P ]
+  set DIG_A_VTH_DAC_SYNCn_P [ create_bd_port -dir O -from 0 -to 0 DIG_A_VTH_DAC_SYNCn_P ]
+  set DIG_B_CAL_DAC_SYNCn_P [ create_bd_port -dir O -from 0 -to 0 DIG_B_CAL_DAC_SYNCn_P ]
   set DIG_B_CAL_PULSE_TRIGGER_P [ create_bd_port -dir O DIG_B_CAL_PULSE_TRIGGER_P ]
   set DIG_B_TELEM1_CSn_P [ create_bd_port -dir O -from 0 -to 0 DIG_B_TELEM1_CSn_P ]
   set DIG_B_TELEM2_CSn_P [ create_bd_port -dir O -from 0 -to 0 DIG_B_TELEM2_CSn_P ]
@@ -375,7 +380,7 @@ proc create_root_design { parentCell } {
   set DIG_B_TELEMX_SCLK_P [ create_bd_port -dir O DIG_B_TELEMX_SCLK_P ]
   set DIG_B_VTH_CAL_DAC_MOSI_P [ create_bd_port -dir O DIG_B_VTH_CAL_DAC_MOSI_P ]
   set DIG_B_VTH_CAL_DAC_SCLK_P [ create_bd_port -dir O DIG_B_VTH_CAL_DAC_SCLK_P ]
-  set DIG_B_VTH_DAC_SYNCn_P [ create_bd_port -dir O DIG_B_VTH_DAC_SYNCn_P ]
+  set DIG_B_VTH_DAC_SYNCn_P [ create_bd_port -dir O -from 0 -to 0 DIG_B_VTH_DAC_SYNCn_P ]
   set EXTCLK [ create_bd_port -dir I EXTCLK ]
   set Event_ID_Latch_P [ create_bd_port -dir I Event_ID_Latch_P ]
   set Event_ID_P [ create_bd_port -dir I Event_ID_P ]
@@ -478,6 +483,61 @@ proc create_root_design { parentCell } {
      catch {common::send_msg_id "BD_TCL-105" "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    } elseif { $local_invert_1 eq "" } {
+     catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: local_invert_2, and set properties
+  set block_name local_invert
+  set block_cell_name local_invert_2
+  if { [catch {set local_invert_2 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_msg_id "BD_TCL-105" "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $local_invert_2 eq "" } {
+     catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: local_invert_3, and set properties
+  set block_name local_invert
+  set block_cell_name local_invert_3
+  if { [catch {set local_invert_3 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_msg_id "BD_TCL-105" "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $local_invert_3 eq "" } {
+     catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: local_invert_4, and set properties
+  set block_name local_invert
+  set block_cell_name local_invert_4
+  if { [catch {set local_invert_4 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_msg_id "BD_TCL-105" "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $local_invert_4 eq "" } {
+     catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: local_invert_5, and set properties
+  set block_name local_invert
+  set block_cell_name local_invert_5
+  if { [catch {set local_invert_5 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_msg_id "BD_TCL-105" "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $local_invert_5 eq "" } {
+     catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   }
+  
+  # Create instance: local_invert_6, and set properties
+  set block_name local_invert
+  set block_cell_name local_invert_6
+  if { [catch {set local_invert_6 [create_bd_cell -type module -reference $block_name $block_cell_name] } errmsg] } {
+     catch {common::send_msg_id "BD_TCL-105" "ERROR" "Unable to add referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
+     return 1
+   } elseif { $local_invert_6 eq "" } {
      catch {common::send_msg_id "BD_TCL-106" "ERROR" "Unable to referenced block <$block_name>. Please add the files for ${block_name}'s definition into the project."}
      return 1
    }
@@ -1356,6 +1416,42 @@ proc create_root_design { parentCell } {
    CONFIG.DOUT_WIDTH {1} \
  ] $xlslice_3
 
+  # Create instance: xlslice_4, and set properties
+  set xlslice_4 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_4 ]
+  set_property -dict [ list \
+   CONFIG.DIN_FROM {0} \
+   CONFIG.DIN_TO {0} \
+   CONFIG.DIN_WIDTH {4} \
+   CONFIG.DOUT_WIDTH {1} \
+ ] $xlslice_4
+
+  # Create instance: xlslice_5, and set properties
+  set xlslice_5 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_5 ]
+  set_property -dict [ list \
+   CONFIG.DIN_FROM {1} \
+   CONFIG.DIN_TO {1} \
+   CONFIG.DIN_WIDTH {4} \
+   CONFIG.DOUT_WIDTH {1} \
+ ] $xlslice_5
+
+  # Create instance: xlslice_6, and set properties
+  set xlslice_6 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_6 ]
+  set_property -dict [ list \
+   CONFIG.DIN_FROM {2} \
+   CONFIG.DIN_TO {2} \
+   CONFIG.DIN_WIDTH {4} \
+   CONFIG.DOUT_WIDTH {1} \
+ ] $xlslice_6
+
+  # Create instance: xlslice_7, and set properties
+  set xlslice_7 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_7 ]
+  set_property -dict [ list \
+   CONFIG.DIN_FROM {3} \
+   CONFIG.DIN_TO {3} \
+   CONFIG.DIN_WIDTH {4} \
+   CONFIG.DOUT_WIDTH {1} \
+ ] $xlslice_7
+
   # Create interface connections
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
@@ -1364,7 +1460,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP1 [get_bd_intf_pins processing_system7_0/M_AXI_GP1] [get_bd_intf_pins ps7_0_axi_periph_1/S00_AXI]
   connect_bd_intf_net -intf_net ps7_0_axi_periph_1_M00_AXI [get_bd_intf_pins axi_quad_spi_0/AXI_LITE] [get_bd_intf_pins ps7_0_axi_periph_1/M00_AXI]
   connect_bd_intf_net -intf_net ps7_0_axi_periph_1_M01_AXI [get_bd_intf_pins axi_quad_spi_1/AXI_LITE] [get_bd_intf_pins ps7_0_axi_periph_1/M01_AXI]
-  connect_bd_intf_net -intf_net ps7_0_axi_periph_1_M02_AXI [get_bd_intf_pins dac121s101_0/s00_axi] [get_bd_intf_pins ps7_0_axi_periph_1/M02_AXI]
+  connect_bd_intf_net -intf_net ps7_0_axi_periph_1_M02_AXI [get_bd_intf_pins dac121s101_0/S00_AXI] [get_bd_intf_pins ps7_0_axi_periph_1/M02_AXI]
   connect_bd_intf_net -intf_net ps7_0_axi_periph_M00_AXI [get_bd_intf_pins AXI_cal_pulse_0/S00_AXI] [get_bd_intf_pins ps7_0_axi_periph/M00_AXI]
   connect_bd_intf_net -intf_net ps7_0_axi_periph_M01_AXI [get_bd_intf_pins ps7_0_axi_periph/M01_AXI] [get_bd_intf_pins vata_460p3_axi_inter_0/s00_axi]
   connect_bd_intf_net -intf_net ps7_0_axi_periph_M02_AXI [get_bd_intf_pins axi_fifo_mm_s_data0/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M02_AXI]
@@ -1403,28 +1499,37 @@ proc create_root_design { parentCell } {
   connect_bd_net -net axi_quad_spi_1_sck_o [get_bd_ports DIG_B_TELEMX_SCLK_P] [get_bd_pins axi_quad_spi_1/sck_o]
   connect_bd_net -net dac121s101_0_spi_mosi [get_bd_pins dac121s101_0/spi_mosi] [get_bd_pins local_invert_0/din]
   connect_bd_net -net dac121s101_0_spi_sclk [get_bd_pins dac121s101_0/spi_sclk] [get_bd_pins local_invert_1/din]
-  connect_bd_net -net dac121s101_0_spi_sync [get_bd_ports DIG_A_CAL_DAC_SYNCn_P] [get_bd_pins dac121s101_0/spi_sync]
-  connect_bd_net -net local_invert_0_dout [get_bd_ports DIG_A_VTH_CAL_DAC_MOSI_P] [get_bd_pins local_invert_0/dout]
-  connect_bd_net -net local_invert_1_dout [get_bd_ports DIG_A_VTH_CAL_DAC_SCLK_P] [get_bd_pins local_invert_1/dout]
+  connect_bd_net -net dac121s101_0_spi_sync [get_bd_pins dac121s101_0/spi_sync] [get_bd_pins xlslice_4/Din] [get_bd_pins xlslice_5/Din] [get_bd_pins xlslice_6/Din] [get_bd_pins xlslice_7/Din]
+  connect_bd_net -net local_invert_0_dout [get_bd_ports DIG_A_VTH_CAL_DAC_MOSI_P] [get_bd_ports DIG_B_VTH_CAL_DAC_MOSI_P] [get_bd_pins local_invert_0/dout]
+  connect_bd_net -net local_invert_1_dout [get_bd_ports DIG_A_VTH_CAL_DAC_SCLK_P] [get_bd_ports DIG_B_VTH_CAL_DAC_SCLK_P] [get_bd_pins local_invert_1/dout]
+  connect_bd_net -net local_invert_2_dout [get_bd_ports DIG_ASIC_1_S0] [get_bd_pins local_invert_2/dout]
+  connect_bd_net -net local_invert_3_dout [get_bd_ports DIG_ASIC_1_S2] [get_bd_pins local_invert_3/dout]
+  connect_bd_net -net local_invert_4_dout [get_bd_ports DIG_ASIC_1_I4] [get_bd_pins local_invert_4/dout]
+  connect_bd_net -net local_invert_5_dout [get_bd_ports DIG_ASIC_1_I1] [get_bd_pins local_invert_5/dout]
+  connect_bd_net -net local_invert_6_dout [get_bd_ports DIG_ASIC_1_CALD] [get_bd_pins local_invert_6/dout]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins AXI_cal_pulse_0/s00_axi_aclk] [get_bd_pins axi_fifo_mm_s_data0/s_axi_aclk] [get_bd_pins axi_gpio_trigger0/s_axi_aclk] [get_bd_pins axi_gpio_trigger_ena0/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/M01_ACLK] [get_bd_pins ps7_0_axi_periph/M02_ACLK] [get_bd_pins ps7_0_axi_periph/M03_ACLK] [get_bd_pins ps7_0_axi_periph/M04_ACLK] [get_bd_pins ps7_0_axi_periph/M05_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_100M/slowest_sync_clk] [get_bd_pins vata_460p3_axi_inter_0/s00_axi_aclk] [get_bd_pins vio_0/clk]
   connect_bd_net -net processing_system7_0_FCLK_CLK1 [get_bd_pins axi_quad_spi_0/ext_spi_clk] [get_bd_pins axi_quad_spi_0/s_axi_aclk] [get_bd_pins axi_quad_spi_1/ext_spi_clk] [get_bd_pins axi_quad_spi_1/s_axi_aclk] [get_bd_pins dac121s101_0/s00_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK1] [get_bd_pins processing_system7_0/M_AXI_GP1_ACLK] [get_bd_pins ps7_0_axi_periph_1/ACLK] [get_bd_pins ps7_0_axi_periph_1/M00_ACLK] [get_bd_pins ps7_0_axi_periph_1/M01_ACLK] [get_bd_pins ps7_0_axi_periph_1/M02_ACLK] [get_bd_pins ps7_0_axi_periph_1/S00_ACLK] [get_bd_pins rst_ps7_0_5M/slowest_sync_clk]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_100M/ext_reset_in] [get_bd_pins rst_ps7_0_5M/ext_reset_in]
   connect_bd_net -net rst_ps7_0_100M_peripheral_aresetn [get_bd_pins AXI_cal_pulse_0/s00_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data0/s_axi_aresetn] [get_bd_pins axi_gpio_trigger0/s_axi_aresetn] [get_bd_pins axi_gpio_trigger_ena0/s_axi_aresetn] [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/M01_ARESETN] [get_bd_pins ps7_0_axi_periph/M02_ARESETN] [get_bd_pins ps7_0_axi_periph/M03_ARESETN] [get_bd_pins ps7_0_axi_periph/M04_ARESETN] [get_bd_pins ps7_0_axi_periph/M05_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn] [get_bd_pins vata_460p3_axi_inter_0/s00_axi_aresetn]
   connect_bd_net -net rst_ps7_0_5M_peripheral_aresetn [get_bd_pins axi_quad_spi_0/s_axi_aresetn] [get_bd_pins axi_quad_spi_1/s_axi_aresetn] [get_bd_pins dac121s101_0/s00_axi_aresetn] [get_bd_pins ps7_0_axi_periph_1/ARESETN] [get_bd_pins ps7_0_axi_periph_1/M00_ARESETN] [get_bd_pins ps7_0_axi_periph_1/M01_ARESETN] [get_bd_pins ps7_0_axi_periph_1/M02_ARESETN] [get_bd_pins ps7_0_axi_periph_1/S00_ARESETN] [get_bd_pins rst_ps7_0_5M/peripheral_aresetn]
   connect_bd_net -net vata_460p3_axi_inter_0_FEE_hit [get_bd_pins vata_460p3_axi_inter_0/FEE_hit] [get_bd_pins vata_460p3_axi_inter_0/trigger_ena]
-  connect_bd_net -net vata_460p3_axi_inter_0_cald [get_bd_ports DIG_ASIC_1_CALD] [get_bd_pins vata_460p3_axi_inter_0/cald]
+  connect_bd_net -net vata_460p3_axi_inter_0_cald [get_bd_pins local_invert_6/din] [get_bd_pins vata_460p3_axi_inter_0/cald]
   connect_bd_net -net vata_460p3_axi_inter_0_caldb [get_bd_ports DIG_ASIC_1_CALDB] [get_bd_pins vata_460p3_axi_inter_0/caldb]
-  connect_bd_net -net vata_460p3_axi_inter_0_vata_i1 [get_bd_ports DIG_ASIC_1_I1] [get_bd_pins vata_460p3_axi_inter_0/vata_i1]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_i1 [get_bd_pins local_invert_5/din] [get_bd_pins vata_460p3_axi_inter_0/vata_i1]
   connect_bd_net -net vata_460p3_axi_inter_0_vata_i3 [get_bd_ports DIG_ASIC_1_I3] [get_bd_pins vata_460p3_axi_inter_0/vata_i3]
-  connect_bd_net -net vata_460p3_axi_inter_0_vata_i4 [get_bd_ports DIG_ASIC_1_I4] [get_bd_pins vata_460p3_axi_inter_0/vata_i4]
-  connect_bd_net -net vata_460p3_axi_inter_0_vata_s0 [get_bd_ports DIG_ASIC_1_S0] [get_bd_pins vata_460p3_axi_inter_0/vata_s0]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_i4 [get_bd_pins local_invert_4/din] [get_bd_pins vata_460p3_axi_inter_0/vata_i4]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_s0 [get_bd_pins local_invert_2/din] [get_bd_pins vata_460p3_axi_inter_0/vata_s0]
   connect_bd_net -net vata_460p3_axi_inter_0_vata_s1 [get_bd_ports DIG_ASIC_1_S1] [get_bd_pins vata_460p3_axi_inter_0/vata_s1]
-  connect_bd_net -net vata_460p3_axi_inter_0_vata_s2 [get_bd_ports DIG_ASIC_1_S2] [get_bd_pins vata_460p3_axi_inter_0/vata_s2]
+  connect_bd_net -net vata_460p3_axi_inter_0_vata_s2 [get_bd_pins local_invert_3/din] [get_bd_pins vata_460p3_axi_inter_0/vata_s2]
   connect_bd_net -net vata_460p3_axi_inter_0_vata_s_latch [get_bd_ports DIG_ASIC_1_S_LATCH] [get_bd_pins vata_460p3_axi_inter_0/vata_s_latch]
   connect_bd_net -net xlslice_0_Dout [get_bd_ports DIG_A_TELEM1_CSn_P] [get_bd_pins xlslice_0/Dout]
   connect_bd_net -net xlslice_1_Dout [get_bd_ports DIG_A_TELEM2_CSn_P] [get_bd_pins xlslice_1/Dout]
   connect_bd_net -net xlslice_2_Dout [get_bd_ports DIG_B_TELEM1_CSn_P] [get_bd_pins xlslice_2/Dout]
   connect_bd_net -net xlslice_3_Dout [get_bd_ports DIG_B_TELEM2_CSn_P] [get_bd_pins xlslice_3/Dout]
+  connect_bd_net -net xlslice_4_Dout [get_bd_ports DIG_A_CAL_DAC_SYNCn_P] [get_bd_pins xlslice_4/Dout]
+  connect_bd_net -net xlslice_5_Dout [get_bd_ports DIG_A_VTH_DAC_SYNCn_P] [get_bd_pins xlslice_5/Dout]
+  connect_bd_net -net xlslice_6_Dout [get_bd_ports DIG_B_CAL_DAC_SYNCn_P] [get_bd_pins xlslice_6/Dout]
+  connect_bd_net -net xlslice_7_Dout [get_bd_ports DIG_B_VTH_DAC_SYNCn_P] [get_bd_pins xlslice_7/Dout]
 
   # Create address segments
   create_bd_addr_seg -range 0x00010000 -offset 0x43C20000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs AXI_cal_pulse_0/S00_AXI/S00_AXI_reg] SEG_AXI_cal_pulse_0_S00_AXI_reg
@@ -1433,13 +1538,14 @@ proc create_root_design { parentCell } {
   create_bd_addr_seg -range 0x00010000 -offset 0x41220000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_trigger_ena0/S_AXI/Reg] SEG_axi_gpio_trigger_ena0_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x81E00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_quad_spi_0/AXI_LITE/Reg] SEG_axi_quad_spi_0_Reg
   create_bd_addr_seg -range 0x00010000 -offset 0x81E10000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_quad_spi_1/AXI_LITE/Reg] SEG_axi_quad_spi_1_Reg
-  create_bd_addr_seg -range 0x00010000 -offset 0x83C00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs dac121s101_0/S00_AXI/S00_AXI_REG] SEG_dac121s101_0_S00_AXI_REG
+  create_bd_addr_seg -range 0x00010000 -offset 0x83C00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs dac121s101_0/S00_AXI/S00_AXI_reg] SEG_dac121s101_0_S00_AXI_REG
   create_bd_addr_seg -range 0x00010000 -offset 0x43C00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs vata_460p3_axi_inter_0/s00_axi/reg0] SEG_vata_460p3_axi_inter_0_reg0
 
 
   # Restore current instance
   current_bd_instance $oldCurInst
 
+  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -1451,6 +1557,4 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
-
-common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

@@ -282,7 +282,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>269a3b51</spirit:value>
+            <spirit:value>be5efca7</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -298,7 +298,7 @@
         <spirit:parameters>
           <spirit:parameter>
             <spirit:name>viewChecksum</spirit:name>
-            <spirit:value>269a3b51</spirit:value>
+            <spirit:value>be5efca7</spirit:value>
           </spirit:parameter>
         </spirit:parameters>
       </spirit:view>
@@ -347,7 +347,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>trigger_ena</spirit:name>
+        <spirit:name>fast_or_trigger</spirit:name>
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
           <spirit:wireTypeDefs>
@@ -360,20 +360,7 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
-        <spirit:name>trigger_ena_ena</spirit:name>
-        <spirit:wire>
-          <spirit:direction>in</spirit:direction>
-          <spirit:wireTypeDefs>
-            <spirit:wireTypeDef>
-              <spirit:typeName>std_logic</spirit:typeName>
-              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
-              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
-            </spirit:wireTypeDef>
-          </spirit:wireTypeDefs>
-        </spirit:wire>
-      </spirit:port>
-      <spirit:port>
-        <spirit:name>trigger_ena_force</spirit:name>
+        <spirit:name>local_fast_or_trigger</spirit:name>
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
           <spirit:wireTypeDefs>
@@ -783,6 +770,36 @@
         </spirit:wire>
       </spirit:port>
       <spirit:port>
+        <spirit:name>trigger_ack_timeout_out</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:vector>
+            <spirit:left spirit:format="long">31</spirit:left>
+            <spirit:right spirit:format="long">0</spirit:right>
+          </spirit:vector>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic_vector</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
+        <spirit:name>FEE_hit0_out</spirit:name>
+        <spirit:wire>
+          <spirit:direction>out</spirit:direction>
+          <spirit:wireTypeDefs>
+            <spirit:wireTypeDef>
+              <spirit:typeName>std_logic</spirit:typeName>
+              <spirit:viewNameRef>xilinx_anylanguagesynthesis</spirit:viewNameRef>
+              <spirit:viewNameRef>xilinx_anylanguagebehavioralsimulation</spirit:viewNameRef>
+            </spirit:wireTypeDef>
+          </spirit:wireTypeDefs>
+        </spirit:wire>
+      </spirit:port>
+      <spirit:port>
         <spirit:name>s00_axi_aclk</spirit:name>
         <spirit:wire>
           <spirit:direction>in</spirit:direction>
@@ -1165,6 +1182,10 @@
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
+        <spirit:name>src/stay_high_n_cycles.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+      </spirit:file>
+      <spirit:file>
         <spirit:name>src/trigger_ack_timeout_fsm.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
@@ -1179,7 +1200,7 @@
       <spirit:file>
         <spirit:name>src/vata_460p3_axi_interface_v3_0.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
-        <spirit:userFileType>CHECKSUM_e6466ae1</spirit:userFileType>
+        <spirit:userFileType>CHECKSUM_05e1dad6</spirit:userFileType>
       </spirit:file>
     </spirit:fileSet>
     <spirit:fileSet>
@@ -1198,6 +1219,10 @@
       </spirit:file>
       <spirit:file>
         <spirit:name>src/power_cycler.vhd</spirit:name>
+        <spirit:fileType>vhdlSource</spirit:fileType>
+      </spirit:file>
+      <spirit:file>
+        <spirit:name>src/stay_high_n_cycles.vhd</spirit:name>
         <spirit:fileType>vhdlSource</spirit:fileType>
       </spirit:file>
       <spirit:file>
@@ -1283,12 +1308,12 @@
       </xilinx:taxonomies>
       <xilinx:displayName>vata_460p3_axi_interface_v3_0</xilinx:displayName>
       <xilinx:definitionSource>package_project</xilinx:definitionSource>
-      <xilinx:coreRevision>16</xilinx:coreRevision>
+      <xilinx:coreRevision>26</xilinx:coreRevision>
       <xilinx:upgrades>
         <xilinx:canUpgradeFrom>nasa.gov:user:vata_460p3_axi_interface_v2_0:1.0</xilinx:canUpgradeFrom>
         <xilinx:canUpgradeFrom>nasa.gov:user:vata_460p3_axi_interface:2.0</xilinx:canUpgradeFrom>
       </xilinx:upgrades>
-      <xilinx:coreCreationDateTime>2020-01-24T17:46:12Z</xilinx:coreCreationDateTime>
+      <xilinx:coreCreationDateTime>2020-03-05T01:04:40Z</xilinx:coreCreationDateTime>
       <xilinx:tags>
         <xilinx:tag xilinx:name="nopcore"/>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@145fbe1a_ARCHIVE_LOCATION">c:/Users/aschoenw/Documents/Projects/Hardware/FPGA/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
@@ -2180,14 +2205,185 @@
         <xilinx:tag xilinx:name="ui.data.coregen.dd@6f28cd7f_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@68741659_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
         <xilinx:tag xilinx:name="ui.data.coregen.dd@174d29be_ARCHIVE_LOCATION">/home/lucas/fpga/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@58ec664a_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@33fd12f0_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@20667562_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@62a07f4d_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@73a2aae9_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@45f449ca_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@738a0781_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@422d5355_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5b809ef8_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@707463b0_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@d4a5907_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3eebd9d5_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2947150d_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6e778198_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3d7ff5b7_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4226b598_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6103a57e_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1654399c_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@74cc5be3_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7a0e2f7e_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@a7c8025_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6f6d95c7_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@35050063_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5a5b9403_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3334bf02_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1edd4a5d_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2d2b8633_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@18aceeb8_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@135ef549_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1c29af56_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@37eb030e_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2f299202_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7ad00513_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@67300f70_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5623b788_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@b20b52_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7b286127_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2e9aaeab_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3b7f8706_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4674511b_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3cbe5e80_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5193ce39_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@37c3067a_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@636a9231_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@572274cc_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@68cfa2f3_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@515c8da0_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@10475282_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@169defa8_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@67bdfb43_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3d464b34_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@a08b17a_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2e8319a3_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7a9e3f94_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@673b8659_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@57808bf2_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7d28150_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4b7d188f_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@73f7a679_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3fc46cda_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22cd59f6_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7669e797_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@53827da2_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@f920828_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@794a2a50_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@29001a11_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@52609a81_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4895e368_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4d32eba8_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@37f28121_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@20984ab1_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6b746d9d_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4f36a4dc_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@58a8321e_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@438ea8a_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3c4fece_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2aea58b6_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5f048b65_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@61250a79_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@12cb0fad_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1635b466_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1c745cfa_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@38655cac_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1c129a48_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5ed93b24_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@51338cd2_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@11d1584f_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@dfb12a2_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@76314155_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3948830c_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@337a3d16_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7c2ae38a_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1a85a940_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@45d63e13_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3e252c41_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5fabff62_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7417c910_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@ff32ecb_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5ab2169c_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@24d72ec9_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22b8c025_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4a3602cc_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3915cb99_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@49b266a1_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4cd8e74e_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@34fe48a1_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2461cf10_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@30002efb_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@61671a51_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3a45619_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3af66f3_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@662500e5_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@bffbec7_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@49084e24_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@36623649_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1ab35f63_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6634a08a_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4d5ad445_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@341eb50f_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@161326a8_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5bd0bc5_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@43471678_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@34c95ae5_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@398226bb_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7dd4649_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5abc5238_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1074be78_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@52a12167_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5cc837ff_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7ac6f742_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7019b976_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@7df3869b_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@5309e595_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4097f52f_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@299c3d9d_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6830dcf9_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@55e6c38_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@1ad49e20_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3b071bca_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@55cd7546_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6ffb144a_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@77f23ef0_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2743a1e6_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2ae7bc2f_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@68f8edfd_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2dbcd40_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@35c9d6ee_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@61bd07d9_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@11ef1cc6_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@2a1b5016_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@473b6aab_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@11d8a67b_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@6aa52444_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@29638f07_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@4febce90_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3be235e1_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3aaa5bd2_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@ab6620a_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@10c261e5_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@637af33b_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@33a7f58b_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@539186c2_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@70cad26b_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@42bdcba9_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@30ff9ddb_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@642525be_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3e6884cd_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@22d51118_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@3f9db9ff_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@12f880c8_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
+        <xilinx:tag xilinx:name="ui.data.coregen.dd@a43c90d_ARCHIVE_LOCATION">/local/data/puff/sgriffi4/xilinx/lucas/ComPair-tracker-FPGA/cores/vata_460p3</xilinx:tag>
       </xilinx:tags>
     </xilinx:coreExtensions>
     <xilinx:packagingInfo>
       <xilinx:xilinxVersion>2018.3</xilinx:xilinxVersion>
       <xilinx:checksum xilinx:scope="busInterfaces" xilinx:value="cf2f49f5"/>
       <xilinx:checksum xilinx:scope="memoryMaps" xilinx:value="871c369d"/>
-      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="f385c57d"/>
-      <xilinx:checksum xilinx:scope="ports" xilinx:value="8373e359"/>
+      <xilinx:checksum xilinx:scope="fileGroups" xilinx:value="019a68db"/>
+      <xilinx:checksum xilinx:scope="ports" xilinx:value="69181e99"/>
       <xilinx:checksum xilinx:scope="hdlParameters" xilinx:value="f5d49b29"/>
       <xilinx:checksum xilinx:scope="parameters" xilinx:value="f8c82e76"/>
     </xilinx:packagingInfo>

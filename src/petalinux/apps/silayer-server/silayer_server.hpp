@@ -10,12 +10,13 @@
 
 #include "vata_ctrl.hpp"
 #include "cal_ctrl.hpp"
+#include "dac_ctrl.hpp"
 
 #include "data_emitter.hpp"
 
 #define SI_SERVER_PORT     "5556"
 #define DATA_BUFSZ         1024
-#define LAYER_CTX_NTHREAD    1
+#define LAYER_CTX_NTHREAD  1
 #define EXIT_REQ_RECV_CODE 1785 // QUIT
 
 #define VERBOSE
@@ -24,6 +25,7 @@ class LayerServer {
     private:
         VataCtrl vatas[N_VATA];
         CalCtrl calctrl;
+        DacCtrl dacctrl;
         zmq::context_t ctx;
         zmq::socket_t socket;
         bool data_emitter_running;
@@ -47,11 +49,16 @@ class LayerServer {
         int _cal_trigger_delay(char* &cmd);
         int _cal_repeat_delay(char* &cmd);
         int _cal_n_pulses(char* &cmd);
-        int _cal_set_dac(char* &cmd);
+        int _dac_set_delay(char* &cmd);
+        int _dac_get_delay();
+        int _dac_set_counts(char* &cmd);
+        int _dac_get_input();
+
         int _get_n_fifo(int nvata, char* &cmd);
 
         int _process_emit_msg(char *msg);
         int _process_cal_msg(char *msg);
+        int _process_dac_msg(char *msg);
         int _process_vata_msg(char *msg);
 
         int _parse_positive_int(char* &cmd);

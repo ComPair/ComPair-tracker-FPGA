@@ -20,10 +20,20 @@ PREFIX = cmd //c "
 POSTFIX = "
 endif
 
+
 ifndef BUILD
-$(error BUILD is not set.)
+$(info **********)
+$(info BUILD not set)
+$(info On Linux: export BUILD=dbe_production)
+$(info On Windows: set BUILD=dbe_production)
+$(info Valid BUILD options = {dbe_production, dbe_production, breakout})
+$(info **********)
+$(error Error: Need to set BUILD in environment.)
 endif
 
+#@echo "On Linux: export BUILD=dbe_production"
+#@echo ""
+#@echo ""
 ## By default we are using the Trenz 21FC3 FPGA module.
 ## To use the 1CFA module, uncomment the line below.
 #USING_1CFA_ARGS = -tclargs use_1cfa
@@ -47,8 +57,15 @@ launchgui :
 	@echo "    Launching GUI..."
 	cd work/$(BUILD); $(PREFIX) vivado zynq/zynq.xpr $(POSTFIX)
 
-setup : ./work/$(BUILD)/.setup.done
+launchsdk :
+	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
+	@echo "    Launching XSDK..."
+	cd work/$(BUILD); $(PREFIX) xsdk -workspace zynq/zynq.sdk/ $(POSTFIX)
 
+save_bd:
+	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(SAVE_BD) $(POSTFIX)    
+
+setup : ./work/$(BUILD)/.setup.done
 ./work/$(BUILD)/.setup.done :
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
 	@echo "    Running $(BUILD) setup"
@@ -58,16 +75,11 @@ setup : ./work/$(BUILD)/.setup.done
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(SETUP_PROJECT) $(POSTFIX)
 
 compile : ./work/$(BUILD)/.compile.done 
-
 ./work/$(BUILD)/.compile.done : ./work/$(BUILD)/.setup.done
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(COMPILE_PROJECT) $(POSTFIX)
 
-save_bd:
-	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(SAVE_BD) $(POSTFIX)    
-
-export_hardware : ./work/$(BUILD)/.export_hw.done 
-	
-./work/$(BUILD)/.export_hw.done : ./work/$(BUILD)/.compile.done
+export_hardware : ./work/$(BUILD)/.export_hardware.done 
+./work/$(BUILD)/.export_hardware.done : ./work/$(BUILD)/.compile.done
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(EXPORT_HW) $(POSTFIX)
 	exit 0
 

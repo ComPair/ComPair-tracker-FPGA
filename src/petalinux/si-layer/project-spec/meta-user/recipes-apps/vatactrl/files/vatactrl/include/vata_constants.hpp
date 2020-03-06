@@ -4,6 +4,7 @@
 #include "xllfifo_hw.h"
 
 // This uses the fact that number of MM-S Fifo's matches number of VATA's:
+// XXX UPDATE TO SOMETHING BETTER!!!!
 #define N_VATA XPAR_XLLFIFO_NUM_INSTANCES
 
 #define N_CFG_REG 17
@@ -14,27 +15,55 @@
 #define N_ASIC_PACKET   16                  // Each asic packet should be 16 x 32 bits.
 #define DATA_PACKET_HEADER_NBYTES       3   //  [N-DATA_TOT, TIME0, TIME1]
 
+// AXI register offsets
 #define CFG_REG_OFFSET                  1
 #define READ_CFG_REG_OFFSET             31
 #define HOLD_TIME_REG_OFFSET            18
 #define POWER_CYCLE_REG_OFFSET          19
 #define TRIGGER_ACK_TIMEOUT_REG_OFFSET  20
+#define TRIGGER_ENA_MASK_REG_OFFSET     21
 #define RUNNING_TIMER_OFFSET            48
 #define LIVE_TIMER_OFFSET               50
 #define EVENT_COUNT_OFFSET              52
 
+// AXI control register interpretation
 #define AXI0_CTRL_SET_CONF              0
 #define AXI0_CTRL_GET_CONF              1
 #define AXI0_CTRL_TRIGGER_INT_CAL       2
 #define AXI0_CTRL_POWER_CYCLE           3
 #define AXI0_CTRL_RST_COUNTERS          4
 #define AXI0_CTRL_RST_EV_COUNT          5
+#define AXI0_CTRL_FORCE_TRIGGER         6
+
+// Trigger enable mask bit mapping
+#define TRIGGER_ENA_MASK_LEN            3 // Only 3 values at this point considered
+#define TRIGGER_ENA_BIT_FAST_OR_HIT     0
+#define TRIGGER_ENA_BIT_TRIGGER_ACK     1
+#define TRIGGER_ENA_BIT_LOCAL_FAST_OR   2
 
 typedef uint8_t u8;
 typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 
+const u32 vata_addrs[N_VATA][4] =
+    {
+        { XPAR_VATA_460P3_AXI_INTER_0_BASEADDR
+        , XPAR_VATA_460P3_AXI_INTER_0_HIGHADDR
+        , XPAR_AXI_FIFO_MM_S_DATA0_BASEADDR
+        , XPAR_AXI_FIFO_MM_S_DATA0_HIGHADDR
+        }
+#   if N_VATA > 1
+    ,
+        { XPAR_VATA_460P3_AXI_INTER_1_BASEADDR
+        , XPAR_VATA_460P3_AXI_INTER_1_HIGHADDR
+        , XPAR_AXI_FIFO_MM_S_DATA1_BASEADDR
+        , XPAR_AXI_FIFO_MM_S_DATA1_HIGHADDR
+        }
+#   endif
+};
+
+/*
 const u32 vata_addrs[N_VATA][8] = {
     {XPAR_VATA_460P3_AXI_INTER_0_BASEADDR,
      XPAR_VATA_460P3_AXI_INTER_0_HIGHADDR,
@@ -55,6 +84,8 @@ const u32 vata_addrs[N_VATA][8] = {
      XPAR_AXI_GPIO_TRIGGER_ENA1_HIGHADDR}
 #   endif
 };
+*/
+
 
 #endif
 

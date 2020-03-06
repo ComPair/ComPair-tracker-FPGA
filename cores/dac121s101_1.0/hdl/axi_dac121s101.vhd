@@ -5,7 +5,7 @@ use ieee.numeric_std.all;
 entity axi_dac121s101 is
   generic (
     -- Users to add parameters here
-
+    SELECT_MASK_WIDTH : integer := 4;
     -- User parameters ends
     -- Do not modify the parameters beyond this line
 
@@ -15,8 +15,8 @@ entity axi_dac121s101 is
     C_S00_AXI_ADDR_WIDTH  : integer  := 4
   );
   port (
-    -- Users to add ports here
-      spi_sync     : out std_logic;
+    -- Users to add ports here    
+      spi_sync     : out std_logic_vector(SELECT_MASK_WIDTH-1 downto 0);
       spi_mosi     : out std_logic;
       spi_sclk     : out std_logic;
     -- User ports ends
@@ -59,15 +59,17 @@ architecture arch_imp of axi_dac121s101 is
   -- component declaration
   component dac121s101_fsm is
     generic (
-    REGISTER_DATA_WIDTH : integer := 16);
+    REGISTER_DATA_WIDTH : integer := 16;
+    SELECT_MASK_WIDTH : integer := 4);
     port(
       clk                      : in  std_logic;
       rst_n                    : in  std_logic;
       delay_register           : in std_logic_vector(REGISTER_DATA_WIDTH-1 downto 0);
       input_word               : in  std_logic_vector(15 downto 0);
       write_trig               : in  std_logic;
+      select_mask              : in  std_logic_vector(SELECT_MASK_WIDTH-1 downto 0);
       fsm_done                 : out std_logic;
-      out_sync                 : out std_logic;
+      out_sync                 : out std_logic_vector(SELECT_MASK_WIDTH-1 downto 0);
       out_mosi                 : out std_logic;
       out_sclk                 : out std_logic);
   end component dac121s101_fsm;
@@ -144,12 +146,16 @@ axi_dac121s101_S00_AXI_inst : axi_dac121s101_S00_AXI
 
   -- Add user logic here
     comp_dac121s101_fsm : dac121s101_fsm
+    generic map (
+    SELECT_MASK_WIDTH  => SELECT_MASK_WIDTH
+    )
     port map (
       clk => s00_axi_aclk,
       rst_n => s00_axi_aresetn,
       delay_register => slave_reg1(15 downto 0),
       input_word => slave_reg0(15 downto 0),
       write_trig => slave_reg3(0),
+      select_mask =>slave_reg2(SELECT_MASK_WIDTH-1 downto 0),
       fsm_done => fsm_done,
       out_sync => spi_sync,
       out_mosi => spi_mosi,
