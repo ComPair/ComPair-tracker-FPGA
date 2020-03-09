@@ -136,6 +136,7 @@ xilinx.com:ip:processing_system7:5.5\
 xilinx.com:ip:proc_sys_reset:5.0\
 nasa.gov:user:vata_460p3_axi_interface:3.0\
 xilinx.com:ip:vio:3.0\
+xilinx.com:ip:xlconstant:1.1\
 xilinx.com:ip:xlslice:1.0\
 "
 
@@ -330,7 +331,7 @@ proc create_root_design { parentCell } {
   set DIG_A_TELEM1_SCLK_P [ create_bd_port -dir O DIG_A_TELEM1_SCLK_P ]
   set DIG_A_TELEM2_CSn_P [ create_bd_port -dir O -from 0 -to 0 DIG_A_TELEM2_CSn_P ]
   set DIG_A_TELEMX_MISO_P [ create_bd_port -dir I DIG_A_TELEMX_MISO_P ]
-  set DIG_A_TELEMX_MOSI_P [ create_bd_port -dir O DIG_A_TELEMX_MOSI_P ]
+  set DIG_A_TELEMX_MOSI_P [ create_bd_port -dir O -from 0 -to 0 DIG_A_TELEMX_MOSI_P ]
   set DIG_A_VTH_CAL_DAC_MOSI_P [ create_bd_port -dir O -from 0 -to 0 DIG_A_VTH_CAL_DAC_MOSI_P ]
   set DIG_A_VTH_CAL_DAC_SCLK_P [ create_bd_port -dir O -from 0 -to 0 DIG_A_VTH_CAL_DAC_SCLK_P ]
   set DIG_A_VTH_DAC_SYNCn_P [ create_bd_port -dir O -from 0 -to 0 DIG_A_VTH_DAC_SYNCn_P ]
@@ -339,7 +340,7 @@ proc create_root_design { parentCell } {
   set DIG_B_TELEM1_CSn_P [ create_bd_port -dir O -from 0 -to 0 DIG_B_TELEM1_CSn_P ]
   set DIG_B_TELEM2_CSn_P [ create_bd_port -dir O -from 0 -to 0 DIG_B_TELEM2_CSn_P ]
   set DIG_B_TELEMX_MISO_P [ create_bd_port -dir I DIG_B_TELEMX_MISO_P ]
-  set DIG_B_TELEMX_MOSI_P [ create_bd_port -dir O DIG_B_TELEMX_MOSI_P ]
+  set DIG_B_TELEMX_MOSI_P [ create_bd_port -dir O -from 0 -to 0 DIG_B_TELEMX_MOSI_P ]
   set DIG_B_TELEMX_SCLK_P [ create_bd_port -dir O DIG_B_TELEMX_SCLK_P ]
   set DIG_B_VTH_CAL_DAC_MOSI_P [ create_bd_port -dir O -from 0 -to 0 DIG_B_VTH_CAL_DAC_MOSI_P ]
   set DIG_B_VTH_CAL_DAC_SCLK_P [ create_bd_port -dir O -from 0 -to 0 DIG_B_VTH_CAL_DAC_SCLK_P ]
@@ -1836,6 +1837,54 @@ proc create_root_design { parentCell } {
   # Create instance: rst_ps7_0_5M, and set properties
   set rst_ps7_0_5M [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_ps7_0_5M ]
 
+  # Create instance: util_vector_logic_0, and set properties
+  set util_vector_logic_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 util_vector_logic_0 ]
+  set_property -dict [ list \
+   CONFIG.C_OPERATION {xor} \
+   CONFIG.C_SIZE {1} \
+   CONFIG.LOGO_FILE {data/sym_xorgate.png} \
+ ] $util_vector_logic_0
+
+  # Create instance: util_vector_logic_1, and set properties
+  set util_vector_logic_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 util_vector_logic_1 ]
+  set_property -dict [ list \
+   CONFIG.C_OPERATION {not} \
+   CONFIG.C_SIZE {1} \
+   CONFIG.LOGO_FILE {data/sym_notgate.png} \
+ ] $util_vector_logic_1
+
+  # Create instance: util_vector_logic_2, and set properties
+  set util_vector_logic_2 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 util_vector_logic_2 ]
+  set_property -dict [ list \
+   CONFIG.C_OPERATION {not} \
+   CONFIG.C_SIZE {1} \
+   CONFIG.LOGO_FILE {data/sym_notgate.png} \
+ ] $util_vector_logic_2
+
+  # Create instance: util_vector_logic_3, and set properties
+  set util_vector_logic_3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 util_vector_logic_3 ]
+  set_property -dict [ list \
+   CONFIG.C_OPERATION {xor} \
+   CONFIG.C_SIZE {1} \
+   CONFIG.LOGO_FILE {data/sym_xorgate.png} \
+ ] $util_vector_logic_3
+
+  # Create instance: util_vector_logic_4, and set properties
+  set util_vector_logic_4 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 util_vector_logic_4 ]
+  set_property -dict [ list \
+   CONFIG.C_OPERATION {not} \
+   CONFIG.C_SIZE {1} \
+   CONFIG.LOGO_FILE {data/sym_notgate.png} \
+ ] $util_vector_logic_4
+
+  # Create instance: util_vector_logic_5, and set properties
+  set util_vector_logic_5 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 util_vector_logic_5 ]
+  set_property -dict [ list \
+   CONFIG.C_OPERATION {not} \
+   CONFIG.C_SIZE {1} \
+   CONFIG.LOGO_FILE {data/sym_notgate.png} \
+ ] $util_vector_logic_5
+
   # Create instance: vata_460p3_axi_inter_0, and set properties
   set vata_460p3_axi_inter_0 [ create_bd_cell -type ip -vlnv nasa.gov:user:vata_460p3_axi_interface:3.0 vata_460p3_axi_inter_0 ]
 
@@ -1884,11 +1933,18 @@ proc create_root_design { parentCell } {
    CONFIG.NUM_PORTS {3} \
  ] $xlconcat_0
 
+  # Create instance: xlconstant_0, and set properties
+  set xlconstant_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_0 ]
+  set_property -dict [ list \
+   CONFIG.CONST_VAL {7} \
+   CONFIG.CONST_WIDTH {3} \
+ ] $xlconstant_0
+
   # Create instance: xlslice_0, and set properties
   set xlslice_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_0 ]
   set_property -dict [ list \
-   CONFIG.DIN_FROM {1} \
-   CONFIG.DIN_TO {1} \
+   CONFIG.DIN_FROM {0} \
+   CONFIG.DIN_TO {0} \
    CONFIG.DIN_WIDTH {3} \
    CONFIG.DOUT_WIDTH {1} \
  ] $xlslice_0
@@ -1896,8 +1952,8 @@ proc create_root_design { parentCell } {
   # Create instance: xlslice_1, and set properties
   set xlslice_1 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_1 ]
   set_property -dict [ list \
-   CONFIG.DIN_FROM {2} \
-   CONFIG.DIN_TO {2} \
+   CONFIG.DIN_FROM {1} \
+   CONFIG.DIN_TO {1} \
    CONFIG.DIN_WIDTH {3} \
    CONFIG.DOUT_WIDTH {1} \
  ] $xlslice_1
@@ -1914,8 +1970,8 @@ proc create_root_design { parentCell } {
   # Create instance: xlslice_3, and set properties
   set xlslice_3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_3 ]
   set_property -dict [ list \
-   CONFIG.DIN_FROM {2} \
-   CONFIG.DIN_TO {2} \
+   CONFIG.DIN_FROM {1} \
+   CONFIG.DIN_TO {1} \
    CONFIG.DIN_WIDTH {3} \
    CONFIG.DOUT_WIDTH {1} \
  ] $xlslice_3
@@ -1955,6 +2011,15 @@ proc create_root_design { parentCell } {
    CONFIG.DIN_WIDTH {4} \
    CONFIG.DOUT_WIDTH {1} \
  ] $xlslice_7
+
+  # Create instance: xlslice_8, and set properties
+  set xlslice_8 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlslice:1.0 xlslice_8 ]
+  set_property -dict [ list \
+   CONFIG.DIN_FROM {1} \
+   CONFIG.DIN_TO {1} \
+   CONFIG.DIN_WIDTH {3} \
+   CONFIG.DOUT_WIDTH {1} \
+ ] $xlslice_8
 
   # Create interface connections
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
@@ -2029,8 +2094,8 @@ proc create_root_design { parentCell } {
   connect_bd_net -net DIG_ASIC_8_OUT_6_1 [get_bd_ports DIG_ASIC_8_OUT_6] [get_bd_pins vata_460p3_axi_inter_7/vata_o6]
   connect_bd_net -net DIG_ASIC_9_OUT_5_1 [get_bd_ports DIG_ASIC_9_OUT_5] [get_bd_pins vata_460p3_axi_inter_8/vata_o5]
   connect_bd_net -net DIG_ASIC_9_OUT_6_1 [get_bd_ports DIG_ASIC_9_OUT_6] [get_bd_pins vata_460p3_axi_inter_8/vata_o6]
-  connect_bd_net -net DIG_A_TELEMX_MISO_P_1 [get_bd_ports DIG_A_TELEMX_MISO_P] [get_bd_pins axi_quad_spi_0/io1_i]
-  connect_bd_net -net DIG_B_TELEMX_MISO_P_1 [get_bd_ports DIG_B_TELEMX_MISO_P] [get_bd_pins axi_quad_spi_1/io1_i]
+  connect_bd_net -net DIG_A_TELEMX_MISO_P_1 [get_bd_ports DIG_A_TELEMX_MISO_P] [get_bd_pins util_vector_logic_0/Op1]
+  connect_bd_net -net DIG_B_TELEMX_MISO_P_1 [get_bd_ports DIG_B_TELEMX_MISO_P] [get_bd_pins util_vector_logic_3/Op1]
   connect_bd_net -net Event_ID_Latch_P_1 [get_bd_ports Event_ID_Latch_P] [get_bd_pins vata_460p3_axi_inter_0/event_id_latch] [get_bd_pins vata_460p3_axi_inter_1/event_id_latch] [get_bd_pins vata_460p3_axi_inter_10/event_id_latch] [get_bd_pins vata_460p3_axi_inter_11/event_id_latch] [get_bd_pins vata_460p3_axi_inter_2/event_id_latch] [get_bd_pins vata_460p3_axi_inter_3/event_id_latch] [get_bd_pins vata_460p3_axi_inter_4/event_id_latch] [get_bd_pins vata_460p3_axi_inter_5/event_id_latch] [get_bd_pins vata_460p3_axi_inter_6/event_id_latch] [get_bd_pins vata_460p3_axi_inter_7/event_id_latch] [get_bd_pins vata_460p3_axi_inter_8/event_id_latch] [get_bd_pins vata_460p3_axi_inter_9/event_id_latch]
   connect_bd_net -net Event_ID_P_1 [get_bd_ports Event_ID_P] [get_bd_pins vata_460p3_axi_inter_0/event_id_data] [get_bd_pins vata_460p3_axi_inter_1/event_id_data] [get_bd_pins vata_460p3_axi_inter_10/event_id_data] [get_bd_pins vata_460p3_axi_inter_11/event_id_data] [get_bd_pins vata_460p3_axi_inter_2/event_id_data] [get_bd_pins vata_460p3_axi_inter_3/event_id_data] [get_bd_pins vata_460p3_axi_inter_4/event_id_data] [get_bd_pins vata_460p3_axi_inter_5/event_id_data] [get_bd_pins vata_460p3_axi_inter_6/event_id_data] [get_bd_pins vata_460p3_axi_inter_7/event_id_data] [get_bd_pins vata_460p3_axi_inter_8/event_id_data] [get_bd_pins vata_460p3_axi_inter_9/event_id_data]
   connect_bd_net -net INV_CALD_ASIC10_Res [get_bd_ports DIG_ASIC_11_CALD] [get_bd_pins INV_CALD_ASIC10/Res]
@@ -2089,7 +2154,6 @@ proc create_root_design { parentCell } {
   connect_bd_net -net INV_S2_ASIC9_Res [get_bd_ports DIG_ASIC_9_S2] [get_bd_pins INV_S2_ASIC9/Res]
   connect_bd_net -net INV_SI_BUSY_Res [get_bd_ports Si_BUSY_P] [get_bd_pins INV_SI_BUSY/Res]
   connect_bd_net -net INV_SI_HIT_Res [get_bd_ports Si_HIT_P] [get_bd_pins INV_SI_HIT/Res]
-  connect_bd_net -net Net [get_bd_pins axi_quad_spi_1/ss_i] [get_bd_pins xlslice_2/Din] [get_bd_pins xlslice_3/Din]
   connect_bd_net -net PHY_LEDs [get_bd_pins vio_0/probe_in0] [get_bd_pins xlconcat_0/dout]
   connect_bd_net -net PL_pin_K16_1 [get_bd_ports PL_pin_K16] [get_bd_pins SC0720_0/PL_pin_K16]
   connect_bd_net -net PL_pin_K19_1 [get_bd_ports PL_pin_K19] [get_bd_pins SC0720_0/PL_pin_K19]
@@ -2107,11 +2171,12 @@ proc create_root_design { parentCell } {
   connect_bd_net -net SI_HIT_OR_Res [get_bd_pins INV_SI_HIT/Op1] [get_bd_pins SI_HIT_OR/Res] [get_bd_pins vata_460p3_axi_inter_0/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_1/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_10/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_11/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_2/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_3/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_4/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_5/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_6/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_7/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_8/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_9/local_fast_or_trigger]
   connect_bd_net -net Trig_Ack_P_1 [get_bd_ports Trig_Ack_P] [get_bd_pins vata_460p3_axi_inter_0/trigger_ack] [get_bd_pins vata_460p3_axi_inter_1/trigger_ack] [get_bd_pins vata_460p3_axi_inter_10/trigger_ack] [get_bd_pins vata_460p3_axi_inter_11/trigger_ack] [get_bd_pins vata_460p3_axi_inter_2/trigger_ack] [get_bd_pins vata_460p3_axi_inter_3/trigger_ack] [get_bd_pins vata_460p3_axi_inter_4/trigger_ack] [get_bd_pins vata_460p3_axi_inter_5/trigger_ack] [get_bd_pins vata_460p3_axi_inter_6/trigger_ack] [get_bd_pins vata_460p3_axi_inter_7/trigger_ack] [get_bd_pins vata_460p3_axi_inter_8/trigger_ack] [get_bd_pins vata_460p3_axi_inter_9/trigger_ack]
   connect_bd_net -net Trig_ENA_P_1 [get_bd_ports Trig_ENA_P] [get_bd_pins vata_460p3_axi_inter_0/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_1/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_10/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_11/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_2/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_3/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_4/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_5/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_6/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_7/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_8/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_9/fast_or_trigger]
-  connect_bd_net -net axi_quad_spi_0_io0_o [get_bd_ports DIG_A_TELEMX_MOSI_P] [get_bd_pins axi_quad_spi_0/io0_o]
+  connect_bd_net -net axi_quad_spi_0_io0_o [get_bd_pins axi_quad_spi_0/io0_o] [get_bd_pins util_vector_logic_1/Op1]
   connect_bd_net -net axi_quad_spi_0_sck_o [get_bd_ports DIG_A_TELEM1_SCLK_P] [get_bd_pins axi_quad_spi_0/sck_o]
   connect_bd_net -net axi_quad_spi_0_ss_o [get_bd_pins axi_quad_spi_0/ss_o] [get_bd_pins xlslice_0/Din] [get_bd_pins xlslice_1/Din]
-  connect_bd_net -net axi_quad_spi_1_io0_o [get_bd_ports DIG_B_TELEMX_MOSI_P] [get_bd_pins axi_quad_spi_1/io0_o]
+  connect_bd_net -net axi_quad_spi_1_io0_o [get_bd_pins axi_quad_spi_1/io0_o] [get_bd_pins util_vector_logic_2/Op1]
   connect_bd_net -net axi_quad_spi_1_sck_o [get_bd_ports DIG_B_TELEMX_SCLK_P] [get_bd_pins axi_quad_spi_1/sck_o]
+  connect_bd_net -net axi_quad_spi_1_ss_o [get_bd_pins axi_quad_spi_1/ss_o] [get_bd_pins xlslice_3/Din] [get_bd_pins xlslice_8/Din]
   connect_bd_net -net dac121s101_0_spi_mosi [get_bd_pins INV_VTH_CAL_DAC_MOSI/Op1] [get_bd_pins dac121s101_0/spi_mosi]
   connect_bd_net -net dac121s101_0_spi_sclk [get_bd_pins INV_VTH_CAL_DAC_SCLK/Op1] [get_bd_pins dac121s101_0/spi_sclk]
   connect_bd_net -net dac121s101_0_spi_sync [get_bd_pins dac121s101_0/spi_sync] [get_bd_pins xlslice_4/Din] [get_bd_pins xlslice_5/Din] [get_bd_pins xlslice_6/Din] [get_bd_pins xlslice_7/Din]
@@ -2123,6 +2188,12 @@ proc create_root_design { parentCell } {
   connect_bd_net -net rst_ps7_0_100M_peripheral_aresetn [get_bd_pins AXI_cal_pulse_0/s00_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data0/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data1/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data10/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data11/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data2/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data3/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data4/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data5/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data6/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data7/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data8/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data9/s_axi_aresetn] [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/M01_ARESETN] [get_bd_pins ps7_0_axi_periph/M02_ARESETN] [get_bd_pins ps7_0_axi_periph/M03_ARESETN] [get_bd_pins ps7_0_axi_periph/M04_ARESETN] [get_bd_pins ps7_0_axi_periph/M05_ARESETN] [get_bd_pins ps7_0_axi_periph/M06_ARESETN] [get_bd_pins ps7_0_axi_periph/M07_ARESETN] [get_bd_pins ps7_0_axi_periph/M08_ARESETN] [get_bd_pins ps7_0_axi_periph/M09_ARESETN] [get_bd_pins ps7_0_axi_periph/M10_ARESETN] [get_bd_pins ps7_0_axi_periph/M11_ARESETN] [get_bd_pins ps7_0_axi_periph/M12_ARESETN] [get_bd_pins ps7_0_axi_periph/M13_ARESETN] [get_bd_pins ps7_0_axi_periph/M14_ARESETN] [get_bd_pins ps7_0_axi_periph/M15_ARESETN] [get_bd_pins ps7_0_axi_periph/M16_ARESETN] [get_bd_pins ps7_0_axi_periph/M17_ARESETN] [get_bd_pins ps7_0_axi_periph/M18_ARESETN] [get_bd_pins ps7_0_axi_periph/M19_ARESETN] [get_bd_pins ps7_0_axi_periph/M20_ARESETN] [get_bd_pins ps7_0_axi_periph/M21_ARESETN] [get_bd_pins ps7_0_axi_periph/M22_ARESETN] [get_bd_pins ps7_0_axi_periph/M23_ARESETN] [get_bd_pins ps7_0_axi_periph/M24_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn] [get_bd_pins vata_460p3_axi_inter_0/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_1/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_10/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_11/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_2/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_3/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_4/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_5/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_6/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_7/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_8/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_9/s00_axi_aresetn]
   connect_bd_net -net rst_ps7_0_5M_peripheral_aresetn [get_bd_pins axi_quad_spi_0/s_axi_aresetn] [get_bd_pins axi_quad_spi_1/s_axi_aresetn] [get_bd_pins dac121s101_0/s00_axi_aresetn] [get_bd_pins ps7_0_axi_periph_1/ARESETN] [get_bd_pins ps7_0_axi_periph_1/M00_ARESETN] [get_bd_pins ps7_0_axi_periph_1/M01_ARESETN] [get_bd_pins ps7_0_axi_periph_1/M02_ARESETN] [get_bd_pins ps7_0_axi_periph_1/S00_ARESETN] [get_bd_pins rst_ps7_0_5M/peripheral_aresetn]
   connect_bd_net -net util_reduced_logic_0_Res [get_bd_pins INV_SI_BUSY/Op1] [get_bd_pins SI_BUSY_OR/Res]
+  connect_bd_net -net util_vector_logic_0_Res [get_bd_pins axi_quad_spi_0/io1_i] [get_bd_pins util_vector_logic_0/Res]
+  connect_bd_net -net util_vector_logic_1_Res [get_bd_ports DIG_A_TELEMX_MOSI_P] [get_bd_pins util_vector_logic_1/Res]
+  connect_bd_net -net util_vector_logic_2_Res [get_bd_ports DIG_B_TELEMX_MOSI_P] [get_bd_pins util_vector_logic_2/Res]
+  connect_bd_net -net util_vector_logic_3_Res [get_bd_pins axi_quad_spi_1/io1_i] [get_bd_pins util_vector_logic_3/Res]
+  connect_bd_net -net util_vector_logic_4_Res [get_bd_ports DIG_B_TELEM2_CSn_P] [get_bd_pins util_vector_logic_4/Res]
+  connect_bd_net -net util_vector_logic_5_Res [get_bd_ports DIG_A_TELEM2_CSn_P] [get_bd_pins util_vector_logic_5/Res]
   connect_bd_net -net vata_460p3_axi_inter_0_FEE_busy [get_bd_pins SI_BUSY_CONCAT/In0] [get_bd_pins vata_460p3_axi_inter_0/FEE_busy]
   connect_bd_net -net vata_460p3_axi_inter_0_FEE_hit [get_bd_pins SI_HIT_CONCAT/In0] [get_bd_pins vata_460p3_axi_inter_0/FEE_hit]
   connect_bd_net -net vata_460p3_axi_inter_0_FEE_ready [get_bd_ports Si_RDY_P] [get_bd_pins vata_460p3_axi_inter_0/FEE_ready]
@@ -2245,14 +2316,16 @@ proc create_root_design { parentCell } {
   connect_bd_net -net vata_460p3_axi_inter_9_vata_s2 [get_bd_pins INV_S2_ASIC10/Op1] [get_bd_pins vata_460p3_axi_inter_9/vata_s2]
   connect_bd_net -net vata_460p3_axi_inter_9_vata_s_latch [get_bd_ports DIG_ASIC_10_S_LATCH] [get_bd_pins vata_460p3_axi_inter_9/vata_s_latch]
   connect_bd_net -net xlconcat_1_dout [get_bd_pins SI_BUSY_CONCAT/dout] [get_bd_pins SI_BUSY_OR/Op1]
+  connect_bd_net -net xlconstant_0_dout [get_bd_pins axi_quad_spi_0/ss_i] [get_bd_pins axi_quad_spi_1/ss_i] [get_bd_pins xlconstant_0/dout]
   connect_bd_net -net xlslice_0_Dout [get_bd_ports DIG_A_TELEM1_CSn_P] [get_bd_pins xlslice_0/Dout]
-  connect_bd_net -net xlslice_1_Dout [get_bd_ports DIG_A_TELEM2_CSn_P] [get_bd_pins xlslice_1/Dout]
+  connect_bd_net -net xlslice_1_Dout [get_bd_pins util_vector_logic_0/Op2] [get_bd_pins util_vector_logic_5/Op1] [get_bd_pins xlslice_1/Dout]
   connect_bd_net -net xlslice_2_Dout [get_bd_ports DIG_B_TELEM1_CSn_P] [get_bd_pins xlslice_2/Dout]
-  connect_bd_net -net xlslice_3_Dout [get_bd_ports DIG_B_TELEM2_CSn_P] [get_bd_pins xlslice_3/Dout]
+  connect_bd_net -net xlslice_3_Dout [get_bd_pins util_vector_logic_4/Op1] [get_bd_pins xlslice_3/Dout]
   connect_bd_net -net xlslice_4_Dout [get_bd_ports DIG_A_CAL_DAC_SYNCn_P] [get_bd_pins xlslice_4/Dout]
   connect_bd_net -net xlslice_5_Dout [get_bd_ports DIG_A_VTH_DAC_SYNCn_P] [get_bd_pins xlslice_5/Dout]
   connect_bd_net -net xlslice_6_Dout [get_bd_ports DIG_B_CAL_DAC_SYNCn_P] [get_bd_pins xlslice_6/Dout]
   connect_bd_net -net xlslice_7_Dout [get_bd_ports DIG_B_VTH_DAC_SYNCn_P] [get_bd_pins xlslice_7/Dout]
+  connect_bd_net -net xlslice_8_Dout [get_bd_pins util_vector_logic_3/Op2] [get_bd_pins xlslice_8/Dout]
 
   # Create address segments
   create_bd_addr_seg -range 0x00010000 -offset 0x43C20000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs AXI_cal_pulse_0/S00_AXI/S00_AXI_reg] SEG_AXI_cal_pulse_0_S00_AXI_reg
