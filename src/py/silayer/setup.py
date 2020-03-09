@@ -1,7 +1,8 @@
 from distutils.core import setup, Extension
 
 raw2hdf_ext = Extension(
-    "silayer._raw2hdf", sources=["src/raw2hdf.c"], depends=["src/raw2hdf.h"]
+    "silayer._raw2hdf", sources=["src/raw2hdf.c"], depends=["src/raw2hdf.h"],
+    extra_compile_args=["-std=c99"]
 )
 
 setup(

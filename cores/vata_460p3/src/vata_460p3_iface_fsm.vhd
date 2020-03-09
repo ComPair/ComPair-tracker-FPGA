@@ -7,10 +7,12 @@ entity vata_460p3_iface_fsm is
                 clk_100MHz            : in std_logic; -- 10 ns
                 rst_n                 : in std_logic;
                 trigger_ack           : in std_logic;
-                trigger_ena           : in std_logic;
-                --trigger_ena_ena       : in std_logic;
+                ack_trigger_ena       : in std_logic;
                 fast_or_trigger       : in std_logic;
-                trigger_ena_force     : in std_logic;
+                fast_or_trigger_ena   : in std_logic;
+                local_fast_or_trigger : in std_logic;
+                local_fast_or_trigger_ena : in std_logic;
+                force_trigger         : in std_logic;
                 disable_fast_or_trigger : in std_logic; 
                 trigger_ack_timeout   : in std_logic_vector(31 downto 0);
                 FEE_hit               : out std_logic;
@@ -178,14 +180,15 @@ architecture arch_imp of vata_460p3_iface_fsm is
     signal shift_reg_right_1 : std_logic := '0';
     signal reg_clr           : std_logic := '0';
 
-    signal event_id_clr : std_logic := '0';
-    signal event_id_out : std_logic_vector(EVENT_ID_WIDTH-1 downto 0);
-    signal abort_daq : std_logic;
+    signal event_id_clr  : std_logic := '0';
+    signal event_id_out  : std_logic_vector(EVENT_ID_WIDTH-1 downto 0);
+    signal abort_daq     : std_logic := '0';
+    signal abort_daq_buf : std_logic;
 
     signal trigger_acq            : std_logic := '0';
 
-    -- FEE outputs, before going into `stay_high_n_cycles`
-    signal FEE_hit0 : std_logic := '0';
+    -- FEE outputs, before going into `stay_high_n_cycles` 
+    signal FEE_hit0     : std_logic := '0';
     signal FEE_busy_buf : std_logic;
 
     signal urunning_counter : unsigned(63 downto 0) := (others => '0');
@@ -216,15 +219,30 @@ begin
         port map (
             clk_100MHz          => clk_100MHz,
             rst_n               => rst_n,
-            trigger_ena         => fast_or_trigger,
+            -------------------------------------------------------------------------------------
+            -- Use `trigger_ena => fast_or_trigger` for only handling timeout with fast-or-triggers
+            -- (this makes the most sense for actual setup)
+            --trigger_ena         => fast_or_trigger,
+            -------------------------------------------------------------------------------------
+            -- Use `trigger_ena => trigger_acq` for testing with any triggers
+            -- (this makes sense for debugging):
+            trigger_ena         => trigger_acq,
+            -------------------------------------------------------------------------------------
             trigger_ack         => trigger_ack,
             trigger_ack_timeout => trigger_ack_timeout,
-            abort_daq           => abort_daq_debug,
+            abort_daq           => abort_daq_buf,
             counter_out         => trigger_ack_timeout_counter,
             state_out           => trigger_ack_timeout_state
     );
-    abort_daq <= '0';
+    ---------------------
+    -- ENABLE ABORT DAQ:
+    abort_daq <= abort_daq_buf;
+    -- DISABLE ABORT DAQ:
+    -- abort_daq <= '0';
+    ---------------------
+    abort_daq_debug <= abort_daq_buf;
 
+    -- Generate 50ns long pulse for FEE_hit
     fee_hit_stay_high : stay_high_n_cycles
         generic map (
             N_CYCLES_WIDTH => 4,
@@ -236,6 +254,7 @@ begin
             data_out => FEE_hit
         );
 
+    -- Generate 50ns long pulse for FEE_ready out of ~FEE_busy
     fee_ready_stay_high : stay_high_n_cycles
         generic map (
             N_CYCLES_WIDTH => 4,
@@ -265,7 +284,7 @@ begin
         end if;
     end process;
 
-    process (rst_n, current_state, trigger_ena, set_config, get_config, state_counter)
+    process (rst_n, current_state, trigger_acq, set_config, get_config, state_counter)
     begin
         state_counter_clr            <= '0';
         dec_reg_indx                 <= '0';
@@ -982,8 +1001,10 @@ begin
     event_counter   <= std_logic_vector(uevent_counter);
     
     -- Trigger acquisition:
-    --trigger_acq <= (trigger_ena_force) or (trigger_ena_ena and trigger_ena);
-    trigger_acq <= (trigger_ena_force) or (fast_or_trigger and trigger_ena);
+    trigger_acq <= force_trigger or
+                   (fast_or_trigger and fast_or_trigger_ena) or
+                   (trigger_ack and ack_trigger_ena) or
+                   (local_fast_or_trigger and local_fast_or_trigger_ena);
 
     -- DEBUG --
     state_out          <= current_state;

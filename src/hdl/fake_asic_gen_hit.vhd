@@ -1,40 +1,45 @@
--- stay_high_n_cycles
+-- fake_asic_gen_hit 
 -- This module looks for the rising edge of data_in,
 -- and upon receiving the rising edge sets data_out
 -- high, and keeps it high, for specified number of
 -- clock signals.
+-- *ACTUALLY* looks for rising edge of (data_in0 data_in1)
+-- to generate the Si-HIT_OR output on data_out...
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity stay_high_n_cycles is
+entity fake_asic_gen_hit is
     generic (
         N_CYCLES_WIDTH : integer := 8;
         N_CYCLES : integer := 5);
     port (
         clk            : in std_logic;
         rst_n          : in std_logic;
-        data_in : in std_logic;
+        data_in0 : in std_logic;
+        data_in1 : in std_logic;
     	data_out : out std_logic);
-end stay_high_n_cycles;
+end fake_asic_gen_hit;
 
-architecture arch_imp of stay_high_n_cycles is
+architecture arch_imp of fake_asic_gen_hit is
     constant IDLE : std_logic := '0';
     constant HIGH : std_logic := '1';
     
     signal current_state : std_logic := IDLE;
     signal next_state : std_logic := IDLE;
 
-    -- Save as N_CYCLES-1 to get the correct widths
-    constant COUNTER_MAX : unsigned(N_CYCLES_WIDTH-1 downto 0) := to_unsigned(N_CYCLES-1, N_CYCLES_WIDTH);
+    constant COUNTER_MAX : unsigned(N_CYCLES_WIDTH-1 downto 0) := to_unsigned(N_CYCLES, N_CYCLES_WIDTH);
     signal counter : unsigned(N_CYCLES_WIDTH-1 downto 0) := (others => '0');
     signal counter_clr : std_logic := '0';
     signal counter_ena : std_logic := '0';
 
+    signal data_in : std_logic := '0';
     signal last_data_in : std_logic := '0';
     signal data_in_rising_edge : std_logic := '0';
 
 begin
+
+    data_in <= data_in0 or data_in1;
 
     process (rst_n, clk)
     begin
