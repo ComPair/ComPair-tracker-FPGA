@@ -87,16 +87,4 @@ int CalCtrl::stop_inf_pulses() {
     return 0;
 }
 
-int CalCtrl::set_cal_dac(u32 dac_value) {
-    if (MAX_CAL_DAC_VAL < dac_value) {
-        return 1;
-    }
-    if (paxi == NULL)
-        this->mmap_axi();
-    paxi[CAL_CAL_DAC_REGOFF] = dac_value;
-    paxi[CAL_SET_DAC_REGOFF] = 1;
-    paxi[CAL_SET_DAC_REGOFF] = 0;
-    return 0;
-}
-
 // vim: set ts=4 sw=4 sts=4 et:

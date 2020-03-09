@@ -5,7 +5,11 @@ for controlling stuff on the silayer. Consists of the
 vata, cal, and dac control classes.
 
 ## To build: (someday... see note right below this)
-scp project onto the zynq, and run `make && make install`
+
+1) scp this directory onto the zynq, then ssh to the zynq and cd to the directory.
+
+2) run `aclocal` then `autoconf`
+
 
 ## Note on badness
 *Currently this must be built in the vivado SDK!!!*

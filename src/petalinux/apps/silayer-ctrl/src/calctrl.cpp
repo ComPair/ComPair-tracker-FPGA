@@ -7,14 +7,12 @@
  * -------------
  *      * 0: all good
  *      * 1: error parsing command line args
- *      * 2: invalid cal-dac value.
  */
 #include <cstring> // strcmp
 
 #include "cal_ctrl.hpp"
 
 #define CAL_PARSE_ARGS_ERR 1
-#define CAL_DAC_VAL_ERR    2
 
 void usage(char *argv0) {
     std::cout << "Usage: " << argv0 << " [OPTIONS] [PULSE-FIRE-CMDS]" << std::endl

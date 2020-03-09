@@ -8,8 +8,6 @@
 #define DEFAULT_CAL_PULSE_WIDTH  200  // 2 us
 #define DEFAULT_REPETITION_DELAY 1000 // 1 ms
 
-#define MAX_CAL_DAC_VAL 4095
-
 #define CAL_AXI_BASEADDR XPAR_AXI_CAL_PULSE_0_S00_AXI_BASEADDR
 #define CAL_AXI_HIGHADDR XPAR_AXI_CAL_PULSE_0_S00_AXI_HIGHADDR
 
@@ -19,8 +17,6 @@
 #define CAL_TRIGGER_DELAY_REGOFF 3
 #define CAL_N_PULSES_REGOFF      4
 #define CAL_REPEAT_DELAY_REGOFF  5
-#define CAL_SET_DAC_REGOFF       6
-#define CAL_CAL_DAC_REGOFF       7
 
 class CalCtrl {
     public:
@@ -30,7 +26,6 @@ class CalCtrl {
         int n_pulses(u32 n);
         int start_inf_pulses();
         int stop_inf_pulses();
-        int set_cal_dac(u32 dac_value);
         bool cal_pulse_ena;
         bool vata_trigger_ena;
         bool vata_fast_or_disable;

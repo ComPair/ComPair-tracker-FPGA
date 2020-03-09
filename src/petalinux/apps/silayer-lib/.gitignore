@@ -1,0 +1,4 @@
+configure
+aclocal.m4
+build-aux/
+autom4te.cache/
