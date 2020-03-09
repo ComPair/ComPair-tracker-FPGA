@@ -1,3 +1,185 @@
 /include/ "system-conf.dtsi"
 / {
 };
+
+/* default */
+/{
+  reg_3v3: regulator-3v3 {
+        compatible = "regulator-fixed";
+        regulator-name = "3v3-supply";
+        regulator-min-microvolt = <3300000>;
+        regulator-max-microvolt = <3300000>;
+    };
+};
+&axi_quad_spi_0 {
+        adc_a_1: spidev@0 {
+                compatible = "spidev";
+                spi-max-frequency = <1000000>;
+                reg = <0>;
+        };
+        adc_a_2:spidev@1 {
+                compatible = "spidev";
+                spi-max-frequency = <1000000>;
+                reg = <1>;
+        };
+     eeprom_a: at25@2 {
+         compatible = "atmel,at25";
+         at25,byte-len = <256>;
+         at25,addr-mode = <2>;
+         at25,page-size = <16>;
+         reg = <2>;
+         spi-max-frequency = <1000000>;
+     };
+};
+
+
+&i2c0 {
+  gpiom1: pinctrl_iic@20 {
+        compatible = "microchip,mcp23017";
+        gpio-controller;
+        #gpio-cells = <2>;
+        reg = <0x20>;
+		pull_up_mux: pinmux@2 {
+			pins = "gpio0", "gpio1", "gpio2", "gpio3","gpio4", "gpio5", "gpio6", "gpio7";
+			bias-pull-up;
+			};
+	   };
+    m24c02@50 {
+        compatible = "at,24c02";
+        reg = <0x50>;
+    };
+};
+
+
+
+&axi_quad_spi_1 {
+        adc_b_1: spidev@0 {
+                compatible = "spidev";
+                spi-max-frequency = <1000000>;
+                reg = <0>;
+        };
+        adc_b_2:spidev@1 {
+                compatible = "spidev";
+                spi-max-frequency = <1000000>;
+                reg = <1>;
+        };
+     eeprom_b: at25@2 {
+         compatible = "atmel,at25";
+         at25,byte-len = <256>;
+         at25,addr-mode = <2>;
+         at25,page-size = <16>;
+         reg = <2>;
+         spi-max-frequency = <1000000>;
+     };
+};
+
+/*
+	 		pinctrl-names = "default", "sleep";
+		pinctrl-0 = <&spi-cs-active>;
+		pinctrl-1 = <&spi-cs-sleep>;
+		
+    adc_a_1: adc@0 {
+        compatible = "ti,adc108s102";
+        reg = <0>;
+        vref-supply = <&reg_3v3>;
+        spi-max-frequency = <1000000>;
+    };
+    adc_a_2: adc@1 {
+        compatible = "ti,adc108s102";
+        reg = <1>;
+        vref-supply = <&reg_3v3>;
+        spi-max-frequency = <1000000>;
+    };
+	
+  pinctrl-0 = <&spi1_cs_pin_en>;
+  cs-gpios = <0>, <1>, <&gpiom1 15 0>;
+     eeprom0: at25@0x02 {
+         compatible = "atmel,at25";
+         at25,byte-len = <2048>;
+         at25,addr-mode = <2>;
+         at25,page-size = <16>;
+         reg = <2>;
+         spi-max-frequency = <100000>;
+     };
+	 
+	 spi1_cs_pin_en: pincfg0{
+			pins = "gpio15";
+			output-high;
+		};
+        gpio20pullups: pincfg2 {
+            pins = "gpio0", "gpio1", "gpio2", "gpio3","gpio4", "gpio5", "gpio6", "gpio7";
+            bias-pull-up;
+            };
+ 
+ 
+*/
+
+/* QSPI PHY */
+&qspi {
+    #address-cells = <1>;
+    #size-cells = <0>;
+    status = "okay";
+    flash0: flash@0 {
+        compatible = "jedec,spi-nor";
+        reg = <0x0>;
+        #address-cells = <1>;
+        #size-cells = <1>;
+    };
+};
+
+
+/* ETH PHY */
+&gem0 {
+    phy-handle = <&phy0>;
+    mdio {
+        #address-cells = <1>;
+        #size-cells = <0>;
+        phy0: phy@0 {
+            compatible = "marvell,88e1510";
+            device_type = "ethernet-phy";
+            reg = <0>;
+        };
+    };
+};
+
+/* USB PHY */
+
+/{
+    usb_phy0: usb_phy@0 {
+        compatible = "ulpi-phy";
+        //compatible = "usb-nop-xceiv";
+        #phy-cells = <0>;
+        reg = <0xe0002000 0x1000>;
+        view-port = <0x0170>;
+        drv-vbus;
+    };
+};
+
+&usb0 {
+    dr_mode = "host";
+    //dr_mode = "peripheral";
+    usb-phy = <&usb_phy0>;
+};
+
+/* I2C need I2C1 connected to te0720 system controller ip */
+&i2c1 {
+
+    iexp@20 {       // GPIO in CPLD
+        #gpio-cells = <2>;
+        compatible = "ti,pcf8574";
+        reg = <0x20>;
+        gpio-controller;
+    };
+
+    iexp@21 {       // GPIO in CPLD
+        #gpio-cells = <2>;
+        compatible = "ti,pcf8574";
+        reg = <0x21>;
+        gpio-controller;
+    };
+
+    rtc@6F {        // Real Time Clock
+        compatible = "isl12022";
+        reg = <0x6F>;
+    };
+};
