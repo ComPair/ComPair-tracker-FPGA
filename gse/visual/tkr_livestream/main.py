@@ -17,7 +17,9 @@ import itertools
 colors = itertools.cycle(palette)
 from bokeh.models.widgets import Button, Toggle
 from bokeh.models.widgets import RadioButtonGroup, DataTable, DateFormatter, TableColumn
+from bokeh.models.callbacks import CustomJS
 
+from functools import partial
 
 t0 = time.time()
 
@@ -43,7 +45,7 @@ def connect_to_host(host="si-layer.local", data_port=9998):
 
 socket = None #
 
-
+interesting_channels = [0, 1, 2]
 
 ############## 
 # Main plot update loop
@@ -54,6 +56,8 @@ def patch_plots():
     global socket
     global GO
     global event_number
+    global interesting_channels
+
 
     if GO:
         #print("Callback")
@@ -83,10 +87,7 @@ def patch_plots():
         channel_ds.data['values'] = ap.data
         binned_data_ds.patch(patches)
         timestream_ds.stream(timeseries, rollover=250)    
-        #print(timeseries['time'])
-        
-        #Downscale updating of rolling average. 
-        #if i %10 == 0 and i != 0:
+
         stats_patches = {}
 
         stats_patches['mean'] = []
@@ -101,8 +102,13 @@ def patch_plots():
 
         stats_ds.patch(stats_patches)
 
+#        for ch in range(32):
+#            stats_ds.data['mean'] = [calc_mean(bin_centers, binned_data_ds.data[f'ch{ch:02d}']) for ch in range(32)]
+#            stats_ds.data['sigma'] = [np.sqrt(calc_var(bin_centers, binned_data_ds.data[f'ch{ch:02d}'])) for ch in range(32)]
+#            stats_ds.data['N'] = [np.sum(binned_data_ds.data[f'ch{ch:02d}']) for ch in range(32)]
 
-
+#### For testing only.
+n_ASICs = 2
 
 ################################
 # Construct datasources.
@@ -163,20 +169,32 @@ data_table = DataTable(source=stats_ds, columns=columns, width=400, height=280,
 
 
 ###### Connections
-def click_connect(button):
+def click_connect(button, start_daq_button):
     global layer_server_ip_input
-    global socket 
+    global socket
+    global GO
+    #global start_daq_button
 
     if socket is None:
         socket = connect_to_host(layer_server_ip_input.value)
         button.button_type = 'success'
         button.label = "CONNECTED"
+        start_daq_button.disabled = False
         print(layer_server_ip_input.value)
         print(socket)
     else:
         socket.close()
         button.button_type = 'warning'
         button.label = "CONNECT"
+
+        #Update DAQ button.
+        start_daq_button.disabled = True
+        start_daq_button.button_type = 'danger'
+        start_daq_button.label = "STOPPED"
+        GO = False
+
+
+
         socket = None
 
 #layer_server_ip = "10.10.0.11"
@@ -184,9 +202,7 @@ layer_server_ip = "localhost"
 
 layer_server_ip_input = TextInput(value=layer_server_ip, title="Data source IP")
 connect_buttion = Button(label='Connect', button_type="success")
-connect_buttion.on_click(lambda : click_connect(connect_buttion))
-
-
+connect_buttion.on_click(lambda : click_connect(connect_buttion, start_daq_button))
 
 ###### DAQ button
 def start_DAQ(button):
@@ -196,9 +212,7 @@ def start_DAQ(button):
 
     nclick += 1
     if socket is not None:
-        if GO:
-
-            
+        if GO:          
             button.button_type = 'danger'
             GO = False
         else:
@@ -208,7 +222,7 @@ def start_DAQ(button):
         
         button.label = "RUNNING" if GO else "STOPPED"
 
-start_daq_button = Button(label='STOPPED', button_type='warning')
+start_daq_button = Button(label='STOPPED', button_type='warning', disabled=True)
 
 GO = False
 nclick = 0
@@ -217,10 +231,25 @@ start_daq_button.on_click(lambda : start_DAQ(start_daq_button))
 
 inputs = column(column(layer_server_ip_input,connect_buttion), start_daq_button)
 
-ASIC_layout = layout(column(ch_display, row(hist_display, ts_display), data_table))
-display_list = [ASIC_layout for i in range(12)]
-ASIC_tabs = Tabs(tabs=[Panel(child=display_list[i], title=f'ASIC {i:02d}') for i in range(12)])
+ASIC_layout = layout(row(column(ch_display, row(hist_display, ts_display)), data_table))
+display_list = [ASIC_layout for i in range(n_ASICs)]
 
+
+ASIC_tabs = Tabs(tabs=[Panel(child=display_list[i], title=f'ASIC {i:02d}') for i in range(len(display_list))])
+
+
+#ASIC_tabs.js_on_change("active", CustomJS(args=dict(tabs=ASIC_tabs), code="""
+#           if (typeof(previously_active) == "undefined") {
+#                previously_active = 0
+#           }
+#           
+#           tabs.tabs[tabs.active].child.visible = true
+#           tabs.tabs[previously_active].child.visible = false
+#           previously_active = tabs.active
+#        """))
+
+
+#ASIC_tabs
 #ist_display_list = [make_channel_binner(binned_data_ds, [i]) for i in range(n_ch)]
 #show(Tabs(tabs=[Panel(child=hist_display_list[i], title=f'ch{i:02d}') for i in range(3)]))
 #ASIC_panels = [Panel()]
