@@ -11,27 +11,49 @@
         regulator-max-microvolt = <3300000>;
     };
 };
-&axi_quad_spi_0 {
+
+
+
+
+&spi0 {
         adc_a_1: spidev@0 {
                 compatible = "spidev";
                 spi-max-frequency = <1000000>;
                 reg = <0>;
         };
-        adc_a_2:spidev@1 {
+        adc_a_2: spidev@1 {
                 compatible = "spidev";
                 spi-max-frequency = <1000000>;
                 reg = <1>;
         };
      eeprom_a: at25@2 {
          compatible = "atmel,at25";
-         at25,byte-len = <256>;
+         reg = <2>;
+         spi-max-frequency = <1000000>;
+         at25,byte-len = <2048>;
          at25,addr-mode = <2>;
          at25,page-size = <16>;
+     };
+};
+
+
+&spi1 {
+        adc_b_1: spidev@0 {
+                compatible = "spidev";
+                spi-max-frequency = <1000000>;
+                reg = <0>;
+        };
+        adc_b_2: spidev@1 {
+                compatible = "spidev";
+                spi-max-frequency = <1000000>;
+                reg = <1>;
+        };
+     eeprom_b: at25@2 {
+         compatible = "atmel,at25";
          reg = <2>;
          spi-max-frequency = <1000000>;
      };
 };
-
 
 &i2c0 {
   gpiom1: pinctrl_iic@20 {
@@ -49,30 +71,6 @@
         reg = <0x50>;
     };
 };
-
-
-
-&axi_quad_spi_1 {
-        adc_b_1: spidev@0 {
-                compatible = "spidev";
-                spi-max-frequency = <1000000>;
-                reg = <0>;
-        };
-        adc_b_2:spidev@1 {
-                compatible = "spidev";
-                spi-max-frequency = <1000000>;
-                reg = <1>;
-        };
-     eeprom_b: at25@2 {
-         compatible = "atmel,at25";
-         at25,byte-len = <256>;
-         at25,addr-mode = <2>;
-         at25,page-size = <16>;
-         reg = <2>;
-         spi-max-frequency = <1000000>;
-     };
-};
-
 /*
 	 		pinctrl-names = "default", "sleep";
 		pinctrl-0 = <&spi-cs-active>;
