@@ -4128,7 +4128,7 @@ CONFIG_imagefeature-hwcodecs=y
 #
 # CONFIG_gpio-demo is not set
 # CONFIG_peekpoke is not set
-CONFIG_vatactrl=y
+# CONFIG_vatactrl is not set
 
 #
 # user packages 
