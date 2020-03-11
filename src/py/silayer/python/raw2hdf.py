@@ -174,6 +174,10 @@ class AsicPacket(object):
             bits = bytes2bits(data)
             self.parse_bits(bits)
 
+    def __repr__(self):
+        digs = [ f"{data:04d}" for data in self.data ]
+        return f"AsicPacket<{'|'.join(digs)}>"
+
     def parse_bits(self, bits):
         for field, nbits in self._DATA_LAYOUT:
             field_bits = bits[:nbits]
@@ -199,9 +203,10 @@ class AsicPacket(object):
         self.channel_status = bits[1:-1]
         self.cm_status = bits[-1]
 
-    def to_bits(self):
+    def to_bits(self, pad=True):
         """
         Return the bits for this asic data packet.
+        Pads out to whole-bytes if pad is True
         """
         bits = []
         for field, nbits in self._DATA_LAYOUT:
@@ -214,6 +219,9 @@ class AsicPacket(object):
                 bits += [self.dummy_status] + self.channel_status + [self.cm_status]
             else:
                 bits += byte2bits(getattr(self, field), nbits=nbits)
+        if pad and (len(bits) % 8) != 0:
+            npad = 8 - (len(bits) % 8)
+            bits += npad * [0]
         return bits
 
     @classmethod
@@ -266,6 +274,9 @@ class DataPacket(object):
             self.parse_asic_data(self.parse_header(data))
             ##self.packet_size = 91  ## XXX KLUDGE XXX FIXME XXX
 
+    def __repr__(self):
+        return f"DataPacket<event_type={self.event_type},event_counter={self.event_counter},n_asic={self.nasic}>"
+
     def parse_header(self, data):
         """
         Read header data, and set the corresponding attributes of `self`.
@@ -295,7 +306,7 @@ class DataPacket(object):
                 data = data[nbytes:]
         return data
 
-    def to_bytes(self):
+    def to_bytes(self, return_bits=False):
         """
         This will return the bytes for the data packet.
         XXX NOT TESTED AT ALL YET!!!!! XXX
@@ -307,8 +318,11 @@ class DataPacket(object):
         for i in range(self.nasic):
             bits += byte2bits(self.asic_nbytes[i], nbits=8 * self._ASIC_NDATA_SZ)
         for ap in self.asic_packets:
-            bits += ap.to_bits()
-        return bits2bytes(bits)
+            bits += ap.to_bits(pad=True)
+        if return_bits:
+            return bits
+        else:
+            return bits2bytes(bits)
 
 
 class DataPackets(object):
