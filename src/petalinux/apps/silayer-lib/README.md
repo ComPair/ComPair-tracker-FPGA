@@ -8,7 +8,7 @@ vata, cal, and dac control classes.
 
 1) scp this directory onto the zynq, then ssh to the zynq and cd to the directory.
 
-2) run `aclocal` then `autoconf`
+2) run `make && make install`
 
 
 ## Note on badness
