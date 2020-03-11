@@ -11,7 +11,7 @@ CXXFLAGS = -std=c++11 -Wall -I./include -I$(ZYNQ_DIR)/include
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	ar rcs $@ $<
+	ar rcs $@ $^
 
 install: $(TARGET)
 	install -d $(ZYNQ_DIR)/include
