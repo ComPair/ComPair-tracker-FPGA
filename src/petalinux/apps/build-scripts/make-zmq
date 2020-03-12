@@ -36,4 +36,13 @@ ssh ${SILAYER} "cd ${DEST_DIR}/${ZMQ_SRCDIR} && ./configure --prefix=/home/root/
 rm $ZMQ_TARBALL
 rm -r $ZMQ_SRCDIR
 
+## Now get zmq.hpp
+wget https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq.hpp 1>/dev/null 2>/dev/null
+if [ ! -f "zmq.hpp" ]; then
+    echo "ERROR: zmq.hpp was not downloaded"
+    exit 4
+fi
+scp zmq.hpp ${SILAYER}:/home/root/local/include/
+rm zmq.hpp
+
 ## vim: set ts=4 sw=4 sts=4 et:
