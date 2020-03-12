@@ -17,6 +17,13 @@ if ! ping -c 1 -w 1 $IP_ADDR 1>/dev/null; then
 fi
 
 BSP_DIR=$(pwd)/../../../../work/$BUILD/zynq/zynq.sdk/bsp_petalinux/ps7_cortexa9_0/include/
+
+if [ ! -d $BSP_DIR ]; then
+    echo "BSP directory not found"
+    echo "Check BUILD in Makefile, or build the petalinux_bsp"
+    exit 3 
+fi
+
 DEST_DIR=/home/root/zynq/include/bsp/
 ETC_DIR=/home/root/zynq/etc/
 

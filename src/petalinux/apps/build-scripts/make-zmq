@@ -1,0 +1,39 @@
+#!/bin/bash
+ZMQ_VERSION="4.3.2" ## This is the latest zmq version
+ZMQ_SRCDIR=zeromq-${ZMQ_VERSION}
+ZMQ_TARBALL=${ZMQ_SRCDIR}.tar.gz
+
+if [ -z "$1" ]; then 
+    echo "Usage: $0 ZYNQ-IP-ADDR"
+    exit 1
+fi
+
+IP_ADDR=$1
+
+if ! ping -c 1 -w 1 $IP_ADDR 1>/dev/null; then
+    echo "Could not ping $IP_ADDR"
+    echo "Check SILAYER_IP in Makefile"
+    exit 2 
+fi
+SILAYER=root@${IP_ADDR} 
+
+wget https://github.com/zeromq/libzmq/releases/download/v${ZMQ_VERSION}/zeromq-${ZMQ_VERSION}.tar.gz 1>/dev/null 2>/dev/null
+
+if [ ! -f $ZMQ_TARBALL ]; then
+    echo "ERROR: ZMQ tarball wasn't downloaded?"
+    exit 3
+fi
+
+DEST_DIR=/home/root/local/src/
+ssh ${SILAYER} "if [ ! -d ${DEST_DIR} ]; then mkdir -p ${DEST_DIR}; fi"
+
+tar -xvf $ZMQ_TARBALL 1>/dev/null
+scp -r $ZMQ_SRCDIR ${SILAYER}:$DEST_DIR 1>/dev/null
+
+## Issue with incorrect automake version, which shouldn't matter. Hence the AUTOCONF=:... in the make command
+ssh ${SILAYER} "cd ${DEST_DIR}/${ZMQ_SRCDIR} && ./configure --prefix=/home/root/local && make AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=: && make install"
+
+rm $ZMQ_TARBALL
+rm -r $ZMQ_SRCDIR
+
+## vim: set ts=4 sw=4 sts=4 et:
