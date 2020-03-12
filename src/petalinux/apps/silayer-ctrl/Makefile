@@ -2,7 +2,7 @@ CC = g++
 
 ZYNQ_DIR = $(HOME)/zynq
 
-CXXFLAGS = -std=c++11 -Wall -I./include -I$(ZYNQ_DIR)/include
+CXXFLAGS = -std=c++11 -Wall -I./include -I$(ZYNQ_DIR)/include/bsp -I$(ZYNQ_DIR)/include
 LDFLAGS = -L$(ZYNQ_DIR)/lib -lsictrl
 
 TARGETS = calctrl dacctrl vatactrl

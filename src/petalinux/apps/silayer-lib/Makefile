@@ -5,7 +5,7 @@ OBJS = src/cal_ctrl.o src/dac_ctrl.o src/vata_ctrl.o
 
 ZYNQ_DIR = $(HOME)/zynq
 
-CXXFLAGS = -std=c++11 -Wall -I./include -I$(ZYNQ_DIR)/include
+CXXFLAGS = -std=c++11 -Wall -I./include -I $(ZYNQ_DIR)/include/bsp -I$(ZYNQ_DIR)/include
 
 
 all: $(TARGET)
@@ -27,7 +27,6 @@ src/dac_ctrl.o: src/dac_ctrl.cpp
 
 src/vata_ctrl.o: src/vata_ctrl.cpp
 	$(CC) $(CXXFLAGS) -o $@ -c $^ 
-
 
 clean:
 	$(RM) src/*.o *~

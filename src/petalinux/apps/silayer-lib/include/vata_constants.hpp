@@ -29,9 +29,9 @@
 #define AXI0_CTRL_GET_CONF              1
 #define AXI0_CTRL_TRIGGER_INT_CAL       2
 #define AXI0_CTRL_POWER_CYCLE           3
-#define AXI0_CTRL_RST_COUNTERS          4
-#define AXI0_CTRL_RST_EV_COUNT          5
-#define AXI0_CTRL_FORCE_TRIGGER         6
+//#define AXI0_CTRL_RST_COUNTERS          4
+#define AXI0_CTRL_RST_EV_COUNT          4
+#define AXI0_CTRL_FORCE_TRIGGER         5
 
 // Trigger enable mask bit mapping
 #define TRIGGER_ENA_MASK_LEN            3 // Only 3 values at this point considered
