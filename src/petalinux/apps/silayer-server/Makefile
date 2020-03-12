@@ -1,7 +1,7 @@
 ##CXX_FLAGS = -std=c++11 -I$(HOME)/local/include -I$(HOME)/include -Wall
 ZYNQ = $(HOME)/zynq
 LOCAL = $(HOME)/local
-CXX_FLAGS = -std=c++11 -I$(LOCAL)/include -I$(ZYNQ)/include -I$(ZYNQ)/include/xil -Wall
+CXX_FLAGS = -std=c++11 -I$(LOCAL)/include -I$(ZYNQ)/include -I$(ZYNQ)/include/bsp -Wall
 TARGETS = silayer_server
 
 LD_FLAGS = -L$(ZYNQ)/lib -L$(LOCAL)/lib
@@ -24,5 +24,11 @@ silayer_server_main.o: silayer_server_main.cpp
 silayer_server: data_packet.o data_emitter.o silayer_server.o silayer_server_main.o
 	g++ -o $@ $(LD_FLAGS) $^ $(SERVER_LIBS) -pthread
 
+install: $(TARGETS)
+	install -d $(ZYNQ)/bin
+	install -m 755 silayer_server $(ZYNQ)/bin
+
 clean:
 	$(RM) *~ *.o
+
+.PHONY: clean

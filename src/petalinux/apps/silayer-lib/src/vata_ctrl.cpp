@@ -198,7 +198,8 @@ int VataCtrl::get_counters(u64 &running, u64 &live) {
 int VataCtrl::reset_counters() {
     if (paxi == NULL)
         this->mmap_axi();
-    paxi[0] = AXI0_CTRL_RST_COUNTERS;
+    //paxi[0] = AXI0_CTRL_RST_COUNTERS;
+    std::cout << "WARNING: RESET COUNTERS IS GOING AWAY! NO ACTION TAKEN" << std::endl;
     return 0;
 }
 
