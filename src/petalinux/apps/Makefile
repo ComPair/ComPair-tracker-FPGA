@@ -1,8 +1,12 @@
-
 BUILD = dbe_production
 SILAYER_IP = 192.168.1.69
 
 all: server
+
+## This one takes a while. Currently not automatically
+## run when building server, although it is a dependency.
+zmq:
+	cd build-scripts && ./make-zmq $(SILAYER_IP)
 
 server: ctrl
 	cd build-scripts && ./make-server $(SILAYER_IP)
@@ -13,6 +17,7 @@ ctrl: lib
 lib: zynq-dirs
 	cd build-scripts && ./make-lib $(SILAYER_IP)
 
+## This will scp over the bps headers.
 zynq-dirs:
 	cd build-scripts && ./make-zynq-dirs $(BUILD) $(SILAYER_IP)
 
