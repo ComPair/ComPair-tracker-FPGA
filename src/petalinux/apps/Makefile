@@ -3,8 +3,9 @@ SILAYER_IP = 192.168.1.69
 
 all: server
 
-## This one takes a while. Currently not automatically
-## run when building server, although it is a dependency.
+## This one takes a while (~15 minutes).
+## Currently not automatically run when building server,
+## although it is a dependency of the server.
 zmq:
 	cd build-scripts && ./make-zmq $(SILAYER_IP)
 

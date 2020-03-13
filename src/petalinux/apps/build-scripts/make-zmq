@@ -1,4 +1,7 @@
 #!/bin/bash
+## This script will download zeromq version 4.3.2 and build+install on the zynq.
+## cppzmq (c++ header-only code) will then be downloaded, version 4.6.0, and installed.
+
 ZMQ_VERSION="4.3.2" ## This is the latest zmq version
 ZMQ_SRCDIR=zeromq-${ZMQ_VERSION}
 ZMQ_TARBALL=${ZMQ_SRCDIR}.tar.gz
@@ -30,14 +33,16 @@ ssh ${SILAYER} "if [ ! -d ${DEST_DIR} ]; then mkdir -p ${DEST_DIR}; fi"
 tar -xvf $ZMQ_TARBALL 1>/dev/null
 scp -r $ZMQ_SRCDIR ${SILAYER}:$DEST_DIR 1>/dev/null
 
-## Issue with incorrect automake version, which shouldn't matter. Hence the AUTOCONF=:... in the make command
-ssh ${SILAYER} "cd ${DEST_DIR}/${ZMQ_SRCDIR} && ./configure --prefix=/home/root/local && make AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=: && make install"
+## Issue with incorrect automake version during make, which shouldn't matter.
+## Hence the autoconf hack:
+AUTOCONF_HACK="AUTOCONF=: AUTOHEADER=: AUTOMAKE=: ACLOCAL=:"
+ssh ${SILAYER} "cd ${DEST_DIR}/${ZMQ_SRCDIR} && ./configure --prefix=/home/root/local && make -j2 ${AUTOCONF_HACK} && make install ${AUTOCONF_HACK}"
 
 rm $ZMQ_TARBALL
 rm -r $ZMQ_SRCDIR
 
-## Now get zmq.hpp
-wget https://raw.githubusercontent.com/zeromq/cppzmq/master/zmq.hpp 1>/dev/null 2>/dev/null
+## Now get zmq.hpp, v4.6.0 (latest version as of 3/12/2020)
+wget https://github.com/zeromq/cppzmq/blob/v4.6.0/zmq.hpp 1>/dev/null 2>/dev/null
 if [ ! -f "zmq.hpp" ]; then
     echo "ERROR: zmq.hpp was not downloaded"
     exit 4
