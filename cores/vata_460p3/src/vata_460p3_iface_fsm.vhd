@@ -43,7 +43,7 @@ entity vata_460p3_iface_fsm is
                 cald                  : out std_logic;
                 caldb                 : out std_logic;
                 counter_rst           : in std_logic;
-                running_counter       : out std_logic_vector(63 downto 0);
+                running_counter       : in std_logic_vector(63 downto 0);
                 live_counter          : out std_logic_vector(63 downto 0);
                 event_counter_rst     : in std_logic;
                 event_counter         : out std_logic_vector(31 downto 0);
@@ -191,7 +191,7 @@ architecture arch_imp of vata_460p3_iface_fsm is
     signal FEE_hit0     : std_logic := '0';
     signal FEE_busy_buf : std_logic;
 
-    signal urunning_counter : unsigned(63 downto 0) := (others => '0');
+    --signal urunning_counter : unsigned(63 downto 0) := (others => '0');
     signal ulive_counter    : unsigned(63 downto 0) := (others => '0');
     signal uevent_counter   : unsigned(31 downto 0) := (others => '0');
     signal inc_event_counter : std_logic := '0';
@@ -958,7 +958,7 @@ begin
     process (rst_n, counter_rst, clk_100MHz)
     begin
         if rst_n = '0' or counter_rst = '1' then
-            urunning_counter <= (others => '0');
+            --urunning_counter <= (others => '0');
             ulive_counter <= (others => '0');
         elsif rising_edge(clk_100MHz) then
             if current_state = IDLE then
@@ -966,7 +966,7 @@ begin
             else
                 ulive_counter <= ulive_counter;
             end if;
-            urunning_counter <= urunning_counter + to_unsigned(1, urunning_counter'length);
+            --urunning_counter <= urunning_counter + to_unsigned(1, urunning_counter'length);
         end if;
     end process;
 
@@ -986,7 +986,8 @@ begin
         if rst_n = '0' then
             event_time <= (others => '0');
         elsif set_event_time = '1' then
-            event_time <= std_logic_vector(urunning_counter);
+            --event_time <= std_logic_vector(urunning_counter);
+            event_time <= running_counter;
         else
             event_time <= event_time;
         end if;
@@ -996,7 +997,7 @@ begin
     vata_s1 <= vata_mode(1);
     vata_s2 <= vata_mode(2);
 
-    running_counter <= std_logic_vector(urunning_counter);
+    --running_counter <= std_logic_vector(urunning_counter);
     live_counter    <= std_logic_vector(ulive_counter);
     event_counter   <= std_logic_vector(uevent_counter);
     

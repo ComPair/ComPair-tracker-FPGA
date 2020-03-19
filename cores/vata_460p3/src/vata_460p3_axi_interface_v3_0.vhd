@@ -19,6 +19,8 @@ entity vata_460p3_axi_interface_v3_0 is
         fast_or_trigger         : in std_logic;
         local_fast_or_trigger   : in std_logic;
         --force_trigger           : in std_logic;
+        global_counter          : in std_logic_vector(63 downto 0);
+        global_counter_rst      : in std_logic;
         disable_fast_or_trigger : in std_logic;
         FEE_hit                 : out std_logic;
         FEE_ready               : out std_logic;
@@ -171,7 +173,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             cald                    : out std_logic;
             caldb                   : out std_logic;
             counter_rst             : in std_logic;
-            running_counter         : out std_logic_vector(63 downto 0);
+            running_counter         : in std_logic_vector(63 downto 0);
             live_counter            : out std_logic_vector(63 downto 0);
             event_counter_rst       : in std_logic;
             event_counter           : out std_logic_vector(31 downto 0);
@@ -224,8 +226,8 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     signal power_cycle_timer     : std_logic_vector(31 downto 0);
     signal trigger_ack_timeout   : std_logic_vector(31 downto 0);
     signal trigger_ena_mask      : std_logic_vector(3 downto 0);
-    signal counter_rst           : std_logic := '0';
-    signal running_counter       : std_logic_vector(63 downto 0);
+    --signal counter_rst           : std_logic := '0';
+    --signal running_counter       : std_logic_vector(63 downto 0);
     signal live_counter          : std_logic_vector(63 downto 0);
     signal event_counter_rst     : std_logic := '0';
     signal event_counter         : std_logic_vector(31 downto 0);
@@ -251,7 +253,7 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
         FAST_OR_TRIGGER_ENA => fast_or_trigger_ena,
         ACK_TRIGGER_ENA     => ack_trigger_ena,
         LOCAL_FAST_OR_TRIGGER_ENA => local_fast_or_trigger_ena,
-        RUNNING_COUNTER     => running_counter,
+        RUNNING_COUNTER     => global_counter,
         LIVE_COUNTER        => live_counter,
         EVENT_COUNTER       => event_counter,
         S_AXI_ACLK      => s00_axi_aclk,
@@ -321,8 +323,8 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             data_tdata        => data_tdata,
             cald              => cald,
             caldb             => caldb,
-            counter_rst       => counter_rst,
-            running_counter   => running_counter,
+            counter_rst       => global_counter_rst,
+            running_counter   => global_counter,
             event_counter_rst => event_counter_rst,
             event_counter     => event_counter,
             live_counter      => live_counter,
@@ -365,9 +367,9 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
     get_config          <= ctrl_triggers(1);
     int_cal_trigger     <= ctrl_triggers(2);
     trigger_power_cycle <= ctrl_triggers(3);
-    counter_rst         <= ctrl_triggers(4);
-    event_counter_rst   <= ctrl_triggers(5);
-    force_trigger       <= ctrl_triggers(6);
+    --counter_rst         <= ctrl_triggers(4);
+    event_counter_rst   <= ctrl_triggers(4);
+    force_trigger       <= ctrl_triggers(5);
 
     -- Debug
     trigger_ack_timeout_out <= trigger_ack_timeout;
