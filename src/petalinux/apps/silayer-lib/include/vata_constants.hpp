@@ -5,8 +5,8 @@
 
 // This uses the fact that number of MM-S Fifo's matches number of VATA's:
 // XXX UPDATE TO SOMETHING BETTER!!!!
-//#define N_VATA XPAR_XLLFIFO_NUM_INSTANCES
-#define N_VATA 3
+#define N_VATA XPAR_XLLFIFO_NUM_INSTANCES
+//#define N_VATA 3
 
 #define N_CFG_REG 17
 

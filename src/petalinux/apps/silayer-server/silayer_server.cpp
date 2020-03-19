@@ -680,6 +680,49 @@ int LayerServer::_process_dac_msg(char *msg) {
     return 0;
 }
 
+
+/* Get the synchronous counter value and send it out.
+ *  Returns 0.
+ */
+int LayerServer::_sync_get_counter() {
+    u64 counter = syncctrl.get_counter();
+    #ifdef VERBOSE
+    std::cout << "Sync counter: " << counter << std::endl;
+    #endif
+    zmq::message_t response(sizeof(u64));
+    std::memcpy(response.data(), &counter, sizeof(u64));
+    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
+/************************************
+ * Process sync message
+ * 
+ * sync counter-reset
+ * sync get-counter
+ * Nothing else.
+ ***********************************/
+int LayerServer::_process_sync_msg(char *msg) {
+    // Initialize strtok...
+    strtok(msg, " ");
+    // Now get next token. Should be the subcommand
+    char *cmd = strtok(NULL, " ");
+    if (strncmp("counter-reset", cmd, 13) == 0) {
+        syncctrl.counter_reset();
+    } else if (strncmp("get-counter", cmd, 11) == 0) {
+        // Get and send off counter...
+        _sync_get_counter();
+        return 0;
+    } else {
+        const char retmsg[] = "ERROR: unsupported sync command.";
+        _send_msg(retmsg, sizeof(retmsg));
+        return 1;
+    }
+    const char retmsg[] = "ok";
+    _send_msg(retmsg, sizeof(retmsg));
+    return 0;
+}
+
 int LayerServer::_process_vata_msg(char *msg) {
      // Initialize strtok...
     strtok(msg, " ");
@@ -826,6 +869,11 @@ int LayerServer::process_req() {
         std::cout << "Processing dac message." << std::endl;
         #endif
         retval = _process_dac_msg(c_req);
+    } else if (strncmp("sync", c_req, 4) == 0) {
+        #ifdef VERBOSE
+        std::cout << "Processing sync message." << std::endl;
+        #endif
+        retval = _process_sync_msg(c_req);
     } else if (strncmp("vata", c_req, 4) == 0) {
         #ifdef VERBOSE
         std::cout << "Processing vata message." << std::endl;

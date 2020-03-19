@@ -104,7 +104,7 @@ class Client:
         msg = f"vata {vata} get-hold"
         return self.send_recv_uint(msg, nbytes_returned=4)
 
-    def get_counters(self, vata):
+    def get_vata_counters(self, vata):
         """
         Return the running-time, live-time for the given asic.
         """
@@ -113,11 +113,11 @@ class Client:
             raise ValueError(f"Response: {ret.decode()}. Unexpected Length.")
         return bytes2val(ret[:8]), bytes2val(ret[8:])
 
-    def reset_counters(self, vata):
-        """
-        Reset the running and live-time counters for the given asic.
-        """
-        return self.send_recv(f"vata {vata} reset-counters")
+    ##def reset_counters(self, vata):
+    ##    """
+    ##    Reset the running and live-time counters for the given asic.
+    ##    """
+    ##    return self.send_recv(f"vata {vata} reset-counters")
 
     def trigger_enable(self, vata):
         """
@@ -200,6 +200,18 @@ class Client:
         Set the external cal dac value.
         """
         return self.send_recv(f"cal set-dac {dac}")
+
+    def sync_counter_reset(self):
+        """
+        Reset the global, synchronous counter
+        """
+        return self.send_recv("sync counter-reset")
+
+    def sync_counter(self):
+        """
+        Get the current synchronous counter value"
+        """
+        return self.send_recv_uint("sync get-counter", nbytes_returned=8)
 
     def start_data_stream(self, fname):
         """
