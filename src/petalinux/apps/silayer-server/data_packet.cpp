@@ -45,11 +45,21 @@ bool DataPacket::read_vata_data(int i, VataCtrl *vatas) {
 }
 
 u8 DataPacket::get_header_size() {
+    /* Header consists of:
+     *  > header-size   ( u8)
+     *  > flags         (u16)
+     *  > real_time     (u64)
+     *  > live_time     (u64)
+     *  > event_type    (u16)
+     *  > event_counter (u32)
+     *  >             = 1 + 2 + 8 + 8 + 2 + 4 = 25
+     */
     return (u8)25;
 }
 
 u16 DataPacket::get_packet_size() {
-    u16 packet_size = 28 + N_VATA; // packet-size + header + n-asic + n-data[]
+    //u16 packet_size = 28 + 2*N_VATA; // packet-size (2) + header (25) + n-asic (1) + n-data[] (2*N_VATA)
+    u16 packet_size = ((u16)sizeof(u16)) + ((u16)get_header_size()) + N_VATA*((u16)sizeof(u16));
     for (int i=0; i<(int)N_VATA; i++) {
         packet_size += ndata[i];
     }
