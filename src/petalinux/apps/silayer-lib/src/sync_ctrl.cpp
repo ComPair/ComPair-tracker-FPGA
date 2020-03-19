@@ -54,9 +54,11 @@ void SyncCtrl::counter_reset() {
 }
 
 u64 SyncCtrl::get_counter() {
-    u64 counter;
-    memcpy(&counter, paxi + SYNC_COUNTER_REGOFF, sizeof(u64));
-    return counter;
+    if (paxi == NULL)
+        this->mmap_axi();
+    u64 *pcounter;
+    pcounter = (u64*)(paxi + SYNC_COUNTER_REGOFF);
+    return *pcounter;
 }
 
 // vim: set ts=4 sw=4 sts=4 et:
