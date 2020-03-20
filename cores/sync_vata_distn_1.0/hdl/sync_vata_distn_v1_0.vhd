@@ -16,6 +16,7 @@ entity sync_vata_distn_v1_0 is
         -- Users to add ports here
         global_counter     : out std_logic_vector(63 downto 0);
         global_counter_rst : out std_logic;
+        force_trigger      : out std_logic;
 
         -- User ports ends
         -- Do not modify the ports beyond this line
@@ -53,8 +54,9 @@ architecture arch_imp of sync_vata_distn_v1_0 is
         generic ( C_S_AXI_DATA_WIDTH  : integer   := 32
                 ; C_S_AXI_ADDR_WIDTH  : integer   := 5
                 );
-        port ( counter       : in std_logic_vector(63 downto 0)
-             ; counter_rst : out std_logic
+        port ( counter         : in std_logic_vector(63 downto 0)
+             ; counter_rst     : out std_logic
+             ; force_trigger   : out std_logic
                -- The other ports:
              ; S_AXI_ACLK      : in std_logic
              ; S_AXI_ARESETN   : in std_logic
@@ -101,7 +103,8 @@ begin
         )
     port map 
         ( counter         => counter_buf
-        , counter_rst   => global_counter_rst  
+        , counter_rst     => global_counter_rst  
+        , force_trigger   => force_trigger
         , S_AXI_ACLK      => s00_axi_aclk
         , S_AXI_ARESETN   => s00_axi_aresetn
         , S_AXI_AWADDR    => s00_axi_awaddr

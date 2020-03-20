@@ -15,8 +15,9 @@ entity sync_vata_distn_v1_0_S00_AXI is
     );
     port (
         -- Users to add ports here
-        counter : in std_logic_vector(63 downto 0);
-        counter_rst : out std_logic;
+        counter       : in std_logic_vector(63 downto 0);
+        counter_rst   : out std_logic;
+        force_trigger : out std_logic;
 
         -- User ports ends
         -- Do not modify the ports beyond this line
@@ -100,7 +101,8 @@ architecture arch_imp of sync_vata_distn_v1_0_S00_AXI is
              ; triggers    : out std_logic_vector(N_TRIGGERS-1 downto 0)
          );
     end component control_register_triggers;
-    signal control_triggers : std_logic_vector(0 downto 0);
+    constant N_CONTROL_TRIGGERS : integer := 2;
+    signal control_triggers : std_logic_vector(N_CONTROL_TRIGGERS-1 downto 0);
             
 
     -- AXI4LITE signals
@@ -460,7 +462,7 @@ begin
     control_register_triggers_inst : control_register_triggers
         generic map ( AXI_DATA_WIDTH     => C_S_AXI_DATA_WIDTH
                     , AXI_ADDR_WIDTH     => C_S_AXI_ADDR_WIDTH
-                    , N_TRIGGERS         => 1
+                    , N_TRIGGERS         => N_CONTROL_TRIGGERS
                     , AXI_AWADDR_CONTROL => 0
                     )
         port map ( axi_aclk    => S_AXI_ACLK
@@ -471,7 +473,8 @@ begin
                  , triggers    => control_triggers
                  );
 
-    counter_rst <= control_triggers(0);
+    counter_rst   <= control_triggers(0);
+    force_trigger <= control_triggers(1);
 
     -- User logic ends
 
