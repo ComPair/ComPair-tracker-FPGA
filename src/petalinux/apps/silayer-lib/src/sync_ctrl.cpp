@@ -5,6 +5,16 @@
 
 #include "sync_ctrl.hpp"
 
+namespace sync_regoffs {
+    int cmd = 0;
+    int counter = 1;
+};
+
+namespace sync_cmds {
+    u32 counter_rst = 0;
+    u32 force_trigger = 1;
+};
+
 // There should be only a single calibrator.
 SyncCtrl::SyncCtrl() {
     axi_baseaddr = SYNC_AXI_BASEADDR;
@@ -50,15 +60,24 @@ void SyncCtrl::counter_reset() {
     if (paxi == NULL)
         this->mmap_axi();
     // Write the configuration settings...
-    paxi[SYNC_CMD_REGOFF] = SYNC_COUNTER_RST_CMD;
+    //paxi[SYNC_CMD_REGOFF] = SYNC_COUNTER_RST_CMD;
+    paxi[sync_regoffs::cmd] = sync_cmds::counter_rst;
 }
 
 u64 SyncCtrl::get_counter() {
     if (paxi == NULL)
         this->mmap_axi();
     u64 *pcounter;
-    pcounter = (u64*)(paxi + SYNC_COUNTER_REGOFF);
+    //pcounter = (u64*)(paxi + SYNC_COUNTER_REGOFF);
+    pcounter = (u64*)(paxi + sync_regoffs::counter);
     return *pcounter;
+}
+
+void SyncCtrl::force_trigger() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    //paxi[SYNC_CMD_REGOFF] = SYNC_FORCE_TRIGGER_CMD;
+    paxi[sync_regoffs::cmd] = sync_cmds::force_trigger;
 }
 
 // vim: set ts=4 sw=4 sts=4 et:

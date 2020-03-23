@@ -281,7 +281,7 @@ proc create_root_design { parentCell } {
    CONFIG.C_DATA_DEPTH {65536} \
    CONFIG.C_ENABLE_ILA_AXI_MON {false} \
    CONFIG.C_MONITOR_TYPE {Native} \
-   CONFIG.C_NUM_OF_PROBES {27} \
+   CONFIG.C_NUM_OF_PROBES {28} \
  ] $ila_0
 
   # Create instance: ila_1, and set properties
@@ -828,6 +828,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins AXI_cal_pulse_0/s00_axi_aclk] [get_bd_pins axi_fifo_mm_s_data0/s_axi_aclk] [get_bd_pins axi_fifo_mm_s_data1/s_axi_aclk] [get_bd_pins dac121s101_0/s00_axi_aclk] [get_bd_pins ila_0/clk] [get_bd_pins ila_1/clk] [get_bd_pins ila_2/clk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/M01_ACLK] [get_bd_pins ps7_0_axi_periph/M02_ACLK] [get_bd_pins ps7_0_axi_periph/M03_ACLK] [get_bd_pins ps7_0_axi_periph/M04_ACLK] [get_bd_pins ps7_0_axi_periph/M05_ACLK] [get_bd_pins ps7_0_axi_periph/M06_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_100M/slowest_sync_clk] [get_bd_pins sync_vata_distn_0/s00_axi_aclk] [get_bd_pins vata_460p3_axi_inter_0/s00_axi_aclk] [get_bd_pins vata_460p3_axi_inter_1/s00_axi_aclk] [get_bd_pins vio_0/clk]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_100M/ext_reset_in]
   connect_bd_net -net rst_ps7_0_100M_peripheral_aresetn [get_bd_pins AXI_cal_pulse_0/s00_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data0/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data1/s_axi_aresetn] [get_bd_pins dac121s101_0/s00_axi_aresetn] [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/M01_ARESETN] [get_bd_pins ps7_0_axi_periph/M02_ARESETN] [get_bd_pins ps7_0_axi_periph/M03_ARESETN] [get_bd_pins ps7_0_axi_periph/M04_ARESETN] [get_bd_pins ps7_0_axi_periph/M05_ARESETN] [get_bd_pins ps7_0_axi_periph/M06_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn] [get_bd_pins sync_vata_distn_0/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_0/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_1/s00_axi_aresetn]
+  connect_bd_net -net sync_vata_distn_0_force_trigger [get_bd_pins ila_0/probe27] [get_bd_pins sync_vata_distn_0/force_trigger] [get_bd_pins vata_460p3_axi_inter_0/force_trigger] [get_bd_pins vata_460p3_axi_inter_1/force_trigger]
   connect_bd_net -net sync_vata_distn_0_global_counter [get_bd_pins sync_vata_distn_0/global_counter] [get_bd_pins vata_460p3_axi_inter_0/global_counter] [get_bd_pins vata_460p3_axi_inter_1/global_counter] [get_bd_pins xlslice_1/Din]
   connect_bd_net -net sync_vata_distn_0_global_counter_rst [get_bd_pins ila_2/probe0] [get_bd_pins sync_vata_distn_0/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_0/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_1/global_counter_rst]
   connect_bd_net -net util_vector_logic_0_Res [get_bd_pins ila_0/probe24] [get_bd_pins util_vector_logic_0/Res] [get_bd_pins vata_460p3_axi_inter_0/local_fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_1/local_fast_or_trigger]

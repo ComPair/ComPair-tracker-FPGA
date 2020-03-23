@@ -19,7 +19,7 @@ void usage(char *argv0) {
               << "  OPTIONS:" << std::endl
               << "    --counter-reset : Reset the global counter." << std::endl
               << "    --get-counter   : Print the current counter value to stdout." << std::endl
-              << "    --force-trigger : Force trigger all ASIC's simultaneously. NOT YET IMPLEMENTED." << std::endl;
+              << "    --force-trigger : Force trigger all ASIC's simultaneously." << std::endl;
 
 }
 
@@ -34,6 +34,8 @@ int parse_args(int argc, char **argv) {
         } else if (strcmp("--get-counter", argv[i]) == 0) { 
             u64 counter = syncctrl.get_counter();
             std::cout << counter << std::endl;
+        } else if (strcmp("--force-trigger", argv[i]) == 0) {
+            syncctrl.force_trigger();
         } else {
             std::cerr << "ERROR: Unrecognized command line option: " << argv[i] << std::endl;
             return SYNC_PARSE_ARGS_ERR;
