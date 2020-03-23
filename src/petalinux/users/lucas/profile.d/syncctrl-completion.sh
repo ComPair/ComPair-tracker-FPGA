@@ -5,7 +5,7 @@ _syncctrl-bc () {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="--counter-reset --get-counter"
+    opts="--counter-reset --get-counter --force-trigger"
 
     COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
     return 0

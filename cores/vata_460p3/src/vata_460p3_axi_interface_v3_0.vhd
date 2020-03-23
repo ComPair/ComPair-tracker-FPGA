@@ -18,7 +18,7 @@ entity vata_460p3_axi_interface_v3_0 is
         trigger_ack             : in std_logic;
         fast_or_trigger         : in std_logic;
         local_fast_or_trigger   : in std_logic;
-        --force_trigger           : in std_logic;
+        force_trigger           : in std_logic;
         global_counter          : in std_logic_vector(63 downto 0);
         global_counter_rst      : in std_logic;
         disable_fast_or_trigger : in std_logic;
@@ -233,7 +233,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     signal event_counter         : std_logic_vector(31 downto 0);
     signal fast_or_trigger_ena   : std_logic := '0';
     signal ack_trigger_ena       : std_logic := '0';
-    signal force_trigger         : std_logic := '0';
+    --signal force_trigger         : std_logic := '0';
     signal local_fast_or_trigger_ena : std_logic := '0';
 begin
 
@@ -369,7 +369,7 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
     trigger_power_cycle <= ctrl_triggers(3);
     --counter_rst         <= ctrl_triggers(4);
     event_counter_rst   <= ctrl_triggers(4);
-    force_trigger       <= ctrl_triggers(5);
+    --force_trigger       <= ctrl_triggers(5);
 
     -- Debug
     trigger_ack_timeout_out <= trigger_ack_timeout;
