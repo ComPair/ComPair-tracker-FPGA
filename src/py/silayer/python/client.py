@@ -61,7 +61,7 @@ class Client:
             args=(ctrl_port,),
             kwargs={"host": host, "data_port": data_port},
         )
-        self.recv_proc.daemon = True ## Force process to die when parent process does.
+        self.recv_proc.daemon = True  ## Force process to die when parent process does.
         self.recv_proc.start()
         self.data_streaming = False
 
@@ -253,7 +253,7 @@ class Client:
                 f"Data receiver process send unexpected message: {ret_msg}"
             )
 
-    def exit(self): 
+    def exit(self):
         """
         Call this before exiting! Using since __del__ didn't do what I thought it would.
         This will clean up the data recv process for you.
