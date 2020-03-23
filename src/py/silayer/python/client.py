@@ -213,6 +213,12 @@ class Client:
         """
         return self.send_recv_uint("sync get-counter", nbytes_returned=8)
 
+    def sync_force_trigger(self):
+        """
+        Synchronously trigger all asics to take data
+        """
+        return self.send_recv("sync force-trigger")
+
     def start_data_stream(self, fname):
         """
         Start streaming data. Data will be saved to `fname`.

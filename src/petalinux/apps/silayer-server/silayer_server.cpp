@@ -700,6 +700,7 @@ int LayerServer::_sync_get_counter() {
  * 
  * sync counter-reset
  * sync get-counter
+ * sync force-trigger
  * Nothing else.
  ***********************************/
 int LayerServer::_process_sync_msg(char *msg) {
@@ -713,6 +714,8 @@ int LayerServer::_process_sync_msg(char *msg) {
         // Get and send off counter...
         _sync_get_counter();
         return 0;
+    } else if (strncmp("force-trigger", cmd, 13) == 0) {
+        syncctrl.force_trigger();
     } else {
         const char retmsg[] = "ERROR: unsupported sync command.";
         _send_msg(retmsg, sizeof(retmsg));
