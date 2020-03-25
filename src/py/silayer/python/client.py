@@ -8,6 +8,8 @@ SILAYER_HOST = "si-layer.local"
 DATA_PORT = 9998
 SERVER_PORT = 5556
 
+DAC_SIDES = ["A", "B"]
+DAC_CHOICES = ["cal", "vth"]
 
 def byte2bits(byte):
     return [byte >> i & 1 for i in range(8)]
@@ -113,23 +115,17 @@ class Client:
             raise ValueError(f"Response: {ret.decode()}. Unexpected Length.")
         return bytes2val(ret[:8]), bytes2val(ret[8:])
 
-    ##def reset_counters(self, vata):
-    ##    """
-    ##    Reset the running and live-time counters for the given asic.
-    ##    """
-    ##    return self.send_recv(f"vata {vata} reset-counters")
+    def trigger_enable(self, vata, trigger_number):
+        """
+        Enable triggers for the given asic, for the given trigger number.
+        """
+        return self.send_recv(f"vata {vata} trigger-enable {trigger_number}")
 
-    def trigger_enable(self, vata):
+    def trigger_disable(self, vata, trigger_number):
         """
-        Enable triggers for the given asic.
+        Disable triggers for the given asic, for the given trigger number
         """
-        return self.send_recv(f"vata {vata} trigger-enable")
-
-    def trigger_disable(self, vata):
-        """
-        Disable triggers for the given asic.
-        """
-        return self.send_recv(f"vata {vata} trigger-disable")
+        return self.send_recv(f"vata {vata} trigger-disable {trigger_number}")
 
     def get_event_count(self, vata):
         """
@@ -195,11 +191,48 @@ class Client:
         """
         return self.send_recv(f"cal n-pulses {n}")
 
-    def cal_set_dac(self, dac):
+    def dac_set_delay(self, delay=200):
         """
-        Set the external cal dac value.
+        Set the spi clock speed. I think the default here of 200 is 
+        what is recommended.
         """
-        return self.send_recv(f"cal set-dac {dac}")
+        return self.send_recv(f"dac set-delay {delay}")
+
+    def dac_get_delay(self):
+        """
+        Return the current DAC delay setting.
+        """
+        return self.send_recv_uint("dac get-delay", nbytes_returned=4)
+
+    @staticmethod
+    def check_dac_choices(side, dac_choice):
+        """
+        Raise `ValueError` if invalid `side` or `dac_choice` is used.
+        Valid sides: 'A' or 'B'
+        Valid dac choices: 'cal' or 'vth'
+        """
+        side = side.upper()
+        dac_choice = dac_choice.lower()
+        if side not in DAC_SIDES:
+            raise ValueError(f"Invalid side: {side} must be in {DAC_SIDES}")
+        if dac_choice not in DAC_CHOICES:
+            raise ValueError(f"Invalid dac_choice: {dac_choice} must be in {DAC_CHOICES}")
+        return side, dac_choice
+
+    def dac_set_counts(self, side, dac_choice, counts):
+        """
+        Set the dac counts for the corresponding dac121s101.
+        `side` must be 'A' or 'B'
+        `dac_choice` must be 'cal' or 'vth'
+        """
+        side, dac_choice = self.check_dac_choices(side, dac_choice)
+        return self.send_recv(f"dac set-counts {side} {dac_choice} {counts}")
+
+    def dac_get_input(self):
+        """
+        Get the current dac input according to what is on the AXI register.
+        """
+        return self.send_recv_uint("dac get-input", nbytes_returned=4)
 
     def sync_counter_reset(self):
         """
