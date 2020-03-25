@@ -102,6 +102,64 @@ int LayerServer::_set_config(int nvata, char* &cmd) {
     return 0;
 }
 
+int LayerServer::_set_config_binary(int nvata) {
+    // We received a set-config-binary message.
+    // This will now:
+    //   * send "ready" message to client
+    //   * wait 1 second to receive the config data.
+    //   * upon receiving config data, set config data.
+    //   * send "ok" if successfully set the config data. Otherwise "error"
+    zmq::message_t ready_msg(5);
+    std::memcpy(ready_msg.data(), "ready", 5);
+    socket.send(ready_msg, zmq::send_flags::none);
+
+    // Set up to poll...
+    zmq::pollitem_t items[] = {
+        {static_cast<void*>(socket), 0, ZMQ_POLLIN, 0}
+    };
+    zmq::poll(items, 1, SET_CONFIG_BINARY_TIMEOUT);
+    if (!(items[0].revents & ZMQ_POLLIN)) {
+        // We did not receive a response in time.
+        // Bail without sending anything.
+        #ifdef VERBOSE
+        std::cout << "E: _set_config_binary timeout after sending 'ready'" << std::endl;
+        #endif
+        return 1;
+    }
+    zmq::message_t config_msg;
+
+    socket.recv(config_msg, zmq::recv_flags::none);
+    int req_sz = config_msg.size();
+    if (req_sz != (N_CFG_REG * sizeof(u32))) {
+        #ifdef VERBOSE
+        std::cout << "E: _set_config_binary: received config data of unsupported size: " << req_sz << std::endl;
+        #endif
+        const char errmsg[] = "error: req_sz";
+        _send_msg(errmsg, sizeof(errmsg));
+        return 2;
+    }
+    std::vector<u32> data(N_CFG_REG, 0);
+    std::memcpy((char *)data.data(), config_msg.data(), req_sz);
+    
+    if (vatas[nvata].set_check_config(data)) {
+        // Configuration set successful
+        #ifdef VERBOSE
+        std::cout << "I: _set_config_binary: set config successful" << std::endl;
+        #endif
+        const char retmsg[] = "ok";
+        _send_msg(retmsg, sizeof(retmsg));
+        return 0;
+    } else {
+        // Configuration set failed.
+        #ifdef VERBOSE
+        std::cout << "E: _set_config_binary: config check failed" << std::endl;
+        #endif
+        const char errmsg[] = "error: config_check";
+        _send_msg(errmsg, sizeof(errmsg));
+        return 3;
+    }
+}
+
 int LayerServer::_get_config(int nvata, char* &cmd) {
     cmd = strtok(NULL, " "); // Move on to file name.
     if (cmd == NULL) {
@@ -121,6 +179,15 @@ int LayerServer::_get_config(int nvata, char* &cmd) {
     #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
+    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
+int LayerServer::_get_config_binary(int nvata) {
+    std::vector<u32> data(N_CFG_REG, 0);
+    vatas[nvata].get_config(data);
+    zmq::message_t response(N_CFG_REG * sizeof(u32));
+    std::memcpy(response.data(), data.data(), N_CFG_REG * sizeof(u32));
     socket.send(response, zmq::send_flags::none);
     return 0;
 }
@@ -731,10 +798,6 @@ int LayerServer::_process_vata_msg(char *msg) {
     strtok(msg, " ");
     // Move to vata number..
     char *cmd = strtok(NULL, " ");
-
-
-    // Now get next token. Should be vata number.
-    //char *cmd = strtok(NULL, " ");
     
     char *chk;
     int nvata = strtol(cmd, &chk, 0);
@@ -765,12 +828,20 @@ int LayerServer::_process_vata_msg(char *msg) {
     }
 
     // Process command
-    if (strncmp("set-config", cmd, 10) == 0) {
+    if (strncmp("set-config-binary", cmd, 17) == 0) {
+        // _set_config_binary handles all message sending.
+        // Just return whatever this function returns.
+        return _set_config_binary(nvata);
+    } else if (strncmp("set-config", cmd, 10) == 0) {
         if (_set_config(nvata, cmd) != 0) {
             const char retmsg[] = "ERROR: could not parse set-config command";
             _send_msg(retmsg, sizeof(retmsg));
             return 1;
         }
+    } else if (strncmp("get-config-binary", cmd, 17) == 0) {
+        // _get_config_binary handles all message sending.
+        // Just return whatever this function returns.
+        return _get_config_binary(nvata);
     } else if (strncmp("get-config", cmd, 10) == 0) {
         if (_get_config(nvata, cmd) != 0) {
             const char retmsg[] = "ERROR: could not parse get-config command";

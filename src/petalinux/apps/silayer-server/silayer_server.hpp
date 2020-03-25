@@ -20,6 +20,8 @@
 #define LAYER_CTX_NTHREAD  1
 #define EXIT_REQ_RECV_CODE 1785 // QUIT
 
+#define SET_CONFIG_BINARY_TIMEOUT 1000000 // in microseconds
+
 #define VERBOSE
 
 class LayerServer {
@@ -35,7 +37,9 @@ class LayerServer {
         zmq::socket_t inproc_sock;
 
         int _set_config(int nvata, char* &cmd);
+        int _set_config_binary(int nvata);
         int _get_config(int nvata, char* &cmd);
+        int _get_config_binary(int nvata);
         int _set_hold(int nvata, char* &cmd);
         int _get_hold(int nvata, char* &cmd);
         int _get_counters(int nvata, char* &cmd);

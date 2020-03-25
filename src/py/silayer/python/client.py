@@ -3,6 +3,7 @@ import multiprocessing as mp
 import zmq
 
 from . import data_recvr
+from .cfg_reg import VataCfg
 
 SILAYER_HOST = "si-layer.local"
 DATA_PORT = 9998
@@ -98,6 +99,13 @@ class Client:
         This should get updated to send raw data over!
         """
         return self.send_recv(f"vata {vata} set-config {path}")
+
+    def get_config(self, vata):
+        """
+        Return the current configuration register for the given vata.
+        """
+        data = self.send_recv(f"vata {vata} get-config-binary", return_binary=True)
+        return VataCfg.from_binary(data)
 
     def set_hold(self, vata, hold):
         return self.send_recv(f"vata {vata} set-hold {hold}")
