@@ -20,7 +20,7 @@
 #define LAYER_CTX_NTHREAD  1
 #define EXIT_REQ_RECV_CODE 1785 // QUIT
 
-#define SET_CONFIG_BINARY_TIMEOUT 1000000 // in microseconds
+#define SET_CONFIG_BINARY_TIMEOUT 1000 // in milliseconds
 
 #define VERBOSE
 
