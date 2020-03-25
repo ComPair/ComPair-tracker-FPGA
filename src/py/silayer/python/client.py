@@ -115,19 +115,17 @@ class Client:
             raise ValueError(f"Response: {ret.decode()}. Unexpected Length.")
         return bytes2val(ret[:8]), bytes2val(ret[8:])
 
-    def trigger_enable(self, vata):
+    def trigger_enable(self, vata, trigger_number):
         """
-        Enable triggers for the given asic.
+        Enable triggers for the given asic, for the given trigger number.
         """
-        raise Exception("THESE NEED TO BE UPDATED")
-        return self.send_recv(f"vata {vata} trigger-enable")
+        return self.send_recv(f"vata {vata} trigger-enable {trigger_number}")
 
-    def trigger_disable(self, vata):
+    def trigger_disable(self, vata, trigger_number):
         """
-        Disable triggers for the given asic.
+        Disable triggers for the given asic, for the given trigger number
         """
-        raise Exception("THESE NEED TO BE UPDATED")
-        return self.send_recv(f"vata {vata} trigger-disable")
+        return self.send_recv(f"vata {vata} trigger-disable {trigger_number}")
 
     def get_event_count(self, vata):
         """
