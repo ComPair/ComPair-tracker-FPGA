@@ -11,6 +11,8 @@ LayerServer::LayerServer() {
         vatas[i] = VataCtrl(i);
     }
 
+    // Create the emitter thread with a lambda-function,
+    // which calls DataEmitter::operator to run the main emitter loop.
     emitter_thread = std::thread(
         [](zmq::context_t *ctx_ptr) {
                 DataEmitter emitter_funct(ctx_ptr);

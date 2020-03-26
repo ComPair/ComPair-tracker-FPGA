@@ -81,33 +81,42 @@ void DataEmitter::operator() () {
     std::cout << "XXX Starting main data emitter loop" << std::endl;
     while (true) {
         zmq::message_t inproc_msg;
-        //bool check_msg = true;
         if (running) {
+            // We are streaming data.
+            // Quickly check the inproc_sock to see if the silayer-server sent us anything
             try {
                 inproc_sock.recv(inproc_msg, zmq::recv_flags::dontwait);
             } catch (zmq::error_t e) {
-                //check_msg = false;
+                // Nothing received. inproc_msg will be empty moving forward.
             }
         } else {
+            // We are not streaming data.
+            // Wait to receive a command from the silayer-server before moving on.
             inproc_sock.recv(inproc_msg, zmq::recv_flags::none); // block
             if (inproc_msg.size() > 0) {
+                // This if-clause only exists for showing the debug message.
                 std::string msg((char *)inproc_msg.data(), inproc_msg.size());
                 std::cout << "!!! Emitter thread received message: " <<  msg << std::endl;
             }
         }
-        if (true) {
-            if (halt_received(inproc_msg)) {
-                std::cout << "!!! Emitter thread received halt message" << std::endl;
-                return;
-            } else if (stop_received(inproc_msg)) {
-                std::cout << "!!! Emitter thread received stop message" << std::endl;
-                running = false;
-            } else if (start_received(inproc_msg)) {
-                std::cout << "!!! Emitter thread received start message" << std::endl;
-                running = true;
-            }
+        
+        // Process the inproc_msg. None of these are true with an empty msg.
+        if (halt_received(inproc_msg)) {
+            // we are shutting down. return.
+            std::cout << "!!! Emitter thread received halt message" << std::endl;
+            return;
+        } else if (stop_received(inproc_msg)) {
+            // Change state to running = false
+            std::cout << "!!! Emitter thread received stop message" << std::endl;
+            running = false;
+        } else if (start_received(inproc_msg)) {
+            // Change state to running = true
+            std::cout << "!!! Emitter thread received start message" << std::endl;
+            running = true;
         }
+        
         if (running) {
+            // Look to see if there is data we can send out.
             check_fifos();
         }
     }
