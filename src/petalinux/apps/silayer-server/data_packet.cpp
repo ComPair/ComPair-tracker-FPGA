@@ -17,16 +17,21 @@ DataPacket::~DataPacket() {
     }
 }
 
-void DataPacket::collect_header_data(VataCtrl *vatas) {
-    // Currently get data from first vata
-    // This will move to global peripheral when it is ready.
-    vatas[0].get_counters(real_time, live_time);
-    event_counter = vatas[0].get_event_count();
-
-    // XXX CURRENTLY NO EVENT TYPE!!! XXX
-    // XXX DUMMY DATA FOR DEBUGGING
-    event_type = 0x1234;
+void DataPacket::set_packet_time() {
+    auto dtn = std::chrono::high_resolution_clock::now().time_since_epoch();
+    packet_time = std::chrono::duration_cast<std::chrono::nanoseconds>(dtn).count();
 }
+
+//void DataPacket::collect_header_data(VataCtrl *vatas) {
+//    // Currently get data from first vata
+//    // This will move to global peripheral when it is ready.
+//    vatas[0].get_counters(real_time, live_time);
+//    event_counter = vatas[0].get_event_count();
+//
+//    // XXX CURRENTLY NO EVENT TYPE!!! XXX
+//    // XXX DUMMY DATA FOR DEBUGGING
+//    event_type = 0x1234;
+//}
 
 bool DataPacket::read_vata_data(int i, VataCtrl *vatas) {
     // Call once the vata has fifo data!
@@ -46,15 +51,12 @@ bool DataPacket::read_vata_data(int i, VataCtrl *vatas) {
 
 u8 DataPacket::get_header_size() {
     /* Header consists of:
-     *  > header-size   ( u8)
-     *  > flags         (u16)
-     *  > real_time     (u64)
-     *  > live_time     (u64)
-     *  > event_type    (u16)
-     *  > event_counter (u32)
-     *  >             = 1 + 2 + 8 + 8 + 2 + 4 = 25
+     *  > header-size ( u8)
+     *  > flags       (u16)
+     *  > packet-time (u64)
+     *  >             = 1 + 2 + 8 = 11
      */
-    return (u8)25;
+    return (u8)(sizeof(u8) + sizeof(u16) + sizeof(u64));
 }
 
 u16 DataPacket::get_packet_size() {
@@ -71,15 +73,15 @@ void DataPacket::to_msg(u16 packet_size, char* buf) {
     //u16 packet_size = get_packet_size();
     u8 header_size = get_header_size();
     u8 nasic = N_VATA;
-    //buf = new char[packet_size];
     char *cur = buf;
     std::memcpy(cur, &packet_size, sizeof(u16));   cur += sizeof(u16);
     std::memcpy(cur, &header_size, sizeof(u8));    cur += sizeof(u8);
     std::memcpy(cur, &flags, sizeof(u16));         cur += sizeof(u16);
-    std::memcpy(cur, &real_time, sizeof(u64));     cur += sizeof(u64);
-    std::memcpy(cur, &live_time, sizeof(u64));     cur += sizeof(u64);
-    std::memcpy(cur, &event_type, sizeof(u16));    cur += sizeof(u16);
-    std::memcpy(cur, &event_counter, sizeof(u32)); cur += sizeof(u32);
+    std::memcpy(cur, &packet_time, sizeof(u64));   cur += sizeof(u64);
+    //std::memcpy(cur, &real_time, sizeof(u64));     cur += sizeof(u64);
+    //std::memcpy(cur, &live_time, sizeof(u64));     cur += sizeof(u64);
+    //std::memcpy(cur, &event_type, sizeof(u16));    cur += sizeof(u16);
+    //std::memcpy(cur, &event_counter, sizeof(u32)); cur += sizeof(u32);
     std::memcpy(cur, &nasic, sizeof(u8));          cur += sizeof(u8);
     for (int i=0; i<(int)N_VATA; i++) {
         std::memcpy(cur, ndata+i, sizeof(u16));    cur += sizeof(u16);

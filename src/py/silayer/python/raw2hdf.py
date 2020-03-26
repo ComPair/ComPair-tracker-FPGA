@@ -247,10 +247,11 @@ class DataPacket(object):
         ("packet_size", DataSz.u16),  ## was npacket
         ("header_size", DataSz.u8),
         ("packet_flags", DataSz.u16),
-        ("real_time_counter", DataSz.u64),
-        ("live_time_counter", DataSz.u64),
-        ("event_type", DataSz.u16),
-        ("event_counter", DataSz.u32),
+        ("packet_time", DataSz.u64),
+        ##("real_time_counter", DataSz.u64),
+        ##("live_time_counter", DataSz.u64),
+        ##("event_type", DataSz.u16),
+        ##("event_counter", DataSz.u32),
         ("nasic", DataSz.u8),
     ]
     _ASIC_NDATA_SZ = DataSz.u16
@@ -275,7 +276,8 @@ class DataPacket(object):
             ##self.packet_size = 91  ## XXX KLUDGE XXX FIXME XXX
 
     def __repr__(self):
-        return f"DataPacket<event_type={self.event_type},event_counter={self.event_counter},n_asic={self.nasic}>"
+        ##return f"DataPacket<event_type={self.event_type},event_counter={self.event_counter},n_asic={self.nasic}>"
+        return f"DataPacket<n_asic={self.nasic},time={self.packet_time}>"
 
     def parse_header(self, data):
         """
@@ -414,7 +416,7 @@ class DataPackets(object):
                 break
 
     @classmethod
-    def from_binary(cls, data, n_packet=0, use_c_ext=True):
+    def from_binary(cls, data, n_packet=0, use_c_ext=False):
         """
         Load the data from a flat binary file of data packets, or a byte string.
         If `n_packet` is 0, then entire data file/stream will be parsed.
