@@ -13,7 +13,7 @@ if __name__ == "__main__":
     context = zmq.Context()
     socket = context.socket(zmq.PUB)
     socket.setsockopt(zmq.LINGER, 1)
-    socket.bind('tcp://*:9998')
+    socket.bind('tcp://*:5556')
 
 
 

@@ -102,12 +102,15 @@ class Client:
         """
 
         
-        ready = self.send_recv(f"TX vata {vata} config when ready")
+        ready = self.send_recv(f"vata {vata} set-config-binary")
         
-        if ready != "send_it_along":
+        if ready != "ready":
             raise ValueError(f"Server is not ready: {ready}")
         else:
-            self.sock.send()
+            with open(config_register, 'rb') as f:
+                payload = config_register.read()
+                return self.send_recv(self.sock.send(payload))
+
 
 
 
