@@ -314,6 +314,7 @@ class VataCfg:
             bits[reg.start_bit : reg.start_bit + reg.n_bits] = reg.bits()
         return bits
 
+    
     @classmethod
     def from_binary(cls, data: bytes):
         """
@@ -348,17 +349,23 @@ class VataCfg:
         with open(fname, "rb") as f:
             return cls.from_binary(f.read())
 
+    def to_binary(self, pad_32bits: bool = True) -> bytes:
+        """
+        Return a binary for the configuration
+        """
+        bits = self.bits()
+        if pad_32bits:
+            n_pad = 32 - (len(bits) % 32)
+            bits += n_pad * [0]
+        return bytes(bits2val(bits[i : i + 8]) for i in range(0, len(bits), 8))
+
     def write(self, fname: str, pad_32bits: bool = True) -> None:
         """
         Write the configuration register to the specified file.
         pad_32bits is flag, whether to fill out configuration register
         so that length is divisible by 32.
         """
-        bits = self.bits()
-        if pad_32bits:
-            n_pad = 32 - (len(bits) % 32)
-            bits += n_pad * [0]
-        bytestr = bytearray(bits2val(bits[i : i + 8]) for i in range(0, len(bits), 8))
+        bytestr = self.to_binary(pad_32bits=pad_32bits)
         with open(fname, "wb") as f:
             f.write(bytestr)
 
