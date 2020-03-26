@@ -3,6 +3,7 @@ Module for writing and reading the VATA 460.3 configuration register.
 """
 from typing import List, Dict, Union
 
+
 def val2bits(value: int, n_bits: int) -> List[int]:
     return [(value >> i) & 1 for i in range(n_bits)]
 
@@ -313,15 +314,15 @@ class VataCfg:
             bits[reg.start_bit : reg.start_bit + reg.n_bits] = reg.bits()
         return bits
 
+    
     @classmethod
-    def open(cls, fname: str):
+    def from_binary(cls, data: bytes):
         """
-        Open the binary file found at `fname`, and parse to create a VataCfg
+        Parse the given binary data and return a VataCfg
         """
         bits = []
-        with open(fname, "rb") as f:
-            for val in f.read():
-                bits += val2bits(val, 8)
+        for val in data:
+            bits += val2bits(val, 8)
         bits = bits[: cls.N_BITS]
 
         self = cls()
@@ -340,17 +341,31 @@ class VataCfg:
 
         return self
 
+    @classmethod
+    def open(cls, fname: str):
+        """
+        Open the binary file found at `fname`, and parse to create a VataCfg
+        """
+        with open(fname, "rb") as f:
+            return cls.from_binary(f.read())
+
+    def to_binary(self, pad_32bits: bool = True) -> bytes:
+        """
+        Return a binary for the configuration
+        """
+        bits = self.bits()
+        if pad_32bits:
+            n_pad = 32 - (len(bits) % 32)
+            bits += n_pad * [0]
+        return bytes(bits2val(bits[i : i + 8]) for i in range(0, len(bits), 8))
+
     def write(self, fname: str, pad_32bits: bool = True) -> None:
         """
         Write the configuration register to the specified file.
         pad_32bits is flag, whether to fill out configuration register
         so that length is divisible by 32.
         """
-        bits = self.bits()
-        if pad_32bits:
-            n_pad = 32 - (len(bits) % 32)
-            bits += n_pad * [0]
-        bytestr = bytearray(bits2val(bits[i : i + 8]) for i in range(0, len(bits), 8))
+        bytestr = self.to_binary(pad_32bits=pad_32bits)
         with open(fname, "wb") as f:
             f.write(bytestr)
 
@@ -392,5 +407,3 @@ class VataCfg:
 
     def set_readout_all(self, readout_all: bool = True) -> None:
         self["all2"] = self["ro_all"] = int(readout_all)
-
-    

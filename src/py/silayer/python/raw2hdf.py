@@ -380,7 +380,6 @@ class DataPackets(object):
             dp = DataPacket(data[start_byte:])
             yield dp
             start_byte += dp.packet_size
-            data = data[dp.packet_size :]
             n_dp += 1
             if n_packet > 0 and n_dp >= n_packet:
                 break
