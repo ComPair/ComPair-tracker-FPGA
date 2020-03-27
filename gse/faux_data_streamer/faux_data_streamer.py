@@ -6,7 +6,7 @@ import sys
 if __name__ == "__main__":
 
     if len(sys.argv) != 2:
-        print(f"Usage: python {sys.argv[0]} <path to data file to send>")
+        print(f"Usage: python {sys.argv[0]} <path to data file to send> <rate>")
         exit(0)
        
 
@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     t0 = time.time()
     i = 0
-    rate = 25 #Hz
+    rate = sys.arvg[2] #Hz
     while True:
         tnow = time.time()
         deltaT = tnow- t0
