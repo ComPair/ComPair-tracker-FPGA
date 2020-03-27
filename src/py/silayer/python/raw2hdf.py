@@ -358,10 +358,11 @@ class DataPackets(object):
         "packet_size",
         "header_size",
         "packet_flags",
-        "event_counter",
-        "event_type",
-        "live_time_counter",
-        "real_time_counter",
+        "packet_time",
+        ##"event_counter",
+        ##"event_type",
+        ##"live_time_counter",
+        ##"real_time_counter",
     ]
     ## _hdf5_asttrs:
     ##      Scalars that apply to the entire data run.
@@ -440,9 +441,10 @@ class DataPackets(object):
             self.packet_size[j] = dp.packet_size
             self.header_size[j] = dp.header_size
             self.packet_flags[j] = dp.packet_flags
-            self.event_counter[j] = dp.event_counter
-            self.real_time_counter[j] = dp.real_time_counter
-            self.live_time_counter[j] = dp.live_time_counter
+            self.packet_time[j] = dp.packet_time
+            ##self.event_counter[j] = dp.event_counter
+            ##self.real_time_counter[j] = dp.real_time_counter
+            ##self.live_time_counter[j] = dp.live_time_counter
             for i, ap in enumerate(dp.asic_packets):
                 self.event_ids[i, j] = ap.event_id
                 self.start_bits[i, j] = ap.start_bit
@@ -473,10 +475,11 @@ class DataPackets(object):
         self.packet_size = np.zeros(self.n_packet, dtype=u16)
         self.header_size = np.zeros(self.n_packet, dtype=u8)
         self.packet_flags = np.zeros(self.n_packet, dtype=u16)
-        self.event_type = np.zeros(self.n_packet, dtype=u16)
-        self.event_counter = np.zeros(self.n_packet, dtype=u32)
-        self.real_time_counter = np.zeros(self.n_packet, dtype=u64)
-        self.live_time_counter = np.zeros(self.n_packet, dtype=u64)
+        self.packet_time = np.zeros(self.n_packet, dtype=u64)
+        ##self.event_type = np.zeros(self.n_packet, dtype=u16)
+        ##self.event_counter = np.zeros(self.n_packet, dtype=u32)
+        ##self.real_time_counter = np.zeros(self.n_packet, dtype=u64)
+        ##self.live_time_counter = np.zeros(self.n_packet, dtype=u64)
         self.event_ids = np.zeros(sz, dtype=u32)
         self.event_times = np.zeros(sz, dtype=u64)
         self.start_bits = np.zeros(sz, dtype=np.bool)
