@@ -61,7 +61,7 @@ u8 DataPacket::get_header_size() {
 
 u16 DataPacket::get_packet_size() {
     //u16 packet_size = 28 + 2*N_VATA; // packet-size (2) + header (25) + n-asic (1) + n-data[] (2*N_VATA)
-    u16 packet_size = ((u16)sizeof(u16)) + ((u16)get_header_size()) + N_VATA*((u16)sizeof(u16));
+    u16 packet_size = ((u16)sizeof(u16)) + ((u16)get_header_size()) + (u16)sizeof(u8) + N_VATA*((u16)sizeof(u16));
     for (int i=0; i<(int)N_VATA; i++) {
         packet_size += ndata[i];
     }

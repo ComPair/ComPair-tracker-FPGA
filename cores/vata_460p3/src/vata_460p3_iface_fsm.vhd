@@ -1011,7 +1011,7 @@ begin
             pkt_running_counter <= (others => '0');
             pkt_live_counter    <= (others => '0');
             pkt_event_counter   <= (others => '0');
-        elsif set_pkt_data = '1' then
+        elsif rising_edge(set_pkt_data) then
             pkt_running_counter <= running_counter;
             pkt_live_counter    <= std_logic_vector(ulive_counter);
             pkt_event_counter   <= std_logic_vector(uevent_counter);

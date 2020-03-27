@@ -129,7 +129,7 @@ class AsicPacket(object):
 
     N_CHANNEL = 32
     ADC_NBITS = 10
-    N_READS_PER_PACKET = 15  ## Number of 32-bit reads per asic packet.
+    N_READS_PER_PACKET = 18  ## Number of 32-bit reads per asic packet.
 
     ## _field_info: values are start_bit, n_bits for each field
     ##_field_info = {
@@ -148,7 +148,9 @@ class AsicPacket(object):
     ## Entries are field name, and number of bits.
     _DATA_LAYOUT = [
         ("event_id", 32),
-        ("event_time", 64),
+        ("event_number", 32),
+        ("running_time", 64),
+        ("live_time", 64),
         ("start_bit", 1),
         ("chip_data_bit", 1),
         ("trigger_bit", 1),
@@ -248,10 +250,6 @@ class DataPacket(object):
         ("header_size", DataSz.u8),
         ("packet_flags", DataSz.u16),
         ("packet_time", DataSz.u64),
-        ##("real_time_counter", DataSz.u64),
-        ##("live_time_counter", DataSz.u64),
-        ##("event_type", DataSz.u16),
-        ##("event_counter", DataSz.u32),
         ("nasic", DataSz.u8),
     ]
     _ASIC_NDATA_SZ = DataSz.u16
