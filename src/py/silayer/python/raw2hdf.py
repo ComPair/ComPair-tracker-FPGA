@@ -129,7 +129,7 @@ class AsicPacket(object):
 
     N_CHANNEL = 32
     ADC_NBITS = 10
-    N_READS_PER_PACKET = 15  ## Number of 32-bit reads per asic packet.
+    N_READS_PER_PACKET = 18  ## Number of 32-bit reads per asic packet.
 
     ## _field_info: values are start_bit, n_bits for each field
     ##_field_info = {
@@ -148,7 +148,9 @@ class AsicPacket(object):
     ## Entries are field name, and number of bits.
     _DATA_LAYOUT = [
         ("event_id", 32),
-        ("event_time", 64),
+        ("event_number", 32),
+        ("running_time", 64),
+        ("live_time", 64),
         ("start_bit", 1),
         ("chip_data_bit", 1),
         ("trigger_bit", 1),
@@ -247,10 +249,7 @@ class DataPacket(object):
         ("packet_size", DataSz.u16),  ## was npacket
         ("header_size", DataSz.u8),
         ("packet_flags", DataSz.u16),
-        ("real_time_counter", DataSz.u64),
-        ("live_time_counter", DataSz.u64),
-        ("event_type", DataSz.u16),
-        ("event_counter", DataSz.u32),
+        ("packet_time", DataSz.u64),
         ("nasic", DataSz.u8),
     ]
     _ASIC_NDATA_SZ = DataSz.u16
@@ -275,7 +274,8 @@ class DataPacket(object):
             ##self.packet_size = 91  ## XXX KLUDGE XXX FIXME XXX
 
     def __repr__(self):
-        return f"DataPacket<event_type={self.event_type},event_counter={self.event_counter},n_asic={self.nasic}>"
+        ##return f"DataPacket<event_type={self.event_type},event_counter={self.event_counter},n_asic={self.nasic}>"
+        return f"DataPacket<n_asic={self.nasic},time={self.packet_time}>"
 
     def parse_header(self, data):
         """
@@ -336,7 +336,10 @@ class DataPackets(object):
     ##      data that we extract from each asic, and will have a
     ##      dataset in hdf5 under `/asicXX/`.
     _hdf5_asic_fields = [
-        "event_ids",
+        "event_id",
+        "event_number",
+        "running_time",
+        "live_time",
         "start_bits",
         "stop_bits",
         "trigger_bits",
@@ -356,10 +359,11 @@ class DataPackets(object):
         "packet_size",
         "header_size",
         "packet_flags",
-        "event_counter",
-        "event_type",
-        "live_time_counter",
-        "real_time_counter",
+        "packet_time",
+        ##"event_counter",
+        ##"event_type",
+        ##"live_time_counter",
+        ##"real_time_counter",
     ]
     ## _hdf5_asttrs:
     ##      Scalars that apply to the entire data run.
@@ -414,7 +418,7 @@ class DataPackets(object):
                 break
 
     @classmethod
-    def from_binary(cls, data, n_packet=0, use_c_ext=True):
+    def from_binary(cls, data, n_packet=0, use_c_ext=False):
         """
         Load the data from a flat binary file of data packets, or a byte string.
         If `n_packet` is 0, then entire data file/stream will be parsed.
@@ -438,11 +442,15 @@ class DataPackets(object):
             self.packet_size[j] = dp.packet_size
             self.header_size[j] = dp.header_size
             self.packet_flags[j] = dp.packet_flags
-            self.event_counter[j] = dp.event_counter
-            self.real_time_counter[j] = dp.real_time_counter
-            self.live_time_counter[j] = dp.live_time_counter
+            self.packet_time[j] = dp.packet_time
+            ##self.event_counter[j] = dp.event_counter
+            ##self.real_time_counter[j] = dp.real_time_counter
+            ##self.live_time_counter[j] = dp.live_time_counter
             for i, ap in enumerate(dp.asic_packets):
-                self.event_ids[i, j] = ap.event_id
+                self.event_id[i, j] = ap.event_id
+                self.event_number[i,j] = ap.event_number
+                self.running_time[i,j] = ap.running_time
+                self.live_time[i,j] = ap.live_time
                 self.start_bits[i, j] = ap.start_bit
                 self.stop_bits[i, j] = ap.stop_bit
                 self.trigger_bits[i, j] = ap.trigger_bit
@@ -461,8 +469,6 @@ class DataPackets(object):
         Initialize/allocate all data arrays here.
         """
         sz = (self.n_asic, self.n_packet)
-        ##self.time = np.zeros(self.n_packet, dtype=np.uint64)
-
         u8 = DataSz.to_type[DataSz.u8]
         u16 = DataSz.to_type[DataSz.u16]
         u32 = DataSz.to_type[DataSz.u32]
@@ -471,12 +477,16 @@ class DataPackets(object):
         self.packet_size = np.zeros(self.n_packet, dtype=u16)
         self.header_size = np.zeros(self.n_packet, dtype=u8)
         self.packet_flags = np.zeros(self.n_packet, dtype=u16)
-        self.event_type = np.zeros(self.n_packet, dtype=u16)
-        self.event_counter = np.zeros(self.n_packet, dtype=u32)
-        self.real_time_counter = np.zeros(self.n_packet, dtype=u64)
-        self.live_time_counter = np.zeros(self.n_packet, dtype=u64)
-        self.event_ids = np.zeros(sz, dtype=u32)
-        self.event_times = np.zeros(sz, dtype=u64)
+        self.packet_time = np.zeros(self.n_packet, dtype=u64)
+        ##self.event_type = np.zeros(self.n_packet, dtype=u16)
+        ##self.event_counter = np.zeros(self.n_packet, dtype=u32)
+        ##self.real_time_counter = np.zeros(self.n_packet, dtype=u64)
+        ##self.live_time_counter = np.zeros(self.n_packet, dtype=u64)
+        self.event_id = np.zeros(sz, dtype=u32)
+        self.event_number = np.zeros(sz, dtype=u32)
+        self.running_time = np.zeros(sz, dtype=u64)
+        self.live_time = np.zeros(sz, dtype=u64)
+        ##self.event_times = np.zeros(sz, dtype=u64)
         self.start_bits = np.zeros(sz, dtype=np.bool)
         self.stop_bits = np.zeros(sz, dtype=np.bool)
         self.trigger_bits = np.zeros(sz, dtype=np.bool)
@@ -549,8 +559,8 @@ class DataPackets(object):
             dp.asic_packets = []
             for i in range(self.n_asic):
                 ap = AsicPacket(None)
-                ap.event_id = self.event_ids[i, j]
-                ap.event_time = self.event_times[i, j]
+                ap.event_id = self.event_id[i, j]
+                ##ap.event_time = self.event_times[i, j]
                 ap.start_bit = self.start_bits[i, j]
                 ap.stop_bit = self.stop_bits[i, j]
                 ap.stop_bit = self.stop_bits[i, j]

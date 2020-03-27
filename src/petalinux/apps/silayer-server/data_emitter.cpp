@@ -41,13 +41,15 @@ void DataEmitter::send_data(DataPacket &data_packet) {
     u16 packet_size = data_packet.get_packet_size();
     zmq::message_t response(packet_size);
     data_packet.to_msg(packet_size, (char *)response.data());
-    std::cout << "XXX Sending data. Packet size: " << packet_size << std::endl;
+    std::cout << "XXX Sending data. Packet size: " << packet_size 
+              << ". Packet time: " << data_packet.packet_time << std::endl;
     emit_sock.send(response, zmq::send_flags::none);
 }
 
 void DataEmitter::read_fifos() {
     DataPacket data_packet;
-    data_packet.collect_header_data(vatas);
+    data_packet.set_packet_time();
+    //data_packet.collect_header_data(vatas);
     auto t0 = std::chrono::high_resolution_clock::now();
     auto fifo_read_timeout = std::chrono::microseconds(FIFO_READ_TIMEOUT_US);
     while (data_packet.nread < (int)N_VATA) {

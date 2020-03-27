@@ -1,6 +1,7 @@
 #ifndef __DATA_PACKET_H__
 #define __DATA_PACKET_H__
 #include <string>
+#include <chrono>
 #include "vata_ctrl.hpp"
 
 // Size of expected data packet from asic,
@@ -12,10 +13,10 @@
 class DataPacket {
     private:
         u16 flags;
-        u64 real_time;
-        u64 live_time;
-        u16 event_type;
-        u32 event_counter;
+        //u64 real_time;
+        //u64 live_time;
+        //u16 event_type;
+        //u32 event_counter;
         u16 ndata[N_VATA];
         u16 nfifo[N_VATA];
         u32 *asic_data[N_VATA];
@@ -23,7 +24,8 @@ class DataPacket {
     public:
         DataPacket();
         ~DataPacket();
-        void collect_header_data(VataCtrl *vatas);
+        void set_packet_time();
+        //void collect_header_data(VataCtrl *vatas);
         u8 get_header_size();
         u16 get_packet_size();
         void set_timeout();
@@ -31,6 +33,7 @@ class DataPacket {
         void to_msg(u16 packet_size, char *buf);
         bool need_data[N_VATA];
         int nread;
+        u64 packet_time; // This should become private after debugging.
 
 };
 
