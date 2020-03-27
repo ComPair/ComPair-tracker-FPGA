@@ -336,7 +336,10 @@ class DataPackets(object):
     ##      data that we extract from each asic, and will have a
     ##      dataset in hdf5 under `/asicXX/`.
     _hdf5_asic_fields = [
-        "event_ids",
+        "event_id",
+        "event_number",
+        "running_time",
+        "live_time",
         "start_bits",
         "stop_bits",
         "trigger_bits",
@@ -444,7 +447,10 @@ class DataPackets(object):
             ##self.real_time_counter[j] = dp.real_time_counter
             ##self.live_time_counter[j] = dp.live_time_counter
             for i, ap in enumerate(dp.asic_packets):
-                self.event_ids[i, j] = ap.event_id
+                self.event_id[i, j] = ap.event_id
+                self.event_number[i,j] = ap.event_number
+                self.running_time[i,j] = ap.running_time
+                self.live_time[i,j] = ap.live_time
                 self.start_bits[i, j] = ap.start_bit
                 self.stop_bits[i, j] = ap.stop_bit
                 self.trigger_bits[i, j] = ap.trigger_bit
@@ -463,8 +469,6 @@ class DataPackets(object):
         Initialize/allocate all data arrays here.
         """
         sz = (self.n_asic, self.n_packet)
-        ##self.time = np.zeros(self.n_packet, dtype=np.uint64)
-
         u8 = DataSz.to_type[DataSz.u8]
         u16 = DataSz.to_type[DataSz.u16]
         u32 = DataSz.to_type[DataSz.u32]
@@ -478,8 +482,11 @@ class DataPackets(object):
         ##self.event_counter = np.zeros(self.n_packet, dtype=u32)
         ##self.real_time_counter = np.zeros(self.n_packet, dtype=u64)
         ##self.live_time_counter = np.zeros(self.n_packet, dtype=u64)
-        self.event_ids = np.zeros(sz, dtype=u32)
-        self.event_times = np.zeros(sz, dtype=u64)
+        self.event_id = np.zeros(sz, dtype=u32)
+        self.event_number = np.zeros(sz, dtype=u32)
+        self.running_time = np.zeros(sz, dtype=u64)
+        self.live_time = np.zeros(sz, dtype=u64)
+        ##self.event_times = np.zeros(sz, dtype=u64)
         self.start_bits = np.zeros(sz, dtype=np.bool)
         self.stop_bits = np.zeros(sz, dtype=np.bool)
         self.trigger_bits = np.zeros(sz, dtype=np.bool)
@@ -552,8 +559,8 @@ class DataPackets(object):
             dp.asic_packets = []
             for i in range(self.n_asic):
                 ap = AsicPacket(None)
-                ap.event_id = self.event_ids[i, j]
-                ap.event_time = self.event_times[i, j]
+                ap.event_id = self.event_id[i, j]
+                ##ap.event_time = self.event_times[i, j]
                 ap.start_bit = self.start_bits[i, j]
                 ap.stop_bit = self.stop_bits[i, j]
                 ap.stop_bit = self.stop_bits[i, j]
