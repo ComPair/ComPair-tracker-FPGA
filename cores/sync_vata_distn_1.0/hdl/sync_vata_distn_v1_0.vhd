@@ -18,6 +18,30 @@ entity sync_vata_distn_v1_0 is
         global_counter_rst : out std_logic;
         force_trigger      : out std_logic;
 
+        FEE_sideA_hit      : out std_logic;
+        FEE_sideB_hit      : out std_logic;
+        FEE_ready          : out std_logic;
+        FEE_busy           : out std_logic;
+
+        vata_hit_busy00    : in std_logic_vector(1 downto 0);
+        vata_hit_busy01    : in std_logic_vector(1 downto 0);
+        vata_hit_busy02    : in std_logic_vector(1 downto 0);
+        vata_hit_busy03    : in std_logic_vector(1 downto 0);
+        vata_hit_busy04    : in std_logic_vector(1 downto 0);
+        vata_hit_busy05    : in std_logic_vector(1 downto 0);
+        vata_hit_busy06    : in std_logic_vector(1 downto 0);
+        vata_hit_busy07    : in std_logic_vector(1 downto 0);
+        vata_hit_busy08    : in std_logic_vector(1 downto 0);
+        vata_hit_busy09    : in std_logic_vector(1 downto 0);
+        vata_hit_busy10    : in std_logic_vector(1 downto 0);
+        vata_hit_busy11    : in std_logic_vector(1 downto 0);
+        vata_hit_busy12    : in std_logic_vector(1 downto 0);
+        vata_hit_busy13    : in std_logic_vector(1 downto 0);
+        vata_hit_busy14    : in std_logic_vector(1 downto 0);
+        vata_hit_busy15    : in std_logic_vector(1 downto 0);
+        -- Concatenate hit signals to send back to individual vata's:
+        vata_hits          : out std_logic_vector(15 downto 0);
+
         -- User ports ends
         -- Do not modify the ports beyond this line
 
@@ -89,9 +113,56 @@ architecture arch_imp of sync_vata_distn_v1_0 is
              ; counter       : out std_logic_vector(63 downto 0)
              );
     end component sync_vata_fsm;
+
+    component stay_high_n_cycles is
+        generic ( N_CYCLES_WIDTH : integer := 4
+                ; N_CYCLES       : integer := 5
+                );
+        port ( clk      : in std_logic
+             ; rst_n    : in std_logic
+             ; data_in  : in std_logic
+             ; data_out : out std_logic
+             );
+    end component stay_high_n_cycles;
+
     signal counter_rst     : std_logic;
     signal counter_buf     : std_logic_vector(63 downto 0);
     signal counter_rst_buf : std_logic;
+
+    signal FEE_busy_buf : std_logic;
+
+    signal vata_hit00 : std_logic;
+    signal vata_hit01 : std_logic;
+    signal vata_hit02 : std_logic;
+    signal vata_hit03 : std_logic;
+    signal vata_hit04 : std_logic;
+    signal vata_hit05 : std_logic;
+    signal vata_hit06 : std_logic;
+    signal vata_hit07 : std_logic;
+    signal vata_hit08 : std_logic;
+    signal vata_hit09 : std_logic;
+    signal vata_hit10 : std_logic;
+    signal vata_hit11 : std_logic;
+    signal vata_hit12 : std_logic;
+    signal vata_hit13 : std_logic;
+    signal vata_hit14 : std_logic;
+    signal vata_hit15 : std_logic;
+    signal vata_busy00 : std_logic;
+    signal vata_busy01 : std_logic;
+    signal vata_busy02 : std_logic;
+    signal vata_busy03 : std_logic;
+    signal vata_busy04 : std_logic;
+    signal vata_busy05 : std_logic;
+    signal vata_busy06 : std_logic;
+    signal vata_busy07 : std_logic;
+    signal vata_busy08 : std_logic;
+    signal vata_busy09 : std_logic;
+    signal vata_busy10 : std_logic;
+    signal vata_busy11 : std_logic;
+    signal vata_busy12 : std_logic;
+    signal vata_busy13 : std_logic;
+    signal vata_busy14 : std_logic;
+    signal vata_busy15 : std_logic;
 
 begin
 
@@ -135,8 +206,124 @@ begin
                  , counter       => counter_buf
                  );
 
+    -- Components for generating signals to TM:
+    -- 
+    -- stay_high_n_cycles components:
+    --    create 50ns long pulse for FEE_hit's from or'ing the vata_hit's
+    fee_hit_sideA_stay_high_inst : stay_high_n_cycles
+        generic map ( N_CYCLES_WIDTH => 4
+                    , N_CYCLES       => 5
+                    ) 
+        port map ( clk      => s00_axi_aclk
+                 , rst_n    => s00_axi_aresetn
+                 , data_in  => vata_hit00
+                            or vata_hit01
+                            or vata_hit02
+                            or vata_hit03
+                            or vata_hit04
+                            or vata_hit05
+                            or vata_hit06
+                            or vata_hit07
+                 , data_out => FEE_sideA_hit
+                 );
+    fee_hit_sideB_stay_high_inst : stay_high_n_cycles
+        generic map ( N_CYCLES_WIDTH => 4
+                    , N_CYCLES       => 5
+                    ) 
+        port map ( clk      => s00_axi_aclk
+                 , rst_n    => s00_axi_aresetn
+                 , data_in  => vata_hit08
+                            or vata_hit09
+                            or vata_hit10
+                            or vata_hit11
+                            or vata_hit12
+                            or vata_hit13
+                            or vata_hit14
+                            or vata_hit15
+                 , data_out => FEE_sideB_hit
+                 );
+    FEE_busy_buf <= vata_busy00
+                 or vata_busy01
+                 or vata_busy02
+                 or vata_busy03
+                 or vata_busy04
+                 or vata_busy05
+                 or vata_busy06
+                 or vata_busy07
+                 or vata_busy08
+                 or vata_busy09
+                 or vata_busy10
+                 or vata_busy11
+                 or vata_busy12
+                 or vata_busy13
+                 or vata_busy14
+                 or vata_busy15;
+    FEE_busy <= FEE_busy_buf;
+    --    create 50ns long pulse for FEE_ready based of `not FEE_busy`
+    fee_ready_stay_high_inst : stay_high_n_cycles
+        generic map ( N_CYCLES_WIDTH => 4
+                    , N_CYCLES       => 5
+                    ) 
+        port map ( clk      => s00_axi_aclk
+                 , rst_n    => s00_axi_aresetn
+                 , data_in  => not FEE_busy_buf
+                 , data_out => FEE_ready
+                 );
+
     global_counter     <= counter_buf;
     global_counter_rst <= counter_rst_buf;
+
+    vata_hit00 <= vata_hit_busy00(1);
+    vata_hit01 <= vata_hit_busy01(1);
+    vata_hit02 <= vata_hit_busy02(1);
+    vata_hit03 <= vata_hit_busy03(1);
+    vata_hit04 <= vata_hit_busy04(1);
+    vata_hit05 <= vata_hit_busy05(1);
+    vata_hit06 <= vata_hit_busy06(1);
+    vata_hit07 <= vata_hit_busy07(1);
+    vata_hit08 <= vata_hit_busy08(1);
+    vata_hit09 <= vata_hit_busy09(1);
+    vata_hit10 <= vata_hit_busy10(1);
+    vata_hit11 <= vata_hit_busy11(1);
+    vata_hit12 <= vata_hit_busy12(1);
+    vata_hit13 <= vata_hit_busy13(1);
+    vata_hit14 <= vata_hit_busy14(1);
+    vata_hit15 <= vata_hit_busy15(1);
+
+    vata_busy00 <= vata_hit_busy00(0);
+    vata_busy01 <= vata_hit_busy01(0);
+    vata_busy02 <= vata_hit_busy02(0);
+    vata_busy03 <= vata_hit_busy03(0);
+    vata_busy04 <= vata_hit_busy04(0);
+    vata_busy05 <= vata_hit_busy05(0);
+    vata_busy06 <= vata_hit_busy06(0);
+    vata_busy07 <= vata_hit_busy07(0);
+    vata_busy08 <= vata_hit_busy08(0);
+    vata_busy09 <= vata_hit_busy09(0);
+    vata_busy10 <= vata_hit_busy10(0);
+    vata_busy11 <= vata_hit_busy11(0);
+    vata_busy12 <= vata_hit_busy12(0);
+    vata_busy13 <= vata_hit_busy13(0);
+    vata_busy14 <= vata_hit_busy14(0);
+    vata_busy15 <= vata_hit_busy15(0);
+
+    vata_hits(0)  <= vata_hit00;
+    vata_hits(1)  <= vata_hit01;
+    vata_hits(2)  <= vata_hit02;
+    vata_hits(3)  <= vata_hit03;
+    vata_hits(4)  <= vata_hit04;
+    vata_hits(5)  <= vata_hit05;
+    vata_hits(6)  <= vata_hit06;
+    vata_hits(7)  <= vata_hit07;
+    vata_hits(8)  <= vata_hit08;
+    vata_hits(9)  <= vata_hit09;
+    vata_hits(10) <= vata_hit10;
+    vata_hits(11) <= vata_hit11;
+    vata_hits(12) <= vata_hit12;
+    vata_hits(13) <= vata_hit13;
+    vata_hits(14) <= vata_hit14;
+    vata_hits(15) <= vata_hit15;
+
  
     -- User logic ends
 

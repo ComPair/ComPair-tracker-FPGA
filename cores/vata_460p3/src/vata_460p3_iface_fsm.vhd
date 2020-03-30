@@ -4,56 +4,53 @@ use ieee.numeric_std.all;
 
 entity vata_460p3_iface_fsm is
         port (
-                clk_100MHz            : in std_logic; -- 10 ns
-                rst_n                 : in std_logic;
-                trigger_ack           : in std_logic;
-                ack_trigger_ena       : in std_logic;
-                fast_or_trigger       : in std_logic;
-                fast_or_trigger_ena   : in std_logic;
-                local_fast_or_trigger : in std_logic;
-                local_fast_or_trigger_ena : in std_logic;
-                force_trigger         : in std_logic;
+                clk_100MHz              : in std_logic; -- 10 ns
+                rst_n                   : in std_logic;
+                fast_or_trigger         : in std_logic;
+                fast_or_trigger_ena     : in std_logic;
+                trigger_ack             : in std_logic;
+                ack_trigger_ena         : in std_logic;
+                vata_hits               : in std_logic_vector(15 downto 0);
+                local_vata_trigger_ena  : in std_logic_vector(15 downto 0);
+                force_trigger           : in std_logic;
                 disable_fast_or_trigger : in std_logic; 
-                trigger_ack_timeout   : in std_logic_vector(31 downto 0);
-                FEE_hit               : out std_logic;
-                FEE_ready             : out std_logic;
-                FEE_busy              : out std_logic;
-                FEE_spare             : out std_logic;
-                event_id_latch        : in std_logic;
-                event_id_data         : in std_logic;
-                get_config            : in std_logic;
-                set_config            : in std_logic;
-                int_cal_trigger       : in std_logic;
-                hold_time             : in std_logic_vector(15 downto 0); -- in clock cycles
-                vata_s0               : out std_logic;
-                vata_s1               : out std_logic;
-                vata_s2               : out std_logic;
-                vata_s_latch          : out std_logic;
-                vata_i1               : out std_logic;
-                vata_i3               : out std_logic;
-                vata_i4               : out std_logic;
-                vata_o5               : in std_logic;
-                vata_o6               : in std_logic;
-                cfg_reg_from_ps       : in std_logic_vector(519 downto 0);
-                cfg_reg_from_pl       : out std_logic_vector(519 downto 0);
-                data_tvalid           : out std_logic;
-                data_tlast            : out std_logic;
-                data_tready           : in std_logic;
-                data_tdata            : out std_logic_vector(31 downto 0);
-                cald                  : out std_logic;
-                caldb                 : out std_logic;
-                counter_rst           : in std_logic;
-                running_counter       : in std_logic_vector(63 downto 0);
-                live_counter          : out std_logic_vector(63 downto 0);
-                event_counter_rst     : in std_logic;
-                event_counter         : out std_logic_vector(31 downto 0);
+                trigger_ack_timeout     : in std_logic_vector(31 downto 0);
+                vata_hit                : out std_logic;
+                vata_busy               : out std_logic;
+                event_id_latch          : in std_logic;
+                event_id_data           : in std_logic;
+                get_config              : in std_logic;
+                set_config              : in std_logic;
+                int_cal_trigger         : in std_logic;
+                hold_time               : in std_logic_vector(15 downto 0); -- in clock cycles
+                vata_s0                 : out std_logic;
+                vata_s1                 : out std_logic;
+                vata_s2                 : out std_logic;
+                vata_s_latch            : out std_logic;
+                vata_i1                 : out std_logic;
+                vata_i3                 : out std_logic;
+                vata_i4                 : out std_logic;
+                vata_o5                 : in std_logic;
+                vata_o6                 : in std_logic;
+                cfg_reg_from_ps         : in std_logic_vector(519 downto 0);
+                cfg_reg_from_pl         : out std_logic_vector(519 downto 0);
+                data_tvalid             : out std_logic;
+                data_tlast              : out std_logic;
+                data_tready             : in std_logic;
+                data_tdata              : out std_logic_vector(31 downto 0);
+                cald                    : out std_logic;
+                caldb                   : out std_logic;
+                counter_rst             : in std_logic;
+                running_counter         : in std_logic_vector(63 downto 0);
+                live_counter            : out std_logic_vector(63 downto 0);
+                event_counter_rst       : in std_logic;
+                event_counter           : out std_logic_vector(31 downto 0);
                 -- DEBUG --
-                event_id_out_debug    : out std_logic_vector(31 downto 0);
-                abort_daq_debug       : out std_logic;
-                trigger_acq_out       : out std_logic;
+                event_id_out_debug      : out std_logic_vector(31 downto 0);
+                abort_daq_debug         : out std_logic;
+                trigger_acq_out         : out std_logic;
                 trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
                 trigger_ack_timeout_state   : out std_logic_vector(3 downto 0);
-                FEE_hit0_out          : out std_logic;
                 state_out             : out std_logic_vector(7 downto 0));
     end vata_460p3_iface_fsm;
 
@@ -91,19 +88,7 @@ architecture arch_imp of vata_460p3_iface_fsm is
             cald            : out std_logic;
             caldb           : out std_logic);
     end component int_cal_toggle;
-
-    component stay_high_n_cycles is
-        generic (
-            N_CYCLES_WIDTH : integer := 4;
-            N_CYCLES : integer := 5);
-        port (
-            clk : in std_logic;
-            rst_n : in std_logic;
-            data_in : in std_logic;
-            data_out : out std_logic
-        );
-    end component stay_high_n_cycles;
-
+    
     constant STATE_BITWIDTH : integer := 8;
     constant IDLE                     : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"00";
     constant SC_SET_MODE_M1           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"01";
@@ -158,8 +143,9 @@ architecture arch_imp of vata_460p3_iface_fsm is
     constant RO_WFIFO_15              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"32";
     constant RO_WFIFO_16              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"33";
     constant RO_WFIFO_17              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"34";
-    constant RO_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"35";
-    constant RO_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"36";
+    constant RO_WFIFO_18              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"35";
+    constant RO_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"36";
+    constant RO_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"37";
 
     constant EVENT_ID_WIDTH : integer := 32;
 
@@ -190,10 +176,6 @@ architecture arch_imp of vata_460p3_iface_fsm is
 
     signal trigger_acq            : std_logic := '0';
 
-    -- FEE outputs, before going into `stay_high_n_cycles` 
-    signal FEE_hit0     : std_logic := '0';
-    signal FEE_busy_buf : std_logic;
-
     signal ulive_counter    : unsigned(63 downto 0) := (others => '0');
     signal uevent_counter   : unsigned(31 downto 0) := (others => '0');
     signal inc_event_counter : std_logic := '0';
@@ -203,6 +185,7 @@ architecture arch_imp of vata_460p3_iface_fsm is
     signal pkt_running_counter : std_logic_vector(63 downto 0) := (others => '0');
     signal pkt_live_counter    : std_logic_vector(63 downto 0) := (others => '0');
     signal pkt_event_counter   : std_logic_vector(31 downto 0) := (others => '0');
+    signal pkt_event_triggers  : std_logic_vector(18 downto 0) := (others => '0');
 
 begin
 
@@ -221,6 +204,7 @@ begin
     -- For debugging purposes:
     --event_id_out <= x"A1B2C3D4";
 
+    -- Manage the timeout for when we look for the trigger-ack signal
     trigger_ack_timeout_fsm_inst : trigger_ack_timeout_fsm
         port map (
             clk_100MHz          => clk_100MHz,
@@ -247,31 +231,6 @@ begin
     -- abort_daq <= '0';
     ---------------------
     abort_daq_debug <= abort_daq_buf;
-
-    -- Generate 50ns long pulse for FEE_hit
-    fee_hit_stay_high : stay_high_n_cycles
-        generic map (
-            N_CYCLES_WIDTH => 4,
-            N_CYCLES       => 5
-        ) port map (
-            clk      => clk_100MHz,
-            rst_n    => rst_n,
-            data_in  => FEE_hit0,
-            data_out => FEE_hit
-        );
-
-    -- Generate 50ns long pulse for FEE_ready out of ~FEE_busy
-    fee_ready_stay_high : stay_high_n_cycles
-        generic map (
-            N_CYCLES_WIDTH => 4,
-            N_CYCLES       => 5
-        ) port map (
-            clk      => clk_100MHz,
-            rst_n    => rst_n,
-            data_in  => not FEE_busy_buf,
-            data_out => FEE_ready
-        );
-    FEE_busy <= FEE_busy_buf;
 
     int_cal_toggle_inst : int_cal_toggle
         port map (
@@ -648,7 +607,8 @@ begin
                 when RO_WFIFO_14 => next_state <= RO_WFIFO_15;
                 when RO_WFIFO_15 => next_state <= RO_WFIFO_16;
                 when RO_WFIFO_16 => next_state <= RO_WFIFO_17;
-                when RO_WFIFO_17 =>
+                when RO_WFIFO_17 => next_state <= RO_WFIFO_18;
+                when RO_WFIFO_18 =>
                     state_counter_clr <= '1';
                     inc_event_counter <= '1';
                     next_state <= RO_SET_MODE_M3;
@@ -677,13 +637,13 @@ begin
         vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0'; vata_s_latch <= '0';
         data_tvalid <= '0'; data_tlast <= '0'; data_tdata <= (others => '0');
         event_id_clr <= '0';
-        FEE_hit0 <= '0'; FEE_busy_buf <= '1';
+        vata_hit <= '0'; vata_busy <= '1';
         case (current_state) is
             when IDLE =>
                 vata_mode <= "010"; vata_s_latch <= '0';
                 vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
-                FEE_busy_buf <= '0';
-                FEE_hit0 <= not vata_o6;
+                vata_busy <= '0';
+                vata_hit <= not vata_o6;
             ---- Set config states ----
             when SC_SET_MODE_M1 =>
                 vata_mode <= "000"; vata_s_latch <= '0';
@@ -810,11 +770,13 @@ begin
                 vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             ----Write header data------------------------
             when RO_WFIFO_00 =>
+                -- Write event ID
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= event_id_out; -- Write event id at head of data packet
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_01 =>
+                -- Write event number
                 -- We just wrote the event id, so now clear it:
                 event_id_clr <= '1';
                 vata_mode    <= "100";
@@ -822,82 +784,93 @@ begin
                 data_tdata   <= pkt_event_counter;
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_02 =>
+                -- Event trigger info
+                vata_mode   <= "100";
+                data_tvalid <= '1';
+                data_tdata(18 downto 0)  <= pkt_event_triggers;
+                data_tdata(31 downto 19) <= (others => '0'); -- Room for more data here.
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+            when RO_WFIFO_03 =>
+                -- LSB's of the global counter
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= pkt_running_counter(31 downto 0);  -- lowest 32 bits the pkt_running_counter
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_03 =>
+            when RO_WFIFO_04 =>
+                -- MSB's of the global counter
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= pkt_running_counter(63 downto 32); -- highest 32 bits of pkt_running_counter
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_04 =>
+            when RO_WFIFO_05 =>
+                -- LSB's of the live-time counter
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= pkt_live_counter(31 downto 0);  -- lowest 32 bits the pkt_live_counter
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_05 =>
+            when RO_WFIFO_06 =>
+                -- MSB's of the live-time counter
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= pkt_live_counter(63 downto 32); -- highest 32 bits of pkt_live_counter
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             ----Write asic data------------------------
-            when RO_WFIFO_06 =>
+            when RO_WFIFO_07 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(31 downto 0));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_07 =>
+            when RO_WFIFO_08 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(63 downto 32));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_08 =>
+            when RO_WFIFO_09 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(95 downto 64));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_09 =>
+            when RO_WFIFO_10 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(127 downto 96));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_10 =>
+            when RO_WFIFO_11 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(159 downto 128));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_11 =>
+            when RO_WFIFO_12 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(191 downto 160));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_12 =>
+            when RO_WFIFO_13 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(223 downto 192));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_13 =>
+            when RO_WFIFO_14 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(255 downto 224));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_14 =>
+            when RO_WFIFO_15 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(287 downto 256));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_15 =>
+            when RO_WFIFO_16 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(319 downto 288));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_16 =>
+            when RO_WFIFO_17 =>
                 vata_mode   <= "100";
                 data_tvalid  <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(351 downto 320));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_17 =>
+            when RO_WFIFO_18 =>
                 vata_mode   <= "100";
                 data_tvalid               <= '1';
                 data_tdata(26 downto 0)   <= std_logic_vector(reg_from_vata(378 downto 352));
@@ -981,6 +954,7 @@ begin
         end if;
     end process;
 
+    -- Live-time counter:
     process (rst_n, counter_rst, clk_100MHz)
     begin
         if rst_n = '0' or counter_rst = '1' then
@@ -994,6 +968,7 @@ begin
         end if;
     end process;
 
+    -- Event counter:
     process (rst_n, event_counter_rst, inc_event_counter)
     begin
         if rst_n = '0' or event_counter_rst = '1' then
@@ -1005,20 +980,27 @@ begin
         end if;
     end process;
 
+    -- Latch data that goes into the packet on `set_pkt_data` rising edge.
     process (rst_n, set_pkt_data)
     begin
         if rst_n = '0' then
             pkt_running_counter <= (others => '0');
             pkt_live_counter    <= (others => '0');
             pkt_event_counter   <= (others => '0');
+            pkt_event_triggers  <= (others => '0');
         elsif rising_edge(set_pkt_data) then
             pkt_running_counter <= running_counter;
             pkt_live_counter    <= std_logic_vector(ulive_counter);
             pkt_event_counter   <= std_logic_vector(uevent_counter);
+            pkt_event_triggers(15 downto 0) <= vata_hits;
+            pkt_event_triggers(16)          <= fast_or_trigger;
+            pkt_event_triggers(17)          <= trigger_ack;
+            pkt_event_triggers(18)          <= force_trigger;
         else
             pkt_running_counter <= pkt_running_counter;
             pkt_live_counter    <= pkt_live_counter;
             pkt_event_counter   <= pkt_event_counter;
+            pkt_event_triggers  <= pkt_event_triggers;
         end if;
     end process;
 
@@ -1031,16 +1013,30 @@ begin
     event_counter   <= std_logic_vector(uevent_counter);
     
     -- Trigger acquisition:
-    trigger_acq <= force_trigger or
-                   (fast_or_trigger and fast_or_trigger_ena) or
-                   (trigger_ack and ack_trigger_ena) or
-                   (local_fast_or_trigger and local_fast_or_trigger_ena);
+    trigger_acq <= force_trigger
+                or (fast_or_trigger and fast_or_trigger_ena)
+                or (trigger_ack and ack_trigger_ena)
+                or (vata_hits(0) and local_vata_trigger_ena(0))
+                or (vata_hits(1) and local_vata_trigger_ena(1))
+                or (vata_hits(2) and local_vata_trigger_ena(2))
+                or (vata_hits(3) and local_vata_trigger_ena(3))
+                or (vata_hits(4) and local_vata_trigger_ena(4))
+                or (vata_hits(5) and local_vata_trigger_ena(5))
+                or (vata_hits(6) and local_vata_trigger_ena(6))
+                or (vata_hits(7) and local_vata_trigger_ena(7))
+                or (vata_hits(8) and local_vata_trigger_ena(8))
+                or (vata_hits(9) and local_vata_trigger_ena(9))
+                or (vata_hits(10) and local_vata_trigger_ena(10))
+                or (vata_hits(11) and local_vata_trigger_ena(11))
+                or (vata_hits(12) and local_vata_trigger_ena(12))
+                or (vata_hits(13) and local_vata_trigger_ena(13))
+                or (vata_hits(14) and local_vata_trigger_ena(14))
+                or (vata_hits(15) and local_vata_trigger_ena(15));
 
     -- DEBUG --
     state_out          <= current_state;
     event_id_out_debug <= event_id_out;
     trigger_acq_out    <= trigger_acq;
-    FEE_hit0_out       <= FEE_hit0;
 
 end arch_imp;
 -- vim: set ts=4 sw=4 sts=4 et:
