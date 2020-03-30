@@ -108,8 +108,8 @@ class Client:
             raise ValueError(f"Server is not ready: {ready}")
         else:
             with open(config_register, 'rb') as f:
-                payload = config_register.read()
-                return self.send_recv(self.sock.send(payload))
+                payload = f.read()
+                return self.send_recv(payload)
 
 
 
