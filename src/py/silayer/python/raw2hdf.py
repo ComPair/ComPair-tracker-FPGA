@@ -149,6 +149,7 @@ class AsicPacket(object):
     _DATA_LAYOUT = [
         ("event_id", 32),
         ("event_number", 32),
+        ("trigger_status", 32),
         ("running_time", 64),
         ("live_time", 64),
         ("start_bit", 1),
@@ -338,6 +339,7 @@ class DataPackets(object):
     _hdf5_asic_fields = [
         "event_id",
         "event_number",
+        "trigger_status",
         "running_time",
         "live_time",
         "start_bits",
@@ -449,6 +451,7 @@ class DataPackets(object):
             for i, ap in enumerate(dp.asic_packets):
                 self.event_id[i, j] = ap.event_id
                 self.event_number[i,j] = ap.event_number
+                self.trigger_status[i,j] = ap.trigger_status
                 self.running_time[i,j] = ap.running_time
                 self.live_time[i,j] = ap.live_time
                 self.start_bits[i, j] = ap.start_bit
@@ -484,6 +487,7 @@ class DataPackets(object):
         ##self.live_time_counter = np.zeros(self.n_packet, dtype=u64)
         self.event_id = np.zeros(sz, dtype=u32)
         self.event_number = np.zeros(sz, dtype=u32)
+        self.trigger_status = np.zeros(sz, dtype=u32)
         self.running_time = np.zeros(sz, dtype=u64)
         self.live_time = np.zeros(sz, dtype=u64)
         ##self.event_times = np.zeros(sz, dtype=u64)
