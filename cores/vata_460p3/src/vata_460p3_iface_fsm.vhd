@@ -155,8 +155,11 @@ architecture arch_imp of vata_460p3_iface_fsm is
     constant RO_WFIFO_12              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"2F";
     constant RO_WFIFO_13              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"30";
     constant RO_WFIFO_14              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"31";
-    constant RO_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"32";
-    constant RO_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"33";
+    constant RO_WFIFO_15              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"32";
+    constant RO_WFIFO_16              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"33";
+    constant RO_WFIFO_17              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"34";
+    constant RO_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"35";
+    constant RO_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"36";
 
     constant EVENT_ID_WIDTH : integer := 32;
 
@@ -191,12 +194,15 @@ architecture arch_imp of vata_460p3_iface_fsm is
     signal FEE_hit0     : std_logic := '0';
     signal FEE_busy_buf : std_logic;
 
-    --signal urunning_counter : unsigned(63 downto 0) := (others => '0');
     signal ulive_counter    : unsigned(63 downto 0) := (others => '0');
     signal uevent_counter   : unsigned(31 downto 0) := (others => '0');
     signal inc_event_counter : std_logic := '0';
-    signal event_time : std_logic_vector(63 downto 0);
-    signal set_event_time : std_logic;
+
+    -- Saved info to store in asic packet:
+    signal set_pkt_data : std_logic;
+    signal pkt_running_counter : std_logic_vector(63 downto 0) := (others => '0');
+    signal pkt_live_counter    : std_logic_vector(63 downto 0) := (others => '0');
+    signal pkt_event_counter   : std_logic_vector(31 downto 0) := (others => '0');
 
 begin
 
@@ -286,18 +292,18 @@ begin
 
     process (rst_n, current_state, trigger_acq, set_config, get_config, state_counter)
     begin
-        state_counter_clr            <= '0';
-        dec_reg_indx                 <= '0';
-        inc_reg_indx                 <= '0';
-        rst_reg_indx_519             <= '0';
-        rst_reg_indx_0               <= '0';
-        shift_reg_left_1             <= '0';
-        shift_reg_right_1            <= '0';
-        reg_clr                      <= '0';
-        read_o5                      <= '0';
-        read_o6                      <= '0';
-        inc_event_counter            <= '0';
-        set_event_time               <= '0';
+        state_counter_clr <= '0';
+        dec_reg_indx      <= '0';
+        inc_reg_indx      <= '0';
+        rst_reg_indx_519  <= '0';
+        rst_reg_indx_0    <= '0';
+        shift_reg_left_1  <= '0';
+        shift_reg_right_1 <= '0';
+        reg_clr           <= '0';
+        read_o5           <= '0';
+        read_o6           <= '0';
+        inc_event_counter <= '0';
+        set_pkt_data      <= '0';
         if rst_n = '0' then
             state_counter_clr <= '1';
             next_state <= IDLE;
@@ -306,8 +312,8 @@ begin
                 when IDLE =>
                     if trigger_acq = '1' then
                         state_counter_clr <= '1';
-                        set_event_time <= '1'; -- set event time at trigger recv time.
-                        next_state <= ACQ_DELAY;
+                        set_pkt_data      <= '1'; -- save packet-header data at this point
+                        next_state        <= ACQ_DELAY;
                     elsif set_config = '1' then
                         state_counter_clr <= '1';
                         next_state <= SC_SET_MODE_M1;
@@ -639,7 +645,10 @@ begin
                 when RO_WFIFO_11 => next_state <= RO_WFIFO_12;
                 when RO_WFIFO_12 => next_state <= RO_WFIFO_13;
                 when RO_WFIFO_13 => next_state <= RO_WFIFO_14;
-                when RO_WFIFO_14 =>
+                when RO_WFIFO_14 => next_state <= RO_WFIFO_15;
+                when RO_WFIFO_15 => next_state <= RO_WFIFO_16;
+                when RO_WFIFO_16 => next_state <= RO_WFIFO_17;
+                when RO_WFIFO_17 =>
                     state_counter_clr <= '1';
                     inc_event_counter <= '1';
                     next_state <= RO_SET_MODE_M3;
@@ -799,6 +808,7 @@ begin
             when RO_SHIFT_DATA =>
                 vata_mode <= "100";
                 vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+            ----Write header data------------------------
             when RO_WFIFO_00 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
@@ -807,71 +817,87 @@ begin
             when RO_WFIFO_01 =>
                 -- We just wrote the event id, so now clear it:
                 event_id_clr <= '1';
-                vata_mode   <= "100";
-                data_tvalid <= '1';
-                data_tdata  <= event_time(31 downto 0); -- lowest 32 bits of event clock time.
+                vata_mode    <= "100";
+                data_tvalid  <= '1';
+                data_tdata   <= pkt_event_counter;
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_02 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= event_time(63 downto 32); -- highest 32 bits of event clock time.
+                data_tdata  <= pkt_running_counter(31 downto 0);  -- lowest 32 bits the pkt_running_counter
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_03 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= std_logic_vector(reg_from_vata(31 downto 0));
+                data_tdata  <= pkt_running_counter(63 downto 32); -- highest 32 bits of pkt_running_counter
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_04 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= std_logic_vector(reg_from_vata(63 downto 32));
+                data_tdata  <= pkt_live_counter(31 downto 0);  -- lowest 32 bits the pkt_live_counter
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_05 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= std_logic_vector(reg_from_vata(95 downto 64));
+                data_tdata  <= pkt_live_counter(63 downto 32); -- highest 32 bits of pkt_live_counter
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+            ----Write asic data------------------------
             when RO_WFIFO_06 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= std_logic_vector(reg_from_vata(127 downto 96));
+                data_tdata  <= std_logic_vector(reg_from_vata(31 downto 0));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_07 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= std_logic_vector(reg_from_vata(159 downto 128));
+                data_tdata  <= std_logic_vector(reg_from_vata(63 downto 32));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_08 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= std_logic_vector(reg_from_vata(191 downto 160));
+                data_tdata  <= std_logic_vector(reg_from_vata(95 downto 64));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_09 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= std_logic_vector(reg_from_vata(223 downto 192));
+                data_tdata  <= std_logic_vector(reg_from_vata(127 downto 96));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_10 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= std_logic_vector(reg_from_vata(255 downto 224));
+                data_tdata  <= std_logic_vector(reg_from_vata(159 downto 128));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_11 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= std_logic_vector(reg_from_vata(287 downto 256));
+                data_tdata  <= std_logic_vector(reg_from_vata(191 downto 160));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_12 =>
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata  <= std_logic_vector(reg_from_vata(319 downto 288));
+                data_tdata  <= std_logic_vector(reg_from_vata(223 downto 192));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_13 =>
+                vata_mode   <= "100";
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(255 downto 224));
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+            when RO_WFIFO_14 =>
+                vata_mode   <= "100";
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(287 downto 256));
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+            when RO_WFIFO_15 =>
+                vata_mode   <= "100";
+                data_tvalid <= '1';
+                data_tdata  <= std_logic_vector(reg_from_vata(319 downto 288));
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+            when RO_WFIFO_16 =>
                 vata_mode   <= "100";
                 data_tvalid  <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(351 downto 320));
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            when RO_WFIFO_14 =>
+            when RO_WFIFO_17 =>
                 vata_mode   <= "100";
                 data_tvalid               <= '1';
                 data_tdata(26 downto 0)   <= std_logic_vector(reg_from_vata(378 downto 352));
@@ -958,7 +984,6 @@ begin
     process (rst_n, counter_rst, clk_100MHz)
     begin
         if rst_n = '0' or counter_rst = '1' then
-            --urunning_counter <= (others => '0');
             ulive_counter <= (others => '0');
         elsif rising_edge(clk_100MHz) then
             if current_state = IDLE then
@@ -966,7 +991,6 @@ begin
             else
                 ulive_counter <= ulive_counter;
             end if;
-            --urunning_counter <= urunning_counter + to_unsigned(1, urunning_counter'length);
         end if;
     end process;
 
@@ -981,15 +1005,20 @@ begin
         end if;
     end process;
 
-    process (rst_n, set_event_time)
+    process (rst_n, set_pkt_data)
     begin
         if rst_n = '0' then
-            event_time <= (others => '0');
-        elsif set_event_time = '1' then
-            --event_time <= std_logic_vector(urunning_counter);
-            event_time <= running_counter;
+            pkt_running_counter <= (others => '0');
+            pkt_live_counter    <= (others => '0');
+            pkt_event_counter   <= (others => '0');
+        elsif rising_edge(set_pkt_data) then
+            pkt_running_counter <= running_counter;
+            pkt_live_counter    <= std_logic_vector(ulive_counter);
+            pkt_event_counter   <= std_logic_vector(uevent_counter);
         else
-            event_time <= event_time;
+            pkt_running_counter <= pkt_running_counter;
+            pkt_live_counter    <= pkt_live_counter;
+            pkt_event_counter   <= pkt_event_counter;
         end if;
     end process;
 
