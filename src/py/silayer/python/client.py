@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import multiprocessing as mp
 import zmq
+import time
 
 from . import data_recvr
 from .cfg_reg import VataCfg
@@ -91,6 +92,27 @@ class Client:
         if nbytes_returned > 0 and len(ret) != nbytes_returned:
             raise ValueError(f"Response: {ret.decode()}. Unexpected Length")
         return bytes2val(ret)
+
+    def send_and_set_config(self, vata, config_register):
+        """
+        Send and set a VATA configuration register.
+        params:
+            vata: Which ASIC to configure. 
+            config_register: full path to vata .vcfg binary register.
+        """
+
+        
+        ready = self.send_recv(f"vata {vata} set-config-binary")
+        
+        if ready != "ready":
+            raise ValueError(f"Server is not ready: {ready}")
+        else:
+            with open(config_register, 'rb') as f:
+                payload = f.read()
+                return self.send_recv(payload)
+
+
+
 
     def set_config(self, vata, path):
         """
