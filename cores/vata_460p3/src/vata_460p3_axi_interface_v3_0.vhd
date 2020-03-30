@@ -17,8 +17,7 @@ entity vata_460p3_axi_interface_v3_0 is
         -- Users to add ports here
         trigger_ack             : in std_logic;
         fast_or_trigger         : in std_logic;
-        --local_fast_or_trigger   : in std_logic;
-        vata_hits               : in std_logic_vector(15 downto 0);
+        vata_hits               : in std_logic_vector(11 downto 0);
         force_trigger           : in std_logic;
         global_counter          : in std_logic_vector(63 downto 0);
         global_counter_rst      : in std_logic;
@@ -98,7 +97,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
         TRIGGER_ACK_TIMEOUT : out std_logic_vector(31 downto 0);
         FAST_OR_TRIGGER_ENA : out std_logic;
         ACK_TRIGGER_ENA     : out std_logic;
-        LOCAL_VATA_TRIGGER_ENA : out std_logic_vector(15 downto 0);
+        LOCAL_VATA_TRIGGER_ENA : out std_logic_vector(11 downto 0);
         RUNNING_COUNTER     : in std_logic_vector(63 downto 0);
         LIVE_COUNTER        : in std_logic_vector(63 downto 0);
         EVENT_COUNTER       : in std_logic_vector(31 downto 0);
@@ -135,8 +134,8 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             fast_or_trigger_ena     : in std_logic;
             trigger_ack             : in std_logic;
             ack_trigger_ena         : in std_logic;
-            vata_hits               : in std_logic_vector(15 downto 0);
-            local_vata_trigger_ena  : in std_logic_vector(15 downto 0);
+            vata_hits               : in std_logic_vector(11 downto 0);
+            local_vata_trigger_ena  : in std_logic_vector(11 downto 0);
             force_trigger           : in std_logic;
             disable_fast_or_trigger : in std_logic;
             trigger_ack_timeout     : in std_logic_vector(31 downto 0);
@@ -225,7 +224,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     signal event_counter          : std_logic_vector(31 downto 0);
     signal fast_or_trigger_ena    : std_logic := '0';
     signal ack_trigger_ena        : std_logic := '0';
-    signal local_vata_trigger_ena : std_logic_vector(15 downto 0);
+    signal local_vata_trigger_ena : std_logic_vector(11 downto 0);
 begin
 
 -- Instantiation of Axi Bus Interface S00_AXI

@@ -10,8 +10,8 @@ entity vata_460p3_iface_fsm is
                 fast_or_trigger_ena     : in std_logic;
                 trigger_ack             : in std_logic;
                 ack_trigger_ena         : in std_logic;
-                vata_hits               : in std_logic_vector(15 downto 0);
-                local_vata_trigger_ena  : in std_logic_vector(15 downto 0);
+                vata_hits               : in std_logic_vector(11 downto 0);
+                local_vata_trigger_ena  : in std_logic_vector(11 downto 0);
                 force_trigger           : in std_logic;
                 disable_fast_or_trigger : in std_logic; 
                 trigger_ack_timeout     : in std_logic_vector(31 downto 0);
@@ -992,10 +992,10 @@ begin
             pkt_running_counter <= running_counter;
             pkt_live_counter    <= std_logic_vector(ulive_counter);
             pkt_event_counter   <= std_logic_vector(uevent_counter);
-            pkt_event_triggers(15 downto 0) <= vata_hits;
-            pkt_event_triggers(16)          <= fast_or_trigger;
-            pkt_event_triggers(17)          <= trigger_ack;
-            pkt_event_triggers(18)          <= force_trigger;
+            pkt_event_triggers(11 downto 0) <= vata_hits;
+            pkt_event_triggers(12)          <= fast_or_trigger;
+            pkt_event_triggers(13)          <= trigger_ack;
+            pkt_event_triggers(14)          <= force_trigger;
         else
             pkt_running_counter <= pkt_running_counter;
             pkt_live_counter    <= pkt_live_counter;
@@ -1027,11 +1027,7 @@ begin
                 or (vata_hits(8) and local_vata_trigger_ena(8))
                 or (vata_hits(9) and local_vata_trigger_ena(9))
                 or (vata_hits(10) and local_vata_trigger_ena(10))
-                or (vata_hits(11) and local_vata_trigger_ena(11))
-                or (vata_hits(12) and local_vata_trigger_ena(12))
-                or (vata_hits(13) and local_vata_trigger_ena(13))
-                or (vata_hits(14) and local_vata_trigger_ena(14))
-                or (vata_hits(15) and local_vata_trigger_ena(15));
+                or (vata_hits(11) and local_vata_trigger_ena(11));
 
     -- DEBUG --
     state_out          <= current_state;

@@ -23,7 +23,7 @@ entity vata_460p3_axi_interface_v3_0_S00_AXI is
         TRIGGER_ACK_TIMEOUT : out std_logic_vector(31 downto 0);
         FAST_OR_TRIGGER_ENA : out std_logic;
         ACK_TRIGGER_ENA     : out std_logic;
-        LOCAL_VATA_TRIGGER_ENA : out std_logic_vector(15 downto 0);
+        LOCAL_VATA_TRIGGER_ENA : out std_logic_vector(11 downto 0);
         RUNNING_COUNTER     : in std_logic_vector(63 downto 0);
         LIVE_COUNTER        : in std_logic_vector(63 downto 0);
         EVENT_COUNTER       : in std_logic_vector(31 downto 0);
@@ -1201,9 +1201,9 @@ begin
     POWER_CYCLE_TIMER   <= slv_reg19;
     TRIGGER_ACK_TIMEOUT <= slv_reg20;
     -- Trigger enable mask unpacking:
-    LOCAL_VATA_TRIGGER_ENA <= slv_reg21(15 downto 0);
-    FAST_OR_TRIGGER_ENA    <= slv_reg21(16);
-    ACK_TRIGGER_ENA        <= slv_reg21(17);
+    LOCAL_VATA_TRIGGER_ENA <= slv_reg21(11 downto 0);
+    FAST_OR_TRIGGER_ENA    <= slv_reg21(12);
+    ACK_TRIGGER_ENA        <= slv_reg21(13);
 
 	-- User logic ends
 

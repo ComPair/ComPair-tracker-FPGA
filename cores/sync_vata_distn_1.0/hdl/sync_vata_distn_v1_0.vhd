@@ -35,12 +35,8 @@ entity sync_vata_distn_v1_0 is
         vata_hit_busy09    : in std_logic_vector(1 downto 0);
         vata_hit_busy10    : in std_logic_vector(1 downto 0);
         vata_hit_busy11    : in std_logic_vector(1 downto 0);
-        vata_hit_busy12    : in std_logic_vector(1 downto 0);
-        vata_hit_busy13    : in std_logic_vector(1 downto 0);
-        vata_hit_busy14    : in std_logic_vector(1 downto 0);
-        vata_hit_busy15    : in std_logic_vector(1 downto 0);
         -- Concatenate hit signals to send back to individual vata's:
-        vata_hits          : out std_logic_vector(15 downto 0);
+        vata_hits          : out std_logic_vector(11 downto 0);
 
         -- User ports ends
         -- Do not modify the ports beyond this line
@@ -143,10 +139,6 @@ architecture arch_imp of sync_vata_distn_v1_0 is
     signal vata_hit09 : std_logic;
     signal vata_hit10 : std_logic;
     signal vata_hit11 : std_logic;
-    signal vata_hit12 : std_logic;
-    signal vata_hit13 : std_logic;
-    signal vata_hit14 : std_logic;
-    signal vata_hit15 : std_logic;
     signal vata_busy00 : std_logic;
     signal vata_busy01 : std_logic;
     signal vata_busy02 : std_logic;
@@ -159,10 +151,6 @@ architecture arch_imp of sync_vata_distn_v1_0 is
     signal vata_busy09 : std_logic;
     signal vata_busy10 : std_logic;
     signal vata_busy11 : std_logic;
-    signal vata_busy12 : std_logic;
-    signal vata_busy13 : std_logic;
-    signal vata_busy14 : std_logic;
-    signal vata_busy15 : std_logic;
 
 begin
 
@@ -222,8 +210,6 @@ begin
                             or vata_hit03
                             or vata_hit04
                             or vata_hit05
-                            or vata_hit06
-                            or vata_hit07
                  , data_out => FEE_sideA_hit
                  );
     fee_hit_sideB_stay_high_inst : stay_high_n_cycles
@@ -232,14 +218,12 @@ begin
                     ) 
         port map ( clk      => s00_axi_aclk
                  , rst_n    => s00_axi_aresetn
-                 , data_in  => vata_hit08
+                 , data_in  => vata_hit06
+                            or vata_hit07
+                            or vata_hit08
                             or vata_hit09
                             or vata_hit10
                             or vata_hit11
-                            or vata_hit12
-                            or vata_hit13
-                            or vata_hit14
-                            or vata_hit15
                  , data_out => FEE_sideB_hit
                  );
     FEE_busy_buf <= vata_busy00
@@ -253,11 +237,7 @@ begin
                  or vata_busy08
                  or vata_busy09
                  or vata_busy10
-                 or vata_busy11
-                 or vata_busy12
-                 or vata_busy13
-                 or vata_busy14
-                 or vata_busy15;
+                 or vata_busy11;
     FEE_busy <= FEE_busy_buf;
     --    create 50ns long pulse for FEE_ready based of `not FEE_busy`
     fee_ready_stay_high_inst : stay_high_n_cycles
@@ -285,10 +265,6 @@ begin
     vata_hit09 <= vata_hit_busy09(1);
     vata_hit10 <= vata_hit_busy10(1);
     vata_hit11 <= vata_hit_busy11(1);
-    vata_hit12 <= vata_hit_busy12(1);
-    vata_hit13 <= vata_hit_busy13(1);
-    vata_hit14 <= vata_hit_busy14(1);
-    vata_hit15 <= vata_hit_busy15(1);
 
     vata_busy00 <= vata_hit_busy00(0);
     vata_busy01 <= vata_hit_busy01(0);
@@ -302,10 +278,6 @@ begin
     vata_busy09 <= vata_hit_busy09(0);
     vata_busy10 <= vata_hit_busy10(0);
     vata_busy11 <= vata_hit_busy11(0);
-    vata_busy12 <= vata_hit_busy12(0);
-    vata_busy13 <= vata_hit_busy13(0);
-    vata_busy14 <= vata_hit_busy14(0);
-    vata_busy15 <= vata_hit_busy15(0);
 
     vata_hits(0)  <= vata_hit00;
     vata_hits(1)  <= vata_hit01;
@@ -319,12 +291,7 @@ begin
     vata_hits(9)  <= vata_hit09;
     vata_hits(10) <= vata_hit10;
     vata_hits(11) <= vata_hit11;
-    vata_hits(12) <= vata_hit12;
-    vata_hits(13) <= vata_hit13;
-    vata_hits(14) <= vata_hit14;
-    vata_hits(15) <= vata_hit15;
 
- 
     -- User logic ends
 
 end arch_imp;
