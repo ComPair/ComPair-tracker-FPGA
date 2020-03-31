@@ -8,7 +8,7 @@
 // with some room.
 #define ASIC_NDATA 32 // N_ASIC_PACKET * 2
 
-#define DP_TIMEOUT_FLAG 0x0001
+//#define DP_TIMEOUT_FLAG 0x0001
 
 class DataPacket {
     private:
