@@ -98,7 +98,10 @@ void DataPacket::to_msg(u16 packet_size, char* buf) {
 }
 
 void DataPacket::set_timeout() {
-    flags |= DP_TIMEOUT_FLAG;
+    for (u16 i=0; i<(u16)N_VATA; i++)
+        if (need_data[i])
+            flags |= (1 << i);
+    //flags |= DP_TIMEOUT_FLAG;
 }
 
 // vim: set ts=4 sw=4 sts=4 et:
