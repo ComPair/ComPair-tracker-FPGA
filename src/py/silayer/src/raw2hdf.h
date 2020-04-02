@@ -22,15 +22,17 @@ typedef struct DataPacket {
     u16 packet_size;
     u8 header_size;
     u16 packet_flags;
-    u64 real_time_counter;
-    u64 live_time_counter;
-    u16 event_type;
-    u32 event_counter;
+    u64 packet_time;
     u8 nasic;
     u16 *asic_nbytes;
     u32 total_asic_sz;
     void *asic_data; 
 } DataPacket;
+
+typedef struct FileInfo {
+    FILE *fp;
+    long int fsz;
+} FileInfo;
 
 // Exported functions
 static PyObject *init_parser(PyObject *dummy, PyObject *args);
