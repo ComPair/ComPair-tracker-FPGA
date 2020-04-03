@@ -131,10 +131,7 @@ bool VataCtrl::set_check_config(std::vector<u32> &config_in) {
     this->set_config(config_in);
     usleep(100000); // Arbitrary delay again...
     this->get_config(config_out);
-    printf("XXX set_check_config:\n");
     for (int i=0; i<N_CFG_REG; i++) {
-        printf("  %02d: 0x%08X\n", i, config_in[i]);
-        printf("      0x%08X\n", config_out[i]);
         if (config_in[i] != config_out[i])    
             return false;
     }
