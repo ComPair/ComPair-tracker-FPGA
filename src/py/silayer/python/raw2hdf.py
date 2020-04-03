@@ -407,8 +407,8 @@ class DataPackets(object):
             for attr, _ in self._HEADER_LAYOUT:
                 setattr(self, attr, dp[attr])
             self.asic_nbytes = [
-                i + 1 for i in dp["asic_nbytes"]
-            ]  ## XXX i+1 for below indexing.
+                i for i in dp["asic_nbytes"]
+            ]
             self.asic_packets = []
             asic_data = dp["asic_data"]
             for n in self.asic_nbytes:
@@ -420,7 +420,7 @@ class DataPackets(object):
                 break
 
     @classmethod
-    def from_binary(cls, data, n_packet=0, use_c_ext=False):
+    def from_binary(cls, data, n_packet=0, use_c_ext=True):
         """
         Load the data from a flat binary file of data packets, or a byte string.
         If `n_packet` is 0, then entire data file/stream will be parsed.

@@ -53,12 +53,16 @@ static PyObject *init_parser(PyObject *dummy, PyObject *args) {
         fprintf(stderr, "Error: usage: init_parser(fname)\n");
         return NULL;
     }
-    FILE *fp = fopen(fname, "r");
-    if (fp == NULL) {
+    FileInfo *finfo = (FileInfo *)malloc(sizeof(FileInfo));
+    finfo->fp = fopen(fname, "r");
+    if (finfo->fp == NULL) {
         fprintf(stderr, "Error: fopen failed on file %s\n", fname);
         return NULL;
     }
-    return PyCapsule_New((void *)fp, CAPSULE_NAME, &destroy_capsule);
+    fseek(finfo->fp, 0, SEEK_END);
+    finfo->fsz = ftell(finfo->fp);
+    fseek(finfo->fp, 0, SEEK_SET);
+    return PyCapsule_New((void *)finfo, CAPSULE_NAME, &destroy_capsule);
 }
 
 /*     parse_data_packet
@@ -71,28 +75,33 @@ static PyObject *parse_data_packet(PyObject *dummy, PyObject *args) {
         fprintf(stderr, "Error: usage: parse_data_packet(capsule)\n");
         return NULL;
     }
-    FILE *fp = PyCapsule_GetPointer(capsule, CAPSULE_NAME);
+    FileInfo *finfo = PyCapsule_GetPointer(capsule, CAPSULE_NAME);
+    FILE *fp = finfo->fp;
     if (feof(fp) != 0) {
         return PyDict_New();
     }
     DataPacket dp;
     fread(&(dp.packet_size), sizeof(u16), 1, fp);
+    if ((long int)dp.packet_size + ftell(fp) - sizeof(u16) > finfo->fsz) {
+        // Not enough data remains in the file.
+        return PyDict_New();
+    }
     fread(&(dp.header_size), sizeof(u8), 1, fp);
     fread(&(dp.packet_flags), sizeof(u16), 1, fp);
-    fread(&(dp.real_time_counter), sizeof(u64), 1, fp);
-    fread(&(dp.live_time_counter), sizeof(u64), 1, fp);
-    fread(&(dp.event_type), sizeof(u16), 1, fp);
-    fread(&(dp.event_counter), sizeof(u32), 1, fp);
+    fread(&(dp.packet_time), sizeof(u64), 1, fp);
     fread(&(dp.nasic), sizeof(u8), 1, fp);
+    //printf("XXX dp.nasic: %u\n", dp.nasic);
     dp.asic_nbytes = (u16 *)malloc(dp.nasic * sizeof(u16));
     fread(dp.asic_nbytes, sizeof(u16), dp.nasic, fp);
     dp.total_asic_sz = 0;
     for(u8 i=0; i<dp.nasic; i++) {
-        if (dp.asic_nbytes[i] > 0)
-            dp.asic_nbytes[i]--; // XXX KLUDGE!!!! THIS SUCKS!!!!
+        //printf("   asic %u: %u nbytes\n", i, dp.asic_nbytes[i]);
+        //if (dp.asic_nbytes[i] > 0)
+        //    dp.asic_nbytes[i]--; // XXX KLUDGE!!!! THIS SUCKS!!!!
         dp.total_asic_sz += (u32)dp.asic_nbytes[i];
     }
     dp.asic_data = malloc(sizeof(u8) * dp.total_asic_sz);
+    //printf("    total_asic_sz: %u\n", dp.total_asic_sz);
     fread(dp.asic_data, sizeof(u8), dp.total_asic_sz, fp);
     PyObject *dp_dict = dp2dict(&dp);
 
@@ -114,17 +123,14 @@ static PyObject *bytes2packet(PyObject *dummy, PyObject *args) {
     memcpy(&(dp.packet_size), data, sizeof(u16)); data += sizeof(u16);
     memcpy(&(dp.header_size), data, sizeof(u8)); data += sizeof(u8);
     memcpy(&(dp.packet_flags), data, sizeof(u16)); data += sizeof(u16);
-    memcpy(&(dp.real_time_counter), data, sizeof(u64)); data += sizeof(u64);
-    memcpy(&(dp.live_time_counter), data, sizeof(u64)); data += sizeof(u64);
-    memcpy(&(dp.event_type), data, sizeof(u16)); data += sizeof(u16);
-    memcpy(&(dp.event_counter), data, sizeof(u32)); data += sizeof(u32);
+    memcpy(&(dp.packet_time), data, sizeof(u64)); data += sizeof(u64);
     memcpy(&(dp.nasic), data, sizeof(u8)); data += sizeof(u8);
     dp.asic_nbytes = (u16 *)malloc(dp.nasic * sizeof(u16));
     memcpy(dp.asic_nbytes, data, dp.nasic * sizeof(u16)); data += dp.nasic * sizeof(u16);
     dp.total_asic_sz = 0;
     for(u8 i=0; i<dp.nasic; i++) {
-        if (dp.asic_nbytes[i] > 0)
-            dp.asic_nbytes[i]--; // XXX KLUDGE!!!! THIS SUCKS!!!!
+        //if (dp.asic_nbytes[i] > 0)
+        //    dp.asic_nbytes[i]--; // XXX KLUDGE!!!! THIS SUCKS!!!!
         dp.total_asic_sz += (u32)dp.asic_nbytes[i];
     }
     dp.asic_data = malloc(dp.total_asic_sz * sizeof(u8));
@@ -143,10 +149,7 @@ PyObject *dp2dict(DataPacket *dp) {
     PyDict_SetItemString(dict, "packet_size", PyLong_FromUnsignedLong((unsigned long)dp->packet_size));
     PyDict_SetItemString(dict, "header_size", PyLong_FromUnsignedLong((unsigned long)dp->header_size));
     PyDict_SetItemString(dict, "packet_flags", PyLong_FromUnsignedLong((unsigned long)dp->packet_flags));
-    PyDict_SetItemString(dict, "real_time_counter", PyLong_FromUnsignedLong((unsigned long)dp->real_time_counter));
-    PyDict_SetItemString(dict, "live_time_counter", PyLong_FromUnsignedLong((unsigned long)dp->live_time_counter));
-    PyDict_SetItemString(dict, "event_type", PyLong_FromUnsignedLong((unsigned long)dp->event_type));
-    PyDict_SetItemString(dict, "event_counter", PyLong_FromUnsignedLong((unsigned long)dp->event_counter));
+    PyDict_SetItemString(dict, "packet_time", PyLong_FromUnsignedLong((unsigned long)dp->packet_time));
     PyDict_SetItemString(dict, "nasic", PyLong_FromUnsignedLong((unsigned long)dp->nasic));
 
     // XXX HOW DO REFS WORK WITH py_asic_nbytes??? XXX
@@ -161,8 +164,9 @@ PyObject *dp2dict(DataPacket *dp) {
 }
 
 void destroy_capsule(PyObject *capsule) {
-    FILE *fp = PyCapsule_GetPointer(capsule, CAPSULE_NAME);
-    fclose(fp);
+    FileInfo *finfo = PyCapsule_GetPointer(capsule, CAPSULE_NAME);
+    fclose(finfo->fp);
+    free(finfo);
 }
     
 // vim: set ts=4 sw=4 sts=4 et:
