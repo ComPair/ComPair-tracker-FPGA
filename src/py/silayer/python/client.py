@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 import multiprocessing as mp
 import zmq
 import time
@@ -98,25 +99,27 @@ class Client:
         Send and set a VATA configuration register.
         params:
             vata: Which ASIC to configure. 
-            config_register: full path to vata .vcfg binary register.
+            config_register: full path to vata .vcfg binary register or a VataCfg instance.
         """
+        if type(config_register) is str:
+            if not os.path.isfile(config_register):
+                raise ValueError(f"Specified path ({config_register}) is not a file.")
+            with open(config_register, "rb") as f:
+                payload = f.read()
+        elif type(config_register) is VataCfg:
+            payload = config_register.to_binary()
 
-        
         ready = self.send_recv(f"vata {vata} set-config-binary")
         
         if ready != "ready":
             raise ValueError(f"Server is not ready: {ready}")
         else:
-            with open(config_register, 'rb') as f:
-                payload = f.read()
-                return self.send_recv(payload)
+            return self.send_recv(payload)
 
 
-
-
-    def set_config(self, vata, path):
+    def set_config_zynq_path(self, vata, path):
         """
-        Set the configuration to what is stored at `path` (on the silayer!).
+        Set the configuration to what is stored at `path` (on the silayer zynq!).
         Sets for the given asic.
         This should get updated to send raw data over!
         """

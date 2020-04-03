@@ -108,7 +108,7 @@ int VataCtrl::get_config(std::vector<u32> &data) {
     // Delay for 0.1s (arbitrary, definitely enough time)
     usleep(100000);
     for (int i=0; i<N_CFG_REG; i++) {
-        data[i] = paxi[i+CFG_REG_OFFSET];
+        data[i] = paxi[i+READ_CFG_REG_OFFSET];
     }
     return 0;
 }
