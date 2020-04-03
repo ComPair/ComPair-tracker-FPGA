@@ -231,6 +231,18 @@ int VataCtrl::trigger_disable_local_asic(int asic_number) {
     return 0;
 }
 
+int VataCtrl::trigger_enable_all_local_asics() {
+    for (int i=0; i<(int)N_VATA; i++)
+        trigger_enable_local_asic(i);
+    return 0;
+}
+
+int VataCtrl::trigger_disable_all_local_asics() {
+    for (int i=0; i<(int)N_VATA; i++)
+        trigger_disable_local_asic(i);
+    return 0;
+}
+
 int VataCtrl::trigger_enable_tm_hit() {
     trigger_enable(TRIGGER_ENA_BIT_TM_HIT);
     return 0;

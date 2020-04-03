@@ -256,40 +256,148 @@ int LayerServer::_reset_counters(int nvata, char* &cmd) {
     return 0;
 }
 
-int LayerServer::_trigger_enable(int nvata, char* &cmd) {
-    int bitnum = _parse_positive_int(cmd);
-    if (bitnum < 0) {
+int LayerServer::_trigger_enable_bit(int nvata, char* &cmd) {
+    int bitnum;
+    if ((bitnum = _parse_positive_int(cmd)) >= 0) {
+        if (vatas[nvata].trigger_enable(bitnum) != 0) {
+            #ifdef VERBOSE
+            std::cerr << "ERROR: trigger_enable returned non-zero." << std::endl;
+            #endif
+            return 1;
+        }
+        #ifdef VERBOSE
+        std::cout << "Enabled trigger #" << bitnum << " for vata " << nvata << std::endl;
+        #endif
+    } else if (strncmp(cmd, "all", 3) == 0) {
+        vatas[nvata].trigger_enable_all(); 
+        #ifdef VERBOSE
+        std::cout << "Enabled all triggers for vata " << nvata << std::endl;
+        #endif
+    } else {
         #ifdef VERBOSE
         std::cerr << "ERROR: Could not parse trigger enable bit number." << std::endl;
         #endif
         return 1;
     }
-    vatas[nvata].trigger_enable(bitnum);
-    #ifdef VERBOSE
-    std::cout << "Enabled trigger #" << bitnum << " for vata " << nvata << std::endl;
-    #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
     socket.send(response, zmq::send_flags::none);
     return 0;
 }
 
-int LayerServer::_trigger_disable(int nvata, char* &cmd) {
-    int bitnum = _parse_positive_int(cmd);
-    if (bitnum < 0) {
+int LayerServer::_trigger_disable_bit(int nvata, char* &cmd) {
+    int bitnum;
+    if ((bitnum = _parse_positive_int(cmd)) >= 0) {
+        if (vatas[nvata].trigger_disable(bitnum) != 0) {
+            #ifdef VERBOSE
+            std::cerr << "ERROR: trigger_disable returned non-zero." << std::endl;
+            #endif
+            return 1;
+        }
+        #ifdef VERBOSE
+        std::cout << "Disabled trigger #" << bitnum <<" for vata " << nvata << std::endl;
+        #endif
+    } else if (strncmp(cmd, "all", 3) == 0) {
+        vatas[nvata].trigger_disable_all(); 
+        #ifdef VERBOSE
+        std::cout << "Disabled all triggers for vata " << nvata << std::endl;
+        #endif
+    } else {
         #ifdef VERBOSE
         std::cerr << "ERROR: Could not parse trigger disable bit number." << std::endl;
         #endif
         return 1;
     }
-    vatas[nvata].trigger_disable(bitnum);
-    #ifdef VERBOSE
-    std::cout << "Disabled trigger #" << bitnum <<" for vata " << nvata << std::endl;
-    #endif
     zmq::message_t response(2);
     std::memcpy(response.data(), "ok", 2);
     socket.send(response, zmq::send_flags::none);
     return 0;
+}
+
+int LayerServer::_trigger_enable_asic(int nvata, char* &cmd) {
+    int asicnum;
+    if ((asicnum = _parse_positive_int(cmd)) >= 0) {
+        if (vatas[nvata].trigger_enable_local_asic(asicnum) != 0) {
+            #ifdef VERBOSE
+            std::cerr << "ERROR: trigger_enable_local_asic returned non-zero." << std::endl;
+            #endif
+            return 1;
+        }
+        #ifdef VERBOSE
+        std::cout << "Enabled asic #" << asicnum << " triggers for vata " << nvata << std::endl;
+        #endif
+    } else if (strncmp(cmd, "all", 3) == 0) {
+        vatas[nvata].trigger_enable_all_local_asics(); 
+        #ifdef VERBOSE
+        std::cout << "Enabled all local asic triggers for vata " << nvata << std::endl;
+        #endif
+    } else {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Could not parse trigger enable asic number." << std::endl;
+        #endif
+        return 1;
+    }
+    zmq::message_t response(2);
+    std::memcpy(response.data(), "ok", 2);
+    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
+int LayerServer::_trigger_disable_asic(int nvata, char* &cmd) {
+    int asicnum;
+    if ((asicnum = _parse_positive_int(cmd)) >= 0) {
+        if (vatas[nvata].trigger_disable_local_asic(asicnum) != 0) {
+            #ifdef VERBOSE
+            std::cerr << "ERROR: trigger_disable_local_asic returned non-zero." << std::endl;
+            #endif
+            return 1;
+        }
+        #ifdef VERBOSE
+        std::cout << "Disabled asic #" << asicnum << " triggers for vata " << nvata << std::endl;
+        #endif
+    } else if (strncmp(cmd, "all", 3) == 0) {
+        vatas[nvata].trigger_disable_all_local_asics(); 
+        #ifdef VERBOSE
+        std::cout << "Disabled all local asic triggers for vata " << nvata << std::endl;
+        #endif
+    } else {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: Could not parse trigger enable asic number." << std::endl;
+        #endif
+        return 1;
+    }
+    zmq::message_t response(2);
+    std::memcpy(response.data(), "ok", 2);
+    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
+int LayerServer::_trigger_enable_tm_hit(int nvata) {
+    #ifdef VERBOSE
+    std::cout << "Enable TM hit triggers for vata  " << nvata << std::endl;
+    #endif
+    return vatas[nvata].trigger_enable_tm_hit();
+}
+
+int LayerServer::_trigger_disable_tm_hit(int nvata) {
+    #ifdef VERBOSE
+    std::cout << "Disable TM hit triggers for vata  " << nvata << std::endl;
+    #endif
+    return vatas[nvata].trigger_disable_tm_hit();
+}
+
+int LayerServer::_trigger_enable_tm_ack(int nvata) {
+    #ifdef VERBOSE
+    std::cout << "Enable TM ack triggers for vata  " << nvata << std::endl;
+    #endif
+    return vatas[nvata].trigger_enable_tm_ack();
+}
+
+int LayerServer::_trigger_disable_tm_ack(int nvata) {
+    #ifdef VERBOSE
+    std::cout << "Disable TM ack triggers for vata  " << nvata << std::endl;
+    #endif
+    return vatas[nvata].trigger_disable_tm_ack();
 }
 
 int LayerServer::_get_event_count(int nvata, char* &cmd) {
@@ -442,30 +550,6 @@ int LayerServer::_cal_n_pulses(char* &cmd) {
     }
     return calctrl.n_pulses((u32)n);
 }
-
-//int LayerServer::_dac_set_counts(SilayerSide silayer_side, DacChoice dac_choice, char* &cmd) {
-//    int cal_dac = _parse_positive_int(cmd);
-//    if (cal_dac < 0) {
-//        #ifdef VERBOSE
-//        std::cerr << "ERROR: Could not parse cal-dac value." << std::endl;
-//        #endif
-//        return 1;
-//    }
-//    if (dacctrl.set_counts(silayer_side, dac_choice, (u32)counts) == 1) {
-//        #ifdef VERBOSE
-//        std::cerr << "ERROR: dac value out of range." << std::endl;
-//        #endif
-//        return 2;
-//    }
-//    return 0;
-//    //if (calctrl.set_cal_dac((u32)cal_dac) == 1) {
-//    //    #ifdef VERBOSE
-//    //    std::cerr << "ERROR: dac value out of range." << std::endl;
-//    //    #endif
-//    //    return 2;
-//    //}
-//    //return 0;
-//}
 
 int LayerServer::_get_n_fifo(int nvata, char* &cmd) {
     u32 n_fifo = vatas[nvata].get_n_fifo();
@@ -795,6 +879,11 @@ int LayerServer::_process_sync_msg(char *msg) {
     return 0;
 }
 
+/* 
+ * Process a vata message
+ * Messages have the form `vata VATA cmd [ARGS]`
+ */
+ 
 int LayerServer::_process_vata_msg(char *msg) {
      // Initialize strtok...
     strtok(msg, " ");
@@ -874,18 +963,38 @@ int LayerServer::_process_vata_msg(char *msg) {
             _send_msg(retmsg, sizeof(retmsg));
             return 1;
         }
-    } else if (strncmp("trigger-enable", cmd, 14) == 0) {
-        if (_trigger_enable(nvata, cmd) != 0) {
-            const char retmsg[] = "ERROR: could not parse trigger-enable command";
+    } else if (strncmp("trigger-enable-bit", cmd, 18) == 0) {
+        if (_trigger_enable_bit(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse trigger-enable-bit command";
             _send_msg(retmsg, sizeof(retmsg));
             return 1;
         }
-    } else if (strncmp("trigger-disable", cmd, 15) == 0) {
-        if (_trigger_disable(nvata, cmd) != 0) {
-            const char retmsg[] = "ERROR: could not parse trigger-disable command";
+    } else if (strncmp("trigger-disable-bit", cmd, 19) == 0) {
+        if (_trigger_disable_bit(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse trigger-disable-bit command";
             _send_msg(retmsg, sizeof(retmsg));
             return 1;
         }
+    } else if (strncmp("trigger-enable-asic", cmd, 19) == 0) {
+        if (_trigger_enable_asic(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse trigger-enable-asic command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("trigger-disable-asic", cmd, 20) == 0) {
+        if (_trigger_disable_asic(nvata, cmd) != 0) {
+            const char retmsg[] = "ERROR: could not parse trigger-disable-asic command";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("trigger-enable-tm-hit", cmd, 21) == 0) {
+        _trigger_enable_tm_hit(nvata);
+    } else if (strncmp("trigger-disable-tm-hit", cmd, 22) == 0) {
+        _trigger_disable_tm_hit(nvata);
+    } else if (strncmp("trigger-enable-tm-ack", cmd, 21) == 0) {
+        _trigger_enable_tm_ack(nvata);
+    } else if (strncmp("trigger-disable-tm-ack", cmd, 22) == 0) {
+        _trigger_disable_tm_ack(nvata);
     } else if (strncmp("get-event-count", cmd, 15) == 0) {
         if (_get_event_count(nvata, cmd) != 0) {
             const char retmsg[] = "ERROR: could not parse get-event-count command";

@@ -31,6 +31,8 @@ class VataCtrl {
         int trigger_disable_all();
         int trigger_enable_local_asic(int asic_number);
         int trigger_disable_local_asic(int asic_number);
+        int trigger_enable_all_local_asics();
+        int trigger_disable_all_local_asics();
         int trigger_enable_tm_hit();
         int trigger_disable_tm_hit();
         int trigger_enable_tm_ack();
