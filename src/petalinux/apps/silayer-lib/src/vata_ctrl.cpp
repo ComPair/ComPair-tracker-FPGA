@@ -14,12 +14,7 @@ VataCtrl::VataCtrl(int n) {
     axi_highaddr = vata_addrs[n][1];
     data_fifo_baseaddr = vata_addrs[n][2];
     data_fifo_highaddr = vata_addrs[n][3];
-    //gpio_trigger_baseaddr = vata_addrs[n][4];
-    //gpio_trigger_highaddr = vata_addrs[n][5];
     paxi = pfifo = NULL; 
-    //gpio_trigger_ena_baseaddr = vata_addrs[n][6];
-    //gpio_trigger_ena_highaddr = vata_addrs[n][7];
-    //paxi = pfifo = pgpio_trigger = pgpio_trigger_ena = NULL;
 }
 
 // Destructor performs un-mmapping.
@@ -78,24 +73,6 @@ int VataCtrl::mmap_fifo() {
     }
     return 0;
 }
-
-//int VataCtrl::mmap_gpio_trigger() {
-//    if ((pgpio_trigger = this->mmap_vata_addr(trigger_fd,
-//                                              gpio_trigger_baseaddr,
-//                                              gpio_trigger_highaddr)) == NULL ) {
-//        throw "ERROR: could not mmap trigger gpio.";
-//    }
-//    return 0;
-//}
-//
-//int VataCtrl::mmap_gpio_trigger_ena() {
-//    if ((pgpio_trigger_ena = this->mmap_vata_addr(trigger_ena_fd,
-//                                                  gpio_trigger_ena_baseaddr,
-//                                                  gpio_trigger_ena_highaddr)) == NULL ) {
-//        throw "ERROR: could not mmap trigger gpio.";
-//    }
-//    return 0;
-//}
 
 // Set the configuration register from the given data vector.
 int VataCtrl::set_config(std::vector<u32> &data) { 
@@ -208,16 +185,9 @@ int VataCtrl::reset_counters() {
 int VataCtrl::trigger_enable(int mask_bit) {
     if (paxi == NULL)
         this->mmap_axi();
-    if (mask_bit >= TRIGGER_ENA_MASK_LEN)
+    if (mask_bit >= TRIGGER_ENA_MASK_LEN || mask_bit < 0)
         return 1;
     paxi[TRIGGER_ENA_MASK_REG_OFFSET] |= (1 << mask_bit);
-    return 0;
-}
-
-int VataCtrl::trigger_enable_all() {
-    if (paxi == NULL)
-        this->mmap_axi();
-    paxi[TRIGGER_ENA_MASK_REG_OFFSET] = 0xFFFFFFFF;
     return 0;
 }
 
@@ -231,10 +201,65 @@ int VataCtrl::trigger_disable(int mask_bit) {
     return 0;
 }
 
+int VataCtrl::trigger_enable_all() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[TRIGGER_ENA_MASK_REG_OFFSET] = 0xFFFFFFFF;
+    return 0;
+}
+
 int VataCtrl::trigger_disable_all() {
     if (paxi == NULL)
         this->mmap_axi();
     paxi[TRIGGER_ENA_MASK_REG_OFFSET] = 0;
+    return 0;
+}
+
+int VataCtrl::trigger_enable_local_asic(int asic_number) {
+    if (asic_number >= (int)N_VATA || asic_number < 0) {
+        return 1;
+    }
+    trigger_enable(trigger_ena_local_asics[asic_number]);
+    return 0;
+}
+
+int VataCtrl::trigger_disable_local_asic(int asic_number) {
+    if (asic_number >= (int)N_VATA || asic_number < 0) {
+        return 1;
+    }
+    trigger_disable(trigger_ena_local_asics[asic_number]);
+    return 0;
+}
+
+int VataCtrl::trigger_enable_all_local_asics() {
+    for (int i=0; i<(int)N_VATA; i++)
+        trigger_enable_local_asic(i);
+    return 0;
+}
+
+int VataCtrl::trigger_disable_all_local_asics() {
+    for (int i=0; i<(int)N_VATA; i++)
+        trigger_disable_local_asic(i);
+    return 0;
+}
+
+int VataCtrl::trigger_enable_tm_hit() {
+    trigger_enable(TRIGGER_ENA_BIT_TM_HIT);
+    return 0;
+}
+
+int VataCtrl::trigger_disable_tm_hit() {
+    trigger_disable(TRIGGER_ENA_BIT_TM_HIT);
+    return 0;
+}
+
+int VataCtrl::trigger_enable_tm_ack() {
+    trigger_enable(TRIGGER_ENA_BIT_TM_ACK);
+    return 0;
+}
+
+int VataCtrl::trigger_disable_tm_ack() {
+    trigger_disable(TRIGGER_ENA_BIT_TM_ACK);
     return 0;
 }
 

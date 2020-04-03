@@ -145,17 +145,66 @@ class Client:
             raise ValueError(f"Response: {ret.decode()}. Unexpected Length.")
         return bytes2val(ret[:8]), bytes2val(ret[8:])
 
-    def trigger_enable(self, vata, trigger_number):
+    def trigger_enable_bit(self, vata, bit_number=None):
         """
-        Enable triggers for the given asic, for the given trigger number.
+        Enable the trigger bit for the given asic.
+        If `bit_number` is None, then enable all triggers.
         """
-        return self.send_recv(f"vata {vata} trigger-enable {trigger_number}")
+        if bit_number is None:
+            bit_number = "all"
+        return self.send_recv(f"vata {vata} trigger-enable-bit {bit_number}")
 
-    def trigger_disable(self, vata, trigger_number):
+    def trigger_disable_bit(self, vata, bit_number=None):
         """
-        Disable triggers for the given asic, for the given trigger number
+        Disable the trigger bit for the given asic.
+        If `bit_number` is None, then disable all triggers.
         """
-        return self.send_recv(f"vata {vata} trigger-disable {trigger_number}")
+        if bit_number is None:
+            bit_number = "all"
+        return self.send_recv(f"vata {vata} trigger-disable-bit {bit_number}")
+
+    def trigger_enable_asic(self, vata, asic_number=None):
+        """
+        Enable triggers from the local asic.
+        If asic_number is `None`, then enable triggers from all asics
+        (equivalent to having a local "fast-or" trigger)
+        """
+        if asic_number is None:
+            asic_number = "all"
+        return self.send_recv(f"vata {vata} trigger-enable-asic {asic_number}")
+
+    def trigger_disable_asic(self, vata, asic_number=None):
+        """
+        Disable triggers from the local asic.
+        If asic_number is `None`, then disable triggers from all asics.
+        """
+        if asic_number is None:
+            asic_number = "all"
+        return self.send_recv(f"vata {vata} trigger-disable-asic {asic_number}")
+
+    def trigger_enable_tm_hit(self, vata):
+        """
+        Enable triggering off the trigger-module hit signal.
+        """
+        return self.send_recv(f"vata {vata} trigger-enable-tm-hit")
+    
+    def trigger_disable_tm_hit(self, vata):
+        """
+        Disable triggering off the trigger-module hit signal.
+        """
+        return self.send_recv(f"vata {vata} trigger-disable-tm-hit")
+
+    def trigger_enable_tm_ack(self, vata):
+        """
+        Enable triggering off the trigger-module ack signal.
+        """
+        return self.send_recv(f"vata {vata} trigger-enable-tm-ack")
+    
+    def trigger_disable_tm_ack(self, vata):
+        """
+        Disable triggering off the trigger-module ack signal.
+        """
+        return self.send_recv(f"vata {vata} trigger-disable-tm-ack")
 
     def get_event_count(self, vata):
         """

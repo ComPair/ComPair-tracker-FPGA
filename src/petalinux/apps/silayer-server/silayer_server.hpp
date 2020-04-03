@@ -44,8 +44,14 @@ class LayerServer {
         int _get_hold(int nvata, char* &cmd);
         int _get_counters(int nvata, char* &cmd);
         int _reset_counters(int nvata, char* &cmd);
-        int _trigger_enable(int nvata, char* &cmd);
-        int _trigger_disable(int nvata, char* &cmd);
+        int _trigger_enable_bit(int nvata, char* &cmd);
+        int _trigger_disable_bit(int nvata, char* &cmd);
+        int _trigger_enable_asic(int nvata, char* &cmd);
+        int _trigger_disable_asic(int nvata, char* &cmd);
+        int _trigger_enable_tm_hit(int nvata);
+        int _trigger_disable_tm_hit(int nvata);
+        int _trigger_enable_tm_ack(int nvata);
+        int _trigger_disable_tm_ack(int nvata);
         int _get_event_count(int nvata, char* &cmd);
         int _reset_event_count(int nvata, char* &cmd);
         int _cal_pulse_ena(char* &cmd);
