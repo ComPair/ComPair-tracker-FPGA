@@ -17,33 +17,39 @@
 
 #include "vata_ctrl.hpp"
 
-#define VT_PARSE_ARGS_ERR      1
-#define VT_VATA_NUM_ERR        2
-#define VT_SET_CONFIG_ERR      3
-#define VT_CAL_DAC_ERR         4
-#define VT_TRIGGER_ENA_BIT_ERR 5
+#define VT_PARSE_ARGS_ERR       1
+#define VT_VATA_NUM_ERR         2
+#define VT_SET_CONFIG_ERR       3
+#define VT_CAL_DAC_ERR          4
+#define VT_TRIGGER_ENA_BIT_ERR  5
+#define VT_TRIGGER_ENA_ASIC_ERR 6
 
 void usage(char *argv0) {
     std::cout << "Usage: " << argv0 << " ASIC-NUM [OPTIONS]" << std::endl
               << "  ASIC-NUM : Number of the ASIC we are targeting" << std::endl
               << "  OPTIONS:" << std::endl
-              << "    --set-config FNAME        : set configuration from file FNAME" << std::endl
-              << "    --get-config FNAME        : get configuration, write to file FNAME" << std::endl
-              << "    --set-hold HOLD           : set the ASIC hold time to HOLD clk-cycles" << std::endl
-              << "    --get-hold                : write ASIC hold time to stdout" << std::endl
-              << "    --get-counters            : print 'running' and 'live' counters to stdout" << std::endl
-              << "    --reset-counters          : reset the 'running' and 'live' counters" << std::endl
-              << "    --trigger-enable ENA-BIT  : enable triggering from source associated with ENA-BIT" << std::endl
-              << "    --trigger-disable ENA-BIT : disable triggering from source associated with ENA-BIT" << std::endl
-              << "    --get-trigger-ena-mask    : print the trigger-enable mask to stdout" <<std::endl
-              << "    --force-trigger           : force ASIC to perform data readout" << std::endl
-              << "    --set-ack-timeout TIMEOUT : set the trigger ack timeout to TIMEOUT" << std::endl
-              << "    --get-ack-timeout         : print the current trigger ack timeout to stdout" << std::endl
-              << "    --get-event-count         : print event counter to stdout" << std::endl
-              << "    --reset-event-count       : reset the event counter" << std::endl
-              << "    --get-n-fifo              : print number of data packets in fifo to stdout" << std::endl
-              << "    --single-read-fifo        : read a single data packet, print to stdout" << std::endl
-              << "    --read-fifo               : read the entire fifo, each packet to a single line of stdout" << std::endl;
+              << "    --set-config FNAME          : set configuration from file FNAME" << std::endl
+              << "    --get-config FNAME          : get configuration, write to file FNAME" << std::endl
+              << "    --set-hold HOLD             : set the ASIC hold time to HOLD clk-cycles" << std::endl
+              << "    --get-hold                  : write ASIC hold time to stdout" << std::endl
+              << "    --get-counters              : print 'running' and 'live' counters to stdout" << std::endl
+              << "    --reset-counters            : reset the 'running' and 'live' counters" << std::endl
+              << "    --trigger-enable-bit BIT    : enable triggering from source associated with BIT. BIT can be 'all'" << std::endl
+              << "    --trigger-enable-asic ASIC  : enable triggering from asic number ASIC (an on-layer asic). ASIC can be 'all'" << std::endl
+              << "    --trigger-enable-tm-hit     : enable triggering from trigger module hit signal." << std::endl
+              << "    --trigger-enable-tm-ack     : enable triggering from trigger module ack signal." << std::endl
+              << "    --trigger-disable-bit BIT   : disable triggering from source associated with BIT. BIT can be 'all'" << std::endl
+              << "    --trigger-disable-asic ASIC : disable triggering from asic number ASIC (an on-layer asic). ASIC can be 'all'" << std::endl
+              << "    --trigger-disable-tm-hit    : disable triggering from trigger module hit signal." << std::endl
+              << "    --trigger-disable-tm-ack    : disable triggering from trigger module ack signal." << std::endl
+              << "    --get-trigger-ena-mask      : print the trigger-enable mask to stdout" <<std::endl
+              << "    --set-ack-timeout TIMEOUT   : set the trigger ack timeout to TIMEOUT" << std::endl
+              << "    --get-ack-timeout           : print the current trigger ack timeout to stdout" << std::endl
+              << "    --get-event-count           : print event counter to stdout" << std::endl
+              << "    --reset-event-count         : reset the event counter" << std::endl
+              << "    --get-n-fifo                : print number of data packets in fifo to stdout" << std::endl
+              << "    --single-read-fifo          : read a single data packet, print to stdout" << std::endl
+              << "    --read-fifo                 : read the entire fifo, each packet to a single line of stdout" << std::endl;
 }
 
 VataCtrl get_vata_from_args(int argc, char **argv) {
@@ -99,7 +105,23 @@ int parse_args(VataCtrl vata, int argc, char **argv) {
             std::cout << running << " " << live << std::endl;
         } else if (strcmp("--reset-counters", argv[i]) == 0) { 
             vata.reset_counters();
-        } else if (strcmp("--trigger-enable", argv[i]) == 0) { 
+        } else if (strcmp("--trigger-enable-asic", argv[i]) == 0) { 
+            if (++i >= argc) {
+                std::cerr << "ERROR: No asic specified." << std::endl;
+                return VT_PARSE_ARGS_ERR;
+            }
+            if (strcmp("all", argv[i]) == 0) {
+                for (int nasic=0; nasic < (int)N_VATA; nasic++)
+                    vata.trigger_enable_local_asic(nasic);
+            } else if (vata.trigger_enable_local_asic(atoi(argv[i])) != 0) {
+                std::cerr << "ERROR: Bad asic specified." << std::endl;
+                return VT_TRIGGER_ENA_ASIC_ERR;
+            }
+        } else if (strcmp("--trigger-enable-tm-hit", argv[i]) == 0) {
+            vata.trigger_enable_tm_hit();
+        } else if (strcmp("--trigger-enable-tm-ack", argv[i]) == 0) {
+            vata.trigger_enable_tm_ack();
+        } else if (strcmp("--trigger-enable-bit", argv[i]) == 0) { 
             if (++i >= argc) {
                 std::cerr << "ERROR: No trigger enable bit specified." << std::endl;
                 return VT_PARSE_ARGS_ERR;
@@ -110,7 +132,23 @@ int parse_args(VataCtrl vata, int argc, char **argv) {
                 std::cerr << "ERROR: Bad trigger enable bit specified." << std::endl;
                 return VT_TRIGGER_ENA_BIT_ERR;
             }
-        } else if (strcmp("--trigger-disable", argv[i]) == 0) { 
+        } else if (strcmp("--trigger-disable-asic", argv[i]) == 0) { 
+            if (++i >= argc) {
+                std::cerr << "ERROR: No asic specified." << std::endl;
+                return VT_PARSE_ARGS_ERR;
+            }
+            if (strcmp("all", argv[i]) == 0) {
+                for (int nasic=0; nasic < (int)N_VATA; nasic++)
+                    vata.trigger_disable_local_asic(nasic);
+            } else if (vata.trigger_disable_local_asic(atoi(argv[i])) != 0) {
+                std::cerr << "ERROR: Bad asic specified." << std::endl;
+                return VT_TRIGGER_ENA_ASIC_ERR;
+            }
+        } else if (strcmp("--trigger-disable-tm-hit", argv[i]) == 0) {
+            vata.trigger_disable_tm_hit();
+        } else if (strcmp("--trigger-disable-tm-ack", argv[i]) == 0) {
+            vata.trigger_disable_tm_ack();
+        } else if (strcmp("--trigger-disable-bit", argv[i]) == 0) { 
             if (++i >= argc) {
                 std::cerr << "ERROR: No trigger enable bit specified." << std::endl;
                 return VT_PARSE_ARGS_ERR;

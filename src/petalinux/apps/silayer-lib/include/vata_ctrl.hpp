@@ -29,6 +29,14 @@ class VataCtrl {
         int trigger_enable_all();
         int trigger_disable(int mask_bit);
         int trigger_disable_all();
+        int trigger_enable_local_asic(int asic_number);
+        int trigger_disable_local_asic(int asic_number);
+        int trigger_enable_tm_hit();
+        int trigger_disable_tm_hit();
+        int trigger_enable_tm_ack();
+        int trigger_disable_tm_ack();
+
+
         u32 get_trigger_ena_mask();
         int set_trigger_ack_timeout(u32 ack_timeout);
         u32 get_trigger_ack_timeout();
@@ -50,21 +58,13 @@ class VataCtrl {
 
         u32 *paxi = NULL;
         u32 *pfifo = NULL;
-        //u32 *pgpio_trigger = NULL;
-        //u32 *pgpio_trigger_ena = NULL;
         u32 axi_baseaddr;
         u32 axi_highaddr;
         u32 data_fifo_baseaddr;
         u32 data_fifo_highaddr;
-        //u32 gpio_trigger_baseaddr;
-        //u32 gpio_trigger_highaddr;
-        //u32 gpio_trigger_ena_baseaddr;
-        //u32 gpio_trigger_ena_highaddr;
 
         int axi_fd;
         int fifo_fd;
-        //int trigger_fd;
-        //int trigger_ena_fd;
 };
 
 #endif
