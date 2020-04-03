@@ -48,7 +48,7 @@ EXPORT_HW = -source $(ROOTDIR)/scripts/export_hardware.tcl -log export_hardware.
 SDK = -source $(ROOTDIR)/scripts/sdk_project_dbe.tcl $(BUILD) 
 #all_dbe: setup_dbe_aliveness compile export_hardware_dbe sdk_project_dbe
 
-all: setup compile export_hardware sdk_project_dbe
+#all: setup compile export_hardware sdk_project_dbe rootfs
 
 
 # Launch the Vivado gui.
@@ -83,8 +83,12 @@ export_hardware : ./work/$(BUILD)/.export_hardware.done
 	cd work/$(BUILD); $(PREFIX) vivado $(VIVADOCOMOPS) $(EXPORT_HW) $(POSTFIX)
 	exit 0
 
-sdk_project_dbe :
+sdk_project_dbe : ./work/$(BUILD)/.export_hardware.done 
 	cd work/$(BUILD); $(PREFIX) xsdk $(XSCTCOMOPS) $(SDK) $(POSTFIX)
+	exit 0
+
+rootfs: ./work/$(BUILD)/.export_hardware.done 
+	cd src/petalinux/apps ; $(PREFIX) make $(POSTFIX)
 	exit 0
 
 # Remove the work directory. Cannot be undone!
@@ -101,5 +105,6 @@ help:
 	@echo "compile              -- Compile."
 	@echo "save_bd              -- Exports block diagram."
 	@echo "export_hardware      -- Export hardware files for SDK."
-	@echo "sdk_project_dbe      -- Adam, what does this do?"
+	@echo "sdk_project_dbe      -- Build petalinux bsp."
+	@echo "rootfs         -- Build the rootfs on the zynq."
 	@echo "help                 -- Prints this help."
