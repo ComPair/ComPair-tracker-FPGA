@@ -62,20 +62,12 @@ const u32 vata_addrs[N_VATA][4] =
 #   endif
 #   if N_VATA > 2
     ,
-        { XPAR_VATA_460P3_AXI_INTER_6_BASEADDR
-        , XPAR_VATA_460P3_AXI_INTER_6_HIGHADDR
-        , XPAR_AXI_FIFO_MM_S_DATA6_BASEADDR
-        , XPAR_AXI_FIFO_MM_S_DATA6_HIGHADDR
+        { XPAR_VATA_460P3_AXI_INTER_2_BASEADDR
+        , XPAR_VATA_460P3_AXI_INTER_2_HIGHADDR
+        , XPAR_AXI_FIFO_MM_S_DATA2_BASEADDR
+        , XPAR_AXI_FIFO_MM_S_DATA2_HIGHADDR
         }
-#endif
-//#   if N_VATA > 2
-//    ,
-//        { XPAR_VATA_460P3_AXI_INTER_2_BASEADDR
-//        , XPAR_VATA_460P3_AXI_INTER_2_HIGHADDR
-//        , XPAR_AXI_FIFO_MM_S_DATA2_BASEADDR
-//        , XPAR_AXI_FIFO_MM_S_DATA2_HIGHADDR
-//        }
-//#   endif
+#   endif
 #   if N_VATA > 3
     ,
         { XPAR_VATA_460P3_AXI_INTER_3_BASEADDR
