@@ -37,8 +37,8 @@ class VataCtrl {
         int trigger_disable_tm_hit();
         int trigger_enable_tm_ack();
         int trigger_disable_tm_ack();
-
-
+        int trigger_enable_forced();
+        int trigger_disable_forced();
         u32 get_trigger_ena_mask();
         int set_trigger_ack_timeout(u32 ack_timeout);
         u32 get_trigger_ack_timeout();

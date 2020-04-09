@@ -209,6 +209,18 @@ class Client:
         """
         return self.send_recv(f"vata {vata} trigger-disable-tm-ack")
 
+    def trigger_enable_forced(self, vata):
+        """
+        Enable triggering off the force-trigger signal.
+        """
+        return self.send_recv(f"vata {vata} trigger-enable-forced")
+    
+    def trigger_disable_forced(self, vata):
+        """
+        Disable triggering off the force-trigger signal.
+        """
+        return self.send_recv(f"vata {vata} trigger-disable-forced")
+
     def get_event_count(self, vata):
         """
         Return the event count for the given asic.
@@ -221,6 +233,12 @@ class Client:
         Reset the asic's event count.
         """
         return self.send_recv(f"vata {vata} reset-event-count")
+
+    def clear_fifo(self, vata):
+        """
+        Clear the asic's fifo.
+        """
+        return self.send_recv(f"vata {vata} clear-fifo")
 
     def get_n_fifo(self, vata):
         """

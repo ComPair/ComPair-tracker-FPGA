@@ -41,8 +41,8 @@ void DataEmitter::send_data(DataPacket &data_packet) {
     u16 packet_size = data_packet.get_packet_size();
     zmq::message_t response(packet_size);
     data_packet.to_msg(packet_size, (char *)response.data());
-    std::cout << "XXX Sending data. Packet size: " << packet_size 
-              << ". Packet time: " << data_packet.packet_time << std::endl;
+    //std::cout << "XXX Sending data. Packet size: " << packet_size 
+    //          << ". Packet time: " << data_packet.packet_time << std::endl;
     emit_sock.send(response, zmq::send_flags::none);
 }
 

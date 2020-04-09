@@ -7,7 +7,7 @@ _vatactrl-bc () {
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
-    opts="--set-config --get-config --set-hold --get-hold --get-counters --reset-counters --trigger-enable-bit --trigger-enable-asic --trigger-enable-tm-hit --trigger-enable-tm-ack --trigger-disable-bit --trigger-disable-asic --trigger-disable-tm-hit --trigger-disable-tm-ack --get-trigger-ena-mask --set-ack-timeout --get-ack-timeout --get-event-count --reset-event-count --get-n-fifo --single-read-fifo --read-fifo"
+    opts="--set-config --get-config --set-hold --get-hold --get-counters --reset-counters --trigger-enable-bit --trigger-enable-asic --trigger-enable-tm-hit --trigger-enable-tm-ack --trigger-enable-forced --trigger-disable-bit --trigger-disable-asic --trigger-disable-tm-hit --trigger-disable-tm-ack --trigger-disable-forced --get-trigger-ena-mask --set-ack-timeout --get-ack-timeout --get-event-count --reset-event-count --get-n-fifo --single-read-fifo --read-fifo"
 
     if [[ ${prev} == vatactrl ]]; then
         COMPREPLY=( $(compgen -W "$asic_list" -- ${cur}) )

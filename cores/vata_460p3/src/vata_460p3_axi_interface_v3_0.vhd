@@ -15,13 +15,14 @@ entity vata_460p3_axi_interface_v3_0 is
     );
     port (
         -- Users to add ports here
-        trigger_ack             : in std_logic;
-        fast_or_trigger         : in std_logic;
-        vata_hits               : in std_logic_vector(11 downto 0);
-        force_trigger           : in std_logic;
-        global_counter          : in std_logic_vector(63 downto 0);
-        global_counter_rst      : in std_logic;
-        disable_fast_or_trigger : in std_logic;
+        trigger_ack             : in std_logic;                     -- Input from TM
+        fast_or_trigger         : in std_logic;                     -- Input from TM
+        vata_hits               : in std_logic_vector(11 downto 0); -- Input from sync_vata_distn IP
+        force_trigger           : in std_logic;                     -- Input from sync_vata_distn IP
+        global_counter          : in std_logic_vector(63 downto 0); -- Input from sync_vata_distn IP
+        global_counter_rst      : in std_logic;                     -- Input from sync_vata_distn IP
+        cal_pulse_trigger       : in std_logic;                     -- Input from AXI_cal_pulse IP
+        disable_fast_or_trigger : in std_logic;                     -- Input from AXI_cal_pulse IP
         vata_hit_busy           : out std_logic_vector(1 downto 0);
         event_id_latch          : in std_logic;
         event_id_data           : in std_logic;
@@ -52,6 +53,7 @@ entity vata_460p3_axi_interface_v3_0 is
         trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
         trigger_ack_timeout_state : out std_logic_vector(3 downto 0);
         trigger_ack_timeout_out   : out std_logic_vector(31 downto 0);
+        vata_hits_rising_edge_out : out std_logic_vector(1 downto 0);
         -- User ports ends
         -- Do not modify the ports beyond this line
 
@@ -98,6 +100,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
         FAST_OR_TRIGGER_ENA : out std_logic;
         ACK_TRIGGER_ENA     : out std_logic;
         LOCAL_VATA_TRIGGER_ENA : out std_logic_vector(11 downto 0);
+        FORCE_TRIGGER_ENA   : out std_logic;
         RUNNING_COUNTER     : in std_logic_vector(63 downto 0);
         LIVE_COUNTER        : in std_logic_vector(63 downto 0);
         EVENT_COUNTER       : in std_logic_vector(31 downto 0);
@@ -137,6 +140,8 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             vata_hits               : in std_logic_vector(11 downto 0);
             local_vata_trigger_ena  : in std_logic_vector(11 downto 0);
             force_trigger           : in std_logic;
+            force_trigger_ena       : in std_logic;
+            cal_pulse_trigger       : in std_logic;
             disable_fast_or_trigger : in std_logic;
             trigger_ack_timeout     : in std_logic_vector(31 downto 0);
             vata_hit                : out std_logic;
@@ -175,6 +180,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
             trigger_acq_out         : out std_logic;
             trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
             trigger_ack_timeout_state   : out std_logic_vector(3 downto 0);
+            vata_hits_rising_edge_out : out std_logic_vector(1 downto 0);
             state_out          : out std_logic_vector(7 downto 0));
         end component;
 
@@ -225,6 +231,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     signal fast_or_trigger_ena    : std_logic := '0';
     signal ack_trigger_ena        : std_logic := '0';
     signal local_vata_trigger_ena : std_logic_vector(11 downto 0);
+    signal force_trigger_ena      : std_logic := '0';
 begin
 
 -- Instantiation of Axi Bus Interface S00_AXI
@@ -234,17 +241,18 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
         C_S_AXI_ADDR_WIDTH  => C_S00_AXI_ADDR_WIDTH
     )
     port map (
-        CONFIG_REG_FROM_PS  => cfg_reg_from_ps,
-        CONFIG_REG_FROM_PL  => cfg_reg_from_pl,
-        HOLD_TIME           => hold_time,
-        POWER_CYCLE_TIMER   => power_cycle_timer,
-        TRIGGER_ACK_TIMEOUT => trigger_ack_timeout,
-        FAST_OR_TRIGGER_ENA => fast_or_trigger_ena,
-        ACK_TRIGGER_ENA     => ack_trigger_ena,
+        CONFIG_REG_FROM_PS     => cfg_reg_from_ps,
+        CONFIG_REG_FROM_PL     => cfg_reg_from_pl,
+        HOLD_TIME              => hold_time,
+        POWER_CYCLE_TIMER      => power_cycle_timer,
+        TRIGGER_ACK_TIMEOUT    => trigger_ack_timeout,
+        FAST_OR_TRIGGER_ENA    => fast_or_trigger_ena,
+        ACK_TRIGGER_ENA        => ack_trigger_ena,
         LOCAL_VATA_TRIGGER_ENA => local_vata_trigger_ena,
-        RUNNING_COUNTER     => global_counter,
-        LIVE_COUNTER        => live_counter,
-        EVENT_COUNTER       => event_counter,
+        FORCE_TRIGGER_ENA      => force_trigger_ena,
+        RUNNING_COUNTER        => global_counter,
+        LIVE_COUNTER           => live_counter,
+        EVENT_COUNTER          => event_counter,
         S_AXI_ACLK      => s00_axi_aclk,
         S_AXI_ARESETN   => s00_axi_aresetn,
         S_AXI_AWADDR    => s00_axi_awaddr,
@@ -283,6 +291,8 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             vata_hits                   => vata_hits,
             local_vata_trigger_ena      => local_vata_trigger_ena,
             force_trigger               => force_trigger,
+            force_trigger_ena           => force_trigger_ena,
+            cal_pulse_trigger           => cal_pulse_trigger, 
             disable_fast_or_trigger     => disable_fast_or_trigger,
             trigger_ack_timeout         => trigger_ack_timeout,
             vata_hit                    => vata_hit_busy(1),
@@ -320,6 +330,7 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
             trigger_acq_out             => trigger_acq_out,
             trigger_ack_timeout_counter => trigger_ack_timeout_counter,
             trigger_ack_timeout_state   => trigger_ack_timeout_state,
+            vata_hits_rising_edge_out   => vata_hits_rising_edge_out,
             state_out                   => state_out
         );
 

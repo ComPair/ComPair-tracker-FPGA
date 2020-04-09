@@ -350,6 +350,8 @@ int LayerServer::_trigger_disable_asic(int nvata, char* &cmd) {
             #ifdef VERBOSE
             std::cerr << "ERROR: trigger_disable_local_asic returned non-zero." << std::endl;
             #endif
+            const char retmsg[] = "E: trigger_disable_local_asic failed.";
+            _send_msg(retmsg, sizeof(retmsg));
             return 1;
         }
         #ifdef VERBOSE
@@ -364,6 +366,8 @@ int LayerServer::_trigger_disable_asic(int nvata, char* &cmd) {
         #ifdef VERBOSE
         std::cerr << "ERROR: Could not parse trigger enable asic number." << std::endl;
         #endif
+        const char retmsg[] = "E: could not parse asic number";
+        _send_msg(retmsg, sizeof(retmsg));
         return 1;
     }
     zmq::message_t response(2);
@@ -376,13 +380,23 @@ int LayerServer::_trigger_enable_tm_hit(int nvata) {
     #ifdef VERBOSE
     std::cout << "Enable TM hit triggers for vata  " << nvata << std::endl;
     #endif
-    return vatas[nvata].trigger_enable_tm_hit();
+    int ret;
+    if ((ret = vatas[nvata].trigger_enable_tm_hit()) == 0) {
+        const char retmsg[] = "ok";
+        _send_msg(retmsg, sizeof(retmsg));
+    } else {
+        const char retmsg[] = "E: trigger_enable_tm_hit failed.";
+        _send_msg(retmsg, sizeof(retmsg));
+    }
+    return ret;
 }
 
 int LayerServer::_trigger_disable_tm_hit(int nvata) {
     #ifdef VERBOSE
     std::cout << "Disable TM hit triggers for vata  " << nvata << std::endl;
     #endif
+    const char retmsg[] = "ok";
+    _send_msg(retmsg, sizeof(retmsg));
     return vatas[nvata].trigger_disable_tm_hit();
 }
 
@@ -390,6 +404,8 @@ int LayerServer::_trigger_enable_tm_ack(int nvata) {
     #ifdef VERBOSE
     std::cout << "Enable TM ack triggers for vata  " << nvata << std::endl;
     #endif
+    const char retmsg[] = "ok";
+    _send_msg(retmsg, sizeof(retmsg));
     return vatas[nvata].trigger_enable_tm_ack();
 }
 
@@ -397,7 +413,27 @@ int LayerServer::_trigger_disable_tm_ack(int nvata) {
     #ifdef VERBOSE
     std::cout << "Disable TM ack triggers for vata  " << nvata << std::endl;
     #endif
+    const char retmsg[] = "ok";
+    _send_msg(retmsg, sizeof(retmsg));
     return vatas[nvata].trigger_disable_tm_ack();
+}
+
+int LayerServer::_trigger_enable_forced(int nvata) {
+    #ifdef VERBOSE
+    std::cout << "Enable forced triggers for vata " << nvata << std::endl;
+    #endif
+    const char retmsg[] = "ok";
+    _send_msg(retmsg, sizeof(retmsg));
+    return vatas[nvata].trigger_enable_forced();
+}
+
+int LayerServer::_trigger_disable_forced(int nvata) {
+    #ifdef VERBOSE
+    std::cout << "Disable forced triggers for vata  " << nvata << std::endl;
+    #endif
+    const char retmsg[] = "ok";
+    _send_msg(retmsg, sizeof(retmsg));
+    return vatas[nvata].trigger_disable_forced();
 }
 
 int LayerServer::_get_event_count(int nvata, char* &cmd) {
@@ -560,6 +596,20 @@ int LayerServer::_get_n_fifo(int nvata, char* &cmd) {
     zmq::message_t response(sizeof(u32));
     std::memcpy(response.data(), &n_fifo, sizeof(u32));
     socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
+int LayerServer::_clear_fifo(int nvata) {
+    // Clear the vata's FIFO.
+    // Does not send any data.
+    std::vector<u32> data;
+    int nread;
+    u32 nremain;
+    while (vatas[nvata].get_n_fifo() > 0)
+        vatas[nvata].read_fifo(data, nread, nremain);
+
+    const char retmsg[] = "ok";
+    _send_msg(retmsg, sizeof(retmsg));
     return 0;
 }
 
@@ -995,6 +1045,10 @@ int LayerServer::_process_vata_msg(char *msg) {
         _trigger_enable_tm_ack(nvata);
     } else if (strncmp("trigger-disable-tm-ack", cmd, 22) == 0) {
         _trigger_disable_tm_ack(nvata);
+    } else if (strncmp("trigger-enable-forced", cmd, 21) == 0) {
+        _trigger_enable_forced(nvata);
+    } else if (strncmp("trigger-disable-forced", cmd, 22) == 0) {
+        _trigger_disable_forced(nvata);
     } else if (strncmp("get-event-count", cmd, 15) == 0) {
         if (_get_event_count(nvata, cmd) != 0) {
             const char retmsg[] = "ERROR: could not parse get-event-count command";
@@ -1013,6 +1067,8 @@ int LayerServer::_process_vata_msg(char *msg) {
             _send_msg(retmsg, sizeof(retmsg));
             return 1;
         }
+    } else if (strncmp("clear-fifo", cmd, 10) == 0) {
+        _clear_fifo(nvata);
     } else {
         #ifdef VERBOSE
         std::cerr << "Could not parse command: " << cmd << std::endl;    

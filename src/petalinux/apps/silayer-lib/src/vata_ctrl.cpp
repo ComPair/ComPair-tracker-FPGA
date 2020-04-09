@@ -244,23 +244,27 @@ int VataCtrl::trigger_disable_all_local_asics() {
 }
 
 int VataCtrl::trigger_enable_tm_hit() {
-    trigger_enable(TRIGGER_ENA_BIT_TM_HIT);
-    return 0;
+    return trigger_enable(TRIGGER_ENA_BIT_TM_HIT);
 }
 
 int VataCtrl::trigger_disable_tm_hit() {
-    trigger_disable(TRIGGER_ENA_BIT_TM_HIT);
-    return 0;
+    return trigger_disable(TRIGGER_ENA_BIT_TM_HIT);
 }
 
 int VataCtrl::trigger_enable_tm_ack() {
-    trigger_enable(TRIGGER_ENA_BIT_TM_ACK);
-    return 0;
+    return trigger_enable(TRIGGER_ENA_BIT_TM_ACK);
 }
 
 int VataCtrl::trigger_disable_tm_ack() {
-    trigger_disable(TRIGGER_ENA_BIT_TM_ACK);
-    return 0;
+    return trigger_disable(TRIGGER_ENA_BIT_TM_ACK);
+}
+
+int VataCtrl::trigger_enable_forced() {
+    return trigger_enable(TRIGGER_ENA_BIT_FORCE_TRIGGER);
+}
+
+int VataCtrl::trigger_disable_forced() {
+    return trigger_disable(TRIGGER_ENA_BIT_FORCE_TRIGGER);
 }
 
 u32 VataCtrl::get_trigger_ena_mask() {

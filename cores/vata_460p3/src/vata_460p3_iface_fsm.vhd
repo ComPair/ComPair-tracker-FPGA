@@ -13,6 +13,8 @@ entity vata_460p3_iface_fsm is
                 vata_hits               : in std_logic_vector(11 downto 0);
                 local_vata_trigger_ena  : in std_logic_vector(11 downto 0);
                 force_trigger           : in std_logic;
+                force_trigger_ena       : in std_logic;
+                cal_pulse_trigger       : in std_logic;
                 disable_fast_or_trigger : in std_logic; 
                 trigger_ack_timeout     : in std_logic_vector(31 downto 0);
                 vata_hit                : out std_logic;
@@ -51,6 +53,7 @@ entity vata_460p3_iface_fsm is
                 trigger_acq_out         : out std_logic;
                 trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
                 trigger_ack_timeout_state   : out std_logic_vector(3 downto 0);
+                vata_hits_rising_edge_out   : out std_logic_vector(1 downto 0);
                 state_out             : out std_logic_vector(7 downto 0));
     end vata_460p3_iface_fsm;
 
@@ -88,6 +91,15 @@ architecture arch_imp of vata_460p3_iface_fsm is
             cald            : out std_logic;
             caldb           : out std_logic);
     end component int_cal_toggle;
+
+    component rising_edge_vector is
+        generic ( VECTOR_WIDTH : integer := 12 );
+        port ( clk : in std_logic
+             ; rst_n : in std_logic
+             ; vector_in : in std_logic_vector(VECTOR_WIDTH-1 downto 0)
+             ; rising_edge_out : out std_logic_vector(VECTOR_WIDTH-1 downto 0)
+             );
+    end component rising_edge_vector;
     
     constant STATE_BITWIDTH : integer := 8;
     constant IDLE                     : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"00";
@@ -180,12 +192,14 @@ architecture arch_imp of vata_460p3_iface_fsm is
     signal uevent_counter   : unsigned(31 downto 0) := (others => '0');
     signal inc_event_counter : std_logic := '0';
 
+    signal vata_hits_rising_edge : std_logic_vector(11 downto 0) := (others => '0');
+
     -- Saved info to store in asic packet:
     signal set_pkt_data : std_logic;
     signal pkt_running_counter : std_logic_vector(63 downto 0) := (others => '0');
     signal pkt_live_counter    : std_logic_vector(63 downto 0) := (others => '0');
     signal pkt_event_counter   : std_logic_vector(31 downto 0) := (others => '0');
-    signal pkt_event_triggers  : std_logic_vector(18 downto 0) := (others => '0');
+    signal pkt_event_triggers  : std_logic_vector(15 downto 0) := (others => '0');
 
 begin
 
@@ -239,6 +253,14 @@ begin
             int_cal_trigger => int_cal_trigger,
             cald            => cald,
             caldb           => caldb);
+
+    rising_edge_vector_inst : rising_edge_vector
+        generic map ( VECTOR_WIDTH => 12 )
+        port map ( clk             => clk_100MHz
+                 , rst_n           => rst_n
+                 , vector_in       => vata_hits
+                 , rising_edge_out => vata_hits_rising_edge
+                 );
 
     process (rst_n, clk_100MHz)
     begin
@@ -787,8 +809,8 @@ begin
                 -- Event trigger info
                 vata_mode   <= "100";
                 data_tvalid <= '1';
-                data_tdata(18 downto 0)  <= pkt_event_triggers;
-                data_tdata(31 downto 19) <= (others => '0'); -- Room for more data here.
+                data_tdata(15 downto 0)  <= pkt_event_triggers;
+                data_tdata(31 downto 16) <= (others => '0'); -- Room for more data here.
                 vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
             when RO_WFIFO_03 =>
                 -- LSB's of the global counter
@@ -992,10 +1014,11 @@ begin
             pkt_running_counter <= running_counter;
             pkt_live_counter    <= std_logic_vector(ulive_counter);
             pkt_event_counter   <= std_logic_vector(uevent_counter);
-            pkt_event_triggers(11 downto 0) <= vata_hits;
+            pkt_event_triggers(11 downto 0) <= vata_hits_rising_edge;
             pkt_event_triggers(12)          <= fast_or_trigger;
             pkt_event_triggers(13)          <= trigger_ack;
             pkt_event_triggers(14)          <= force_trigger;
+            pkt_event_triggers(15)          <= cal_pulse_trigger;
         else
             pkt_running_counter <= pkt_running_counter;
             pkt_live_counter    <= pkt_live_counter;
@@ -1008,28 +1031,30 @@ begin
     vata_s1 <= vata_mode(1);
     vata_s2 <= vata_mode(2);
 
-    --running_counter <= std_logic_vector(urunning_counter);
     live_counter    <= std_logic_vector(ulive_counter);
     event_counter   <= std_logic_vector(uevent_counter);
     
     -- Trigger acquisition:
-    trigger_acq <= force_trigger
+    trigger_acq <= (force_trigger and force_trigger_ena)
                 or (fast_or_trigger and fast_or_trigger_ena)
                 or (trigger_ack and ack_trigger_ena)
-                or (vata_hits(0) and local_vata_trigger_ena(0))
-                or (vata_hits(1) and local_vata_trigger_ena(1))
-                or (vata_hits(2) and local_vata_trigger_ena(2))
-                or (vata_hits(3) and local_vata_trigger_ena(3))
-                or (vata_hits(4) and local_vata_trigger_ena(4))
-                or (vata_hits(5) and local_vata_trigger_ena(5))
-                or (vata_hits(6) and local_vata_trigger_ena(6))
-                or (vata_hits(7) and local_vata_trigger_ena(7))
-                or (vata_hits(8) and local_vata_trigger_ena(8))
-                or (vata_hits(9) and local_vata_trigger_ena(9))
-                or (vata_hits(10) and local_vata_trigger_ena(10))
-                or (vata_hits(11) and local_vata_trigger_ena(11));
+                or (vata_hits_rising_edge(0) and local_vata_trigger_ena(0))
+                or (vata_hits_rising_edge(1) and local_vata_trigger_ena(1))
+                or (vata_hits_rising_edge(2) and local_vata_trigger_ena(2))
+                or (vata_hits_rising_edge(3) and local_vata_trigger_ena(3))
+                or (vata_hits_rising_edge(4) and local_vata_trigger_ena(4))
+                or (vata_hits_rising_edge(5) and local_vata_trigger_ena(5))
+                or (vata_hits_rising_edge(6) and local_vata_trigger_ena(6))
+                or (vata_hits_rising_edge(7) and local_vata_trigger_ena(7))
+                or (vata_hits_rising_edge(8) and local_vata_trigger_ena(8))
+                or (vata_hits_rising_edge(9) and local_vata_trigger_ena(9))
+                or (vata_hits_rising_edge(10) and local_vata_trigger_ena(10))
+                or (vata_hits_rising_edge(11) and local_vata_trigger_ena(11));
 
     -- DEBUG --
+
+    vata_hits_rising_edge_out <= vata_hits_rising_edge(1 downto 0);
+
     state_out          <= current_state;
     event_id_out_debug <= event_id_out;
     trigger_acq_out    <= trigger_acq;
