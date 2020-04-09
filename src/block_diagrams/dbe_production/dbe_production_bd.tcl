@@ -1987,7 +1987,7 @@ proc create_root_design { parentCell } {
   connect_bd_intf_net -intf_net vata_460p3_axi_inter_9_data_stream [get_bd_intf_pins axi_fifo_mm_s_data9/AXI_STR_RXD] [get_bd_intf_pins vata_460p3_axi_inter_9/data_stream]
 
   # Create port connections
-  connect_bd_net -net AXI_cal_pulse_0_cal_pulse_trigger_out [get_bd_ports DIG_A_CAL_PULSE_TRIGGER_P] [get_bd_pins AXI_cal_pulse_0/cal_pulse_trigger_out]
+  connect_bd_net -net AXI_cal_pulse_0_cal_pulse_trigger_out [get_bd_ports DIG_A_CAL_PULSE_TRIGGER_P] [get_bd_pins AXI_cal_pulse_0/cal_pulse_trigger_out] [get_bd_pins vata_460p3_axi_inter_0/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_1/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_10/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_11/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_2/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_3/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_4/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_5/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_6/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_7/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_8/cal_pulse_trigger] [get_bd_pins vata_460p3_axi_inter_9/cal_pulse_trigger]
   connect_bd_net -net DIG_ASIC_10_OUT_5_1 [get_bd_ports DIG_ASIC_10_OUT_5] [get_bd_pins vata_460p3_axi_inter_9/vata_o5]
   connect_bd_net -net DIG_ASIC_10_OUT_6_1 [get_bd_ports DIG_ASIC_10_OUT_6] [get_bd_pins vata_460p3_axi_inter_9/vata_o6]
   connect_bd_net -net DIG_ASIC_11_OUT_5_1 [get_bd_ports DIG_ASIC_11_OUT_5] [get_bd_pins vata_460p3_axi_inter_10/vata_o5]
