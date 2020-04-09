@@ -16,17 +16,18 @@ entity vata_460p3_axi_interface_v3_0_S00_AXI is
 	);
 	port (
 		-- Users to add ports here
-		CONFIG_REG_FROM_PS  : out std_logic_vector(519 downto 0);
-		CONFIG_REG_FROM_PL  : in std_logic_vector(519 downto 0);
-		HOLD_TIME	        : out std_logic_vector(15 downto 0);
-		POWER_CYCLE_TIMER   : out std_logic_vector(31 downto 0);
-        TRIGGER_ACK_TIMEOUT : out std_logic_vector(31 downto 0);
-        FAST_OR_TRIGGER_ENA : out std_logic;
-        ACK_TRIGGER_ENA     : out std_logic;
+		CONFIG_REG_FROM_PS     : out std_logic_vector(519 downto 0);
+		CONFIG_REG_FROM_PL     : in std_logic_vector(519 downto 0);
+		HOLD_TIME	           : out std_logic_vector(15 downto 0);
+		POWER_CYCLE_TIMER      : out std_logic_vector(31 downto 0);
+        TRIGGER_ACK_TIMEOUT    : out std_logic_vector(31 downto 0);
+        FAST_OR_TRIGGER_ENA    : out std_logic;
+        ACK_TRIGGER_ENA        : out std_logic;
         LOCAL_VATA_TRIGGER_ENA : out std_logic_vector(11 downto 0);
-        RUNNING_COUNTER     : in std_logic_vector(63 downto 0);
-        LIVE_COUNTER        : in std_logic_vector(63 downto 0);
-        EVENT_COUNTER       : in std_logic_vector(31 downto 0);
+        FORCE_TRIGGER_ENA      : out std_logic;
+        RUNNING_COUNTER        : in std_logic_vector(63 downto 0);
+        LIVE_COUNTER           : in std_logic_vector(63 downto 0);
+        EVENT_COUNTER          : in std_logic_vector(31 downto 0);
 		-- User ports ends
 		-- Do not modify the ports beyond this line
 
@@ -1204,6 +1205,7 @@ begin
     LOCAL_VATA_TRIGGER_ENA <= slv_reg21(11 downto 0);
     FAST_OR_TRIGGER_ENA    <= slv_reg21(12);
     ACK_TRIGGER_ENA        <= slv_reg21(13);
+    FORCE_TRIGGER_ENA      <= slv_reg21(14);  
 
 	-- User logic ends
 
