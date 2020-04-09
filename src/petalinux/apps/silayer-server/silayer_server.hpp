@@ -52,6 +52,8 @@ class LayerServer {
         int _trigger_disable_tm_hit(int nvata);
         int _trigger_enable_tm_ack(int nvata);
         int _trigger_disable_tm_ack(int nvata);
+        int _trigger_enable_forced(int nvata);
+        int _trigger_disable_forced(int nvata);
         int _get_event_count(int nvata, char* &cmd);
         int _reset_event_count(int nvata, char* &cmd);
         int _cal_pulse_ena(char* &cmd);
@@ -68,6 +70,7 @@ class LayerServer {
         int _sync_get_counter();
 
         int _get_n_fifo(int nvata, char* &cmd);
+        int _clear_fifo(int nvata);
 
         int _process_emit_msg(char *msg);
         int _process_cal_msg(char *msg);

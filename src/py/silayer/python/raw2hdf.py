@@ -168,7 +168,7 @@ class AsicPacket(object):
         `data` can be:
             * bytes
             * file name
-            * None to get an unpecified asic packet
+            * None to get an unspecified asic packet
         """
         if data is not None:
             if type(data) is str:
@@ -412,8 +412,11 @@ class DataPackets(object):
             self.asic_packets = []
             asic_data = dp["asic_data"]
             for n in self.asic_nbytes:
-                self.asic_packets.append(AsicPacket(asic_data[:n]))
-                asic_data = asic_data[n:]
+                if n > 0:
+                    self.asic_packets.append(AsicPacket(asic_data[:n]))
+                    asic_data = asic_data[n:]
+                else:
+                    self.asic_packets.append(None)
             yield self
             n_dp += 1
             if n_packet > 0 and n_dp == n_packet:
@@ -445,10 +448,10 @@ class DataPackets(object):
             self.header_size[j] = dp.header_size
             self.packet_flags[j] = dp.packet_flags
             self.packet_time[j] = dp.packet_time
-            ##self.event_counter[j] = dp.event_counter
-            ##self.real_time_counter[j] = dp.real_time_counter
-            ##self.live_time_counter[j] = dp.live_time_counter
             for i, ap in enumerate(dp.asic_packets):
+                if ap is None:
+                    ## No data for this asic.
+                    continue
                 self.event_id[i, j] = ap.event_id
                 self.event_number[i,j] = ap.event_number
                 self.trigger_status[i,j] = ap.trigger_status

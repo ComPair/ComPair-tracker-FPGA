@@ -35,13 +35,15 @@ void usage(char *argv0) {
               << "    --get-counters              : print 'running' and 'live' counters to stdout" << std::endl
               << "    --reset-counters            : reset the 'running' and 'live' counters" << std::endl
               << "    --trigger-enable-bit BIT    : enable triggering from source associated with BIT. BIT can be 'all'" << std::endl
-              << "    --trigger-enable-asic ASIC  : enable triggering from asic number ASIC (an on-layer asic). ASIC can be 'all'" << std::endl
-              << "    --trigger-enable-tm-hit     : enable triggering from trigger module hit signal." << std::endl
-              << "    --trigger-enable-tm-ack     : enable triggering from trigger module ack signal." << std::endl
               << "    --trigger-disable-bit BIT   : disable triggering from source associated with BIT. BIT can be 'all'" << std::endl
+              << "    --trigger-enable-asic ASIC  : enable triggering from asic number ASIC (an on-layer asic). ASIC can be 'all'" << std::endl
               << "    --trigger-disable-asic ASIC : disable triggering from asic number ASIC (an on-layer asic). ASIC can be 'all'" << std::endl
+              << "    --trigger-enable-tm-hit     : enable triggering from trigger module hit signal." << std::endl
               << "    --trigger-disable-tm-hit    : disable triggering from trigger module hit signal." << std::endl
+              << "    --trigger-enable-tm-ack     : enable triggering from trigger module ack signal." << std::endl
               << "    --trigger-disable-tm-ack    : disable triggering from trigger module ack signal." << std::endl
+              << "    --trigger-enable-forced     : enable forced triggering." << std::endl
+              << "    --trigger-disable-forced    : disable forced triggering." << std::endl
               << "    --get-trigger-ena-mask      : print the trigger-enable mask to stdout" <<std::endl
               << "    --set-ack-timeout TIMEOUT   : set the trigger ack timeout to TIMEOUT" << std::endl
               << "    --get-ack-timeout           : print the current trigger ack timeout to stdout" << std::endl
@@ -121,6 +123,8 @@ int parse_args(VataCtrl vata, int argc, char **argv) {
             vata.trigger_enable_tm_hit();
         } else if (strcmp("--trigger-enable-tm-ack", argv[i]) == 0) {
             vata.trigger_enable_tm_ack();
+        } else if (strcmp("--trigger-enable-forced", argv[i]) == 0) {
+            vata.trigger_enable_forced();
         } else if (strcmp("--trigger-enable-bit", argv[i]) == 0) { 
             if (++i >= argc) {
                 std::cerr << "ERROR: No trigger enable bit specified." << std::endl;
@@ -148,6 +152,8 @@ int parse_args(VataCtrl vata, int argc, char **argv) {
             vata.trigger_disable_tm_hit();
         } else if (strcmp("--trigger-disable-tm-ack", argv[i]) == 0) {
             vata.trigger_disable_tm_ack();
+        } else if (strcmp("--trigger-disable-forced", argv[i]) == 0) {
+            vata.trigger_disable_forced();
         } else if (strcmp("--trigger-disable-bit", argv[i]) == 0) { 
             if (++i >= argc) {
                 std::cerr << "ERROR: No trigger enable bit specified." << std::endl;
