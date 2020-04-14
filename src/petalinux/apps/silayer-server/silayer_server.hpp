@@ -54,6 +54,7 @@ class LayerServer {
         int _trigger_disable_tm_ack(int nvata);
         int _trigger_enable_forced(int nvata);
         int _trigger_disable_forced(int nvata);
+        int _get_trigger_ena_mask(int nvata);
         int _get_event_count(int nvata, char* &cmd);
         int _reset_event_count(int nvata, char* &cmd);
         int _cal_pulse_ena(char* &cmd);

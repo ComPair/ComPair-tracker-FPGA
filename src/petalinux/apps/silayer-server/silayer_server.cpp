@@ -436,6 +436,17 @@ int LayerServer::_trigger_disable_forced(int nvata) {
     return vatas[nvata].trigger_disable_forced();
 }
 
+int LayerServer::_get_trigger_ena_mask(int nvata) {
+    #ifdef VERBOSE
+    std::cout << "Getting trigger enable mask for vata  " << nvata << std::endl;
+    #endif
+    u32 trigger_mask = vatas[nvata].get_trigger_ena_mask();
+    zmq::message_t response(sizeof(u32));
+    std::memcpy(response.data(), &trigger_mask, sizeof(u32));
+    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
 int LayerServer::_get_event_count(int nvata, char* &cmd) {
     u32 event_count = vatas[nvata].get_event_count();
     #ifdef VERBOSE
@@ -1049,6 +1060,8 @@ int LayerServer::_process_vata_msg(char *msg) {
         _trigger_enable_forced(nvata);
     } else if (strncmp("trigger-disable-forced", cmd, 22) == 0) {
         _trigger_disable_forced(nvata);
+    }else if (strncmp("get-trigger-ena-mask", cmd, 20) == 0) {
+        _get_trigger_ena_mask(nvata);
     } else if (strncmp("get-event-count", cmd, 15) == 0) {
         if (_get_event_count(nvata, cmd) != 0) {
             const char retmsg[] = "ERROR: could not parse get-event-count command";

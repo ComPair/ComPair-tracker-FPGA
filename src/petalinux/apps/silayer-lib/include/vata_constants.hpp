@@ -34,7 +34,8 @@
 #define AXI0_CTRL_FORCE_TRIGGER         5
 
 // Trigger enable mask bit mapping
-#define TRIGGER_ENA_MASK_LEN            15 // 0-11: asics. 12: TM hit. 13: TM ack. 14: Force trigger
+// 0-11: asics. 12: TM hit. 13: TM ack. 14: Force trigger
+#define TRIGGER_ENA_MASK_LEN            15
 #define TRIGGER_ENA_BIT_TM_HIT          12
 #define TRIGGER_ENA_BIT_TM_ACK          13
 #define TRIGGER_ENA_BIT_FORCE_TRIGGER   14

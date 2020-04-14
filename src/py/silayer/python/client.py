@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 import os
+import time
+import json
 import multiprocessing as mp
 import zmq
-import time
 
 from . import data_recvr
 from .cfg_reg import VataCfg
@@ -391,6 +392,33 @@ class Client:
         """
         return self.send_recv(f"vata {vata} trigger-disable-forced")
 
+    def get_trigger_enable_mask(self, vata):
+        """Get the trigger enable mask for a vata.
+
+        Parameters
+        ----------
+        vata: int
+            Which vata to fetch the trigger-enable mask from.
+
+        Returns
+        -------
+        ena_mask: dict
+            The trigger enable mask.
+            Keys are `["asics", "tm_hit", "tm_ack", "force_trigger", "cal_pulse"]`
+            Values for `ena_mask["asics"]` is an n-vata long list of bools.
+            Values for the others are single boolean. True means "enabled".
+
+        Notes
+        -----
+        If the trigger enable mask is updated, like if bit-locations change, then
+        update the `_parse_trigger_enable_mask` function.
+        """
+        msg = f"vata {vata} get-trigger-ena-mask"
+        mask_value = self.send_recv_uint(msg, nbytes_returned=4)
+        ena_mask = TriggerEnaMask(mask_value).to_dict()
+        ena_mask["asics"] = ena_mask["asics"][:self.get_n_vata()]
+        return ena_mask
+
     def get_event_count(self, vata):
         """Return the event count for the given asic.
         
@@ -641,10 +669,22 @@ class Client:
             raise ValueError(f"Requested save directory ({dname}) already exists.")
 
         os.makedirs(dname)
+        os.makedirs(f"{dname}/configs")
         ## Collect configurations from server to store in data directory
         n_vata = self.get_n_vata()
+        holds, trigger_enas = {}, {}
+        for vata in range(n_vata):
+            holds[vata] = self.get_hold(vata)
+            trigger_enas[vata] = self.get_trigger_enable_mask(vata)
+            cfg = self.get_config(vata)
+            with open(f"{dname}/configs/asic{vata:02d}.vcfg", "wb") as f:
+                f.write(cfg.to_binary())
+        with open(f"{dname}/configs/holds.json", "w") as f:
+            json.dump(holds, f)
+        with open(f"{dname}/configs/trigger-enas.json", "w") as f:
+            json.dump(trigger_enas, f)
 
-        self.recv_ctrl_sock.send(f"start {dname/data.rdat}".encode())
+        self.recv_ctrl_sock.send(f"start {dname}/data.rdat".encode())
         msg = self.recv_ctrl_sock.recv().decode()
         self.send_recv("emit start")
         self.data_streaming = True
@@ -692,3 +732,48 @@ class Client:
     ##    self.recv_ctrl_sock.send(f"exit".encode())
     ##    self.recv_ctrl_sock.recv()
     ##    self.recv_proc.join()
+
+class TriggerEnaMask:
+    """Class for comprehending the vata trigger enable mask
+    """
+    _bit_locations = {
+        "tm_hit": 12,
+        "tm_ack": 13,
+        "force_trigger": 14,
+    }
+
+    @staticmethod
+    def bit2bool(value, bit_num):
+        """Check the bit-location within an unsigned integer.
+
+        Parameters
+        ----------
+        value: int
+            The number (LSB-ordered) that we are inspecting
+        bit_num: The bit location to check within `value`
+
+        Returns
+        -------
+        bit_value: True if the bit location is '1', False otherwise.
+        """
+        return ((value >> bit_num) & 1) == 1
+
+    def __init__(self, mask_value):
+        """Initialize with the integer value for the mask
+        """
+        ## Asics are always the first 12 bits
+        self.asics = [ self.bit2bool(mask_value, i) for i in range(12) ]
+        ## get the rest from _bit_locations dict.
+        for field in self._bit_locations:
+            setattr(self, field, self.bit2bool(mask_value, self._bit_locations[field]))
+
+    def to_dict(self):
+        """Get a dictionary representation.
+
+        Returns
+        -------
+        ena_dict: A dictionary of the trigger-enable values.
+        """
+        ena_dict = dict((field, getattr(self, field)) for field in self._bit_locations)
+        ena_dict["asics"] = self.asics
+        return ena_dict
