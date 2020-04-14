@@ -15,6 +15,7 @@ SERVER_PORT = 5556
 DAC_SIDES = ["A", "B"]
 DAC_CHOICES = ["cal", "vth"]
 
+
 def byte2bits(byte):
     return [byte >> i & 1 for i in range(8)]
 
@@ -162,10 +163,12 @@ class Client:
         elif type(config_register) is VataCfg:
             payload = config_register.to_binary()
         else:
-            raise ValueError(f"Provided configuration register must be a string or a VataCfg")
+            raise ValueError(
+                f"Provided configuration register must be a string or a VataCfg"
+            )
 
         ready = self.send_recv(f"vata {vata} set-config-binary")
-        
+
         if ready != "ready":
             raise ValueError(f"Server is not ready: {ready}")
         else:
@@ -178,7 +181,9 @@ class Client:
         set_config: renaming this method to `set_config`
         .. warning:: This will be deprecated soon in favor of the `set_config` method.
         """
-        print("send_and_set_config is going away soon. Update scripts to use set_config")
+        print(
+            "send_and_set_config is going away soon. Update scripts to use set_config"
+        )
         return self.set_config(vata, config_register)
 
     def set_config_zynq_path(self, vata, path):
@@ -341,7 +346,7 @@ class Client:
             Which vata's TM-hit-trigger to enable.
         """
         return self.send_recv(f"vata {vata} trigger-enable-tm-hit")
-    
+
     def trigger_disable_tm_hit(self, vata):
         """Disable triggering off the trigger-module hit signal.
         
@@ -361,7 +366,7 @@ class Client:
             Which vata's TM-hit-ack to enable.
         """
         return self.send_recv(f"vata {vata} trigger-enable-tm-ack")
-    
+
     def trigger_disable_tm_ack(self, vata):
         """Disable triggering off the trigger-module ack signal.
         
@@ -381,7 +386,7 @@ class Client:
             Which vata's force-trigger to enable.
         """
         return self.send_recv(f"vata {vata} trigger-enable-forced")
-    
+
     def trigger_disable_forced(self, vata):
         """Disable triggering off the force-trigger signal.
 
@@ -411,12 +416,12 @@ class Client:
         Notes
         -----
         If the trigger enable mask is updated, like if bit-locations change, then
-        update the `_parse_trigger_enable_mask` function.
+        update the `TriggerEnaMask` class.
         """
         msg = f"vata {vata} get-trigger-ena-mask"
         mask_value = self.send_recv_uint(msg, nbytes_returned=4)
         ena_mask = TriggerEnaMask(mask_value).to_dict()
-        ena_mask["asics"] = ena_mask["asics"][:self.get_n_vata()]
+        ena_mask["asics"] = ena_mask["asics"][: self.get_n_vata()]
         return ena_mask
 
     def get_event_count(self, vata):
@@ -591,7 +596,9 @@ class Client:
         if side not in DAC_SIDES:
             raise ValueError(f"Invalid side: {side} must be in {DAC_SIDES}")
         if dac_choice not in DAC_CHOICES:
-            raise ValueError(f"Invalid dac_choice: {dac_choice} must be in {DAC_CHOICES}")
+            raise ValueError(
+                f"Invalid dac_choice: {dac_choice} must be in {DAC_CHOICES}"
+            )
         return side, dac_choice
 
     def dac_set_counts(self, side, dac_choice, counts):
@@ -684,6 +691,7 @@ class Client:
         with open(f"{dname}/configs/trigger-enas.json", "w") as f:
             json.dump(trigger_enas, f)
 
+        ## Start up the data emitter/receiver
         self.recv_ctrl_sock.send(f"start {dname}/data.rdat".encode())
         msg = self.recv_ctrl_sock.recv().decode()
         self.send_recv("emit start")
@@ -723,7 +731,7 @@ class Client:
     ##    -----
     ##    Using since __del__ didn't do what I thought it would, so this is necessary to
     ##    cleanup the data receiver process.
-    ##    
+    ##
     ##    Not actually sure if this is necessary, so this is commented out for now!
     ##    """
     ##    if self.data_streaming:
@@ -733,9 +741,11 @@ class Client:
     ##    self.recv_ctrl_sock.recv()
     ##    self.recv_proc.join()
 
+
 class TriggerEnaMask:
     """Class for comprehending the vata trigger enable mask
     """
+
     _bit_locations = {
         "tm_hit": 12,
         "tm_ack": 13,
@@ -762,7 +772,7 @@ class TriggerEnaMask:
         """Initialize with the integer value for the mask
         """
         ## Asics are always the first 12 bits
-        self.asics = [ self.bit2bool(mask_value, i) for i in range(12) ]
+        self.asics = [self.bit2bool(mask_value, i) for i in range(12)]
         ## get the rest from _bit_locations dict.
         for field in self._bit_locations:
             setattr(self, field, self.bit2bool(mask_value, self._bit_locations[field]))
