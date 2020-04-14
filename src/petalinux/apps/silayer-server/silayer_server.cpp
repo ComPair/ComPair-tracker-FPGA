@@ -1094,7 +1094,7 @@ int LayerServer::process_req() {
     std::cout << "Received message: " << c_req << std::endl;
     #endif
 
-    int retval;
+    int retval = 0;
     if (strncmp("emit", c_req, 4) == 0) {
         #ifdef VERBOSE
         std::cout << "Processing emit message." << std::endl;
@@ -1120,6 +1120,14 @@ int LayerServer::process_req() {
         std::cout << "Processing vata message." << std::endl;
         #endif
         retval = _process_vata_msg(c_req);
+    } else if (strncmp("get-n-vata", c_req, 10) == 0) {
+        #ifdef VERBOSE
+        std::cout << "Handling `get-n-vata` request" << std::endl;
+        #endif
+        zmq::message_t n_vata_response(sizeof(u8));
+        u8 n_vata = N_VATA;
+        std::memcpy(n_vata_response.data(), &n_vata, sizeof(u8));
+        socket.send(n_vata_response, zmq::send_flags::none);
     } else if (strncmp("halt", c_req, 4) == 0) {
         // Need to check if emitter is running!!!
         // ??? I think the below is deprecated???
