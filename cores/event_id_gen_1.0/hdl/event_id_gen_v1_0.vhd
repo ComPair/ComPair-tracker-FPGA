@@ -22,8 +22,11 @@ entity event_id_gen_v1_0 is
         event_id_latch : out std_logic;
 
         -- Debug ports --
-        event_id_go_out  : out std_logic;
-        inc_event_id_out : out std_logic;
+        event_id_go_out   : out std_logic;
+        inc_event_id_out  : out std_logic;
+        event_id_full_out : out std_logic_vector(C_S00_AXI_DATA_WIDTH-1 downto 0);
+        clk_count_out     : out std_logic_vector(3 downto 0);
+        id_bit_count_out  : out std_logic_vector(5 downto 0);
 
         -- User ports ends
         -- Do not modify the ports beyond this line
@@ -100,6 +103,9 @@ architecture arch_imp of event_id_gen_v1_0 is
              ; event_id_out   : out std_logic
              ; event_id_latch : out std_logic
              ; inc_event_id   : out std_logic
+             -- Debug --
+             ; clk_count_out  : out std_logic_vector(3 downto 0)
+             ; id_bit_count_out : out std_logic_vector(5 downto 0)
              );
     end component event_id_p2s;
 
@@ -167,6 +173,9 @@ begin
              , event_id_out   => event_id_data
              , event_id_latch => event_id_latch
              , inc_event_id   => inc_event_id
+             -- Debug --
+             , clk_count_out    => clk_count_out
+             , id_bit_count_out => id_bit_count_out
              );
 
     gen_event_id_go_inst : gen_event_id_go
@@ -177,20 +186,27 @@ begin
              , event_id_go => event_id_go
              );
 
-    process (inc_event_id, update_event_id)
+    process (s00_axi_aclk, s00_axi_aresetn)
     begin
-        if update_event_id = '1' then
-            event_id <= unsigned(new_event_id);
-        elsif inc_event_id = '1' then
-            event_id <= event_id + to_unsigned(1, event_id'length);
+        if s00_axi_aresetn = '0' then
+            event_id <= (others => '0');
         else
-            event_id <= event_id;
+            if rising_edge(s00_axi_aclk) then
+                if update_event_id = '1' then
+                    event_id <= unsigned(new_event_id);
+                elsif inc_event_id = '1' then
+                    event_id <= event_id + to_unsigned(1, event_id'length);
+                else
+                    event_id <= event_id;
+                end if;
+            end if;
         end if;
     end process;
     
     -- Debug ports --
-    event_id_go_out  <= event_id_go;
-    inc_event_id_out <= inc_event_id;
+    event_id_go_out   <= event_id_go;
+    inc_event_id_out  <= inc_event_id;
+    event_id_full_out <= std_logic_vector(event_id);
 
     -- User logic ends
 
