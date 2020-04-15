@@ -436,6 +436,17 @@ int LayerServer::_trigger_disable_forced(int nvata) {
     return vatas[nvata].trigger_disable_forced();
 }
 
+int LayerServer::_get_trigger_ena_mask(int nvata) {
+    #ifdef VERBOSE
+    std::cout << "Getting trigger enable mask for vata  " << nvata << std::endl;
+    #endif
+    u32 trigger_mask = vatas[nvata].get_trigger_ena_mask();
+    zmq::message_t response(sizeof(u32));
+    std::memcpy(response.data(), &trigger_mask, sizeof(u32));
+    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
 int LayerServer::_get_event_count(int nvata, char* &cmd) {
     u32 event_count = vatas[nvata].get_event_count();
     #ifdef VERBOSE
@@ -1049,6 +1060,8 @@ int LayerServer::_process_vata_msg(char *msg) {
         _trigger_enable_forced(nvata);
     } else if (strncmp("trigger-disable-forced", cmd, 22) == 0) {
         _trigger_disable_forced(nvata);
+    }else if (strncmp("get-trigger-ena-mask", cmd, 20) == 0) {
+        _get_trigger_ena_mask(nvata);
     } else if (strncmp("get-event-count", cmd, 15) == 0) {
         if (_get_event_count(nvata, cmd) != 0) {
             const char retmsg[] = "ERROR: could not parse get-event-count command";
@@ -1094,7 +1107,7 @@ int LayerServer::process_req() {
     std::cout << "Received message: " << c_req << std::endl;
     #endif
 
-    int retval;
+    int retval = 0;
     if (strncmp("emit", c_req, 4) == 0) {
         #ifdef VERBOSE
         std::cout << "Processing emit message." << std::endl;
@@ -1120,6 +1133,14 @@ int LayerServer::process_req() {
         std::cout << "Processing vata message." << std::endl;
         #endif
         retval = _process_vata_msg(c_req);
+    } else if (strncmp("get-n-vata", c_req, 10) == 0) {
+        #ifdef VERBOSE
+        std::cout << "Handling `get-n-vata` request" << std::endl;
+        #endif
+        zmq::message_t n_vata_response(sizeof(u8));
+        u8 n_vata = N_VATA;
+        std::memcpy(n_vata_response.data(), &n_vata, sizeof(u8));
+        socket.send(n_vata_response, zmq::send_flags::none);
     } else if (strncmp("halt", c_req, 4) == 0) {
         // Need to check if emitter is running!!!
         // ??? I think the below is deprecated???
