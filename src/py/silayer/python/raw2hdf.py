@@ -67,7 +67,7 @@ def bits2val(bitarr):
     """
     val, fac = 0, 1
     for bit in bitarr:
-        if bit != 1 or bit != 0:
+        if bit != 1 and bit != 0:
             raise ValueError(f"bit in bitarr: {bit}. Is not 0 or 1.")
         val += bit * fac
         fac *= 2

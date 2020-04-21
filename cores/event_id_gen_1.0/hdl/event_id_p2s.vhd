@@ -115,11 +115,11 @@ begin
                 event_id_latch <= '0';
                 clk_count_ena  <= '0';
             when LATCH_HI =>
-                event_id_out   <= data(0);
+                event_id_out   <= data(EVENT_ID_WIDTH-1);
                 event_id_latch <= '1';
                 clk_count_ena  <= '1';
             when LATCH_LO =>
-                event_id_out   <= data(0);
+                event_id_out   <= data(EVENT_ID_WIDTH-1);
                 event_id_latch <= '0';
                 clk_count_ena  <= '1';
             when others =>
@@ -167,7 +167,7 @@ begin
             if start_id_out = '1' then
                 data <= unsigned(event_id_in);
             elsif inc_id_bit_count = '1' then
-                data <= shift_right(data, 1);
+                data <= shift_left(data, 1);
             else
                 data <= data;
             end if;
