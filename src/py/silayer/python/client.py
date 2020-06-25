@@ -7,6 +7,7 @@ import zmq
 
 from . import data_recvr
 from .cfg_reg import VataCfg
+from .trigger_mask import trigger_ena_dict
 
 SILAYER_HOST = "si-layer.local"
 DATA_PORT = 9998
@@ -420,7 +421,7 @@ class Client:
         """
         msg = f"vata {vata} get-trigger-ena-mask"
         mask_value = self.send_recv_uint(msg, nbytes_returned=4)
-        ena_mask = TriggerEnaMask(mask_value).to_dict()
+        ena_mask = trigger_ena_dict(mask_value)
         ena_mask["asics"] = ena_mask["asics"][: self.get_n_vata()]
         return ena_mask
 
@@ -681,14 +682,15 @@ class Client:
         n_vata = self.get_n_vata()
         holds, trigger_enas = {}, {}
         for vata in range(n_vata):
-            holds[vata] = self.get_hold(vata)
-            trigger_enas[vata] = self.get_trigger_enable_mask(vata)
+            vname = f"asic{vata:02d}"
+            holds[vname] = self.get_hold(vata)
+            trigger_enas[vname] = self.get_trigger_enable_mask(vata)
             cfg = self.get_config(vata)
-            with open(f"{dname}/configs/asic{vata:02d}.vcfg", "wb") as f:
+            with open(f"{dname}/configs/{vname}.vcfg", "wb") as f:
                 f.write(cfg.to_binary())
-        with open(f"{dname}/configs/holds.json", "w") as f:
+        with open(f"{dname}/configs/hold-delay.json", "w") as f:
             json.dump(holds, f)
-        with open(f"{dname}/configs/trigger-enas.json", "w") as f:
+        with open(f"{dname}/configs/trigger-mask.json", "w") as f:
             json.dump(trigger_enas, f)
 
         ## Start up the data emitter/receiver
@@ -742,48 +744,3 @@ class Client:
     ##    self.recv_proc.join()
 
 
-class TriggerEnaMask:
-    """Class for comprehending the vata trigger enable mask
-    """
-
-    _bit_locations = {
-        "tm_hit": 12,
-        "tm_ack": 13,
-        "force_trigger": 14,
-    }
-
-    @staticmethod
-    def bit2bool(value, bit_num):
-        """Check the bit-location within an unsigned integer.
-
-        Parameters
-        ----------
-        value: int
-            The number (LSB-ordered) that we are inspecting
-        bit_num: The bit location to check within `value`
-
-        Returns
-        -------
-        bit_value: True if the bit location is '1', False otherwise.
-        """
-        return ((value >> bit_num) & 1) == 1
-
-    def __init__(self, mask_value):
-        """Initialize with the integer value for the mask
-        """
-        ## Asics are always the first 12 bits
-        self.asics = [self.bit2bool(mask_value, i) for i in range(12)]
-        ## get the rest from _bit_locations dict.
-        for field in self._bit_locations:
-            setattr(self, field, self.bit2bool(mask_value, self._bit_locations[field]))
-
-    def to_dict(self):
-        """Get a dictionary representation.
-
-        Returns
-        -------
-        ena_dict: A dictionary of the trigger-enable values.
-        """
-        ena_dict = dict((field, getattr(self, field)) for field in self._bit_locations)
-        ena_dict["asics"] = self.asics
-        return ena_dict
