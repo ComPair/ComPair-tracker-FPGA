@@ -5,8 +5,8 @@
 #include "vata_ctrl.hpp"
 
 // Size of expected data packet from asic,
-// with some room.
-#define ASIC_NDATA 32 // N_ASIC_PACKET * 2
+// with some room (should not be needed!!!
+#define ASIC_NDATA   N_ASIC_PACKET
 
 //#define DP_TIMEOUT_FLAG 0x0001
 
@@ -31,8 +31,10 @@ class DataPacket {
         void set_timeout();
         bool read_vata_data(int i, VataCtrl *vatas);
         void to_msg(u16 packet_size, char *buf);
+        bool is_done();
         bool need_data[N_VATA];
         int nread;
+        long int event_id; // -1 when not set, otherwise the event id.
         u64 packet_time; // This should become private after debugging.
 
 };
