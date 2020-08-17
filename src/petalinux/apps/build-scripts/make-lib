@@ -7,11 +7,11 @@ fi
 
 IP_ADDR=$1
 
-if ! ping -c 1 -w 1 $IP_ADDR 1>/dev/null; then
-    echo "Could not ping $IP_ADDR"
-    echo "Check SILAYER_IP in Makefile"
-    exit 2 
-fi
+#if ! ping -c 1 -w 1 $IP_ADDR 1>/dev/null; then
+#    echo "Could not ping $IP_ADDR"
+#    echo "Check SILAYER_IP in Makefile"
+#    exit 2 
+#fi
 
 LIB_DIR=$(pwd)/../silayer-lib
 DEST_DIR=/home/root/zynq/src/
