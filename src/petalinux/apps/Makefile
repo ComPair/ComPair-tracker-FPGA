@@ -1,5 +1,5 @@
 BUILD = dbe_production
-SILAYER_IP = 192.168.1.69
+SILAYER_IP = 10.10.0.11
 
 all: server
 
