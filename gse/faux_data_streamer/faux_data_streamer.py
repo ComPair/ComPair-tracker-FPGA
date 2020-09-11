@@ -29,62 +29,61 @@ if __name__ == "__main__":
 
     print("Binded to socket. Running")
 
-    faux_data_iterator = silayer.raw2hdf.lame_byte_iterator(sys.argv[1])
+    # faux_data_iterator = silayer.raw2hdf.lame_byte_iterator(sys.argv[1])
 
-    t0 = time.time()
-    i = 0
-    rate = float(sys.argv[2]) #Hz
-    try:
-        while True:
-            tnow = time.time()
-            deltaT = tnow- t0
+    # t0 = time.time()
+    # i = 0
+
+    # try:
+    #     while True:
+    #         tnow = time.time()
+    #         deltaT = tnow- t0
             
-            if deltaT > 1. / rate:
+    #         if deltaT > 1. / nominal_rate:
                 
-                i+=1
+    #             i+=1
 
-                instant_rate = 1. / (deltaT)
-                if i%rate == 0 and i > 0:
-                    print(f"DeltaT: {deltaT:f} -- Rate: {instant_rate:.3f} Hz -- Pakcets sent: {i:g}")
-                socket.send(next(faux_data_iterator), flags=zmq.NOBLOCK, copy=False)
+    #             instant_rate = 1. / (deltaT)
+    #             if i%rate == 0 and i > 0:
+    #                 print(f"DeltaT: {deltaT:f} -- Rate: {instant_rate:.3f} Hz -- Pakcets sent: {i:g}")
+    #             socket.send(next(faux_data_iterator), flags=zmq.NOBLOCK, copy=False)
                 
-                t0 = tnow
-    except KeyboardInterrupt:
-        print("Exiting...")
-        socket.close()
-        exit()
+    #             t0 = tnow
+    # except KeyboardInterrupt:
+    #     print("Exiting...")
+    #     socket.close()
+    #     exit()
             	
 
 # =======
 #     socket.bind("tcp://*:9998")    
 
-#     t0 = time.time()
-#     i = 0
-# >>>>>>> gui_lag_debugger
+    t0 = time.time()
+    i = 0
 
-    # @tl.job(interval=timedelta(seconds=1./nominal_rate))
-    # def send_packet():
-    #     global i, t0
+    @tl.job(interval=timedelta(seconds=1./nominal_rate))
+    def send_packet():
+        global i, t0
     
-    #     test_data = next(faux_data_iterator)
+        test_data = next(faux_data_iterator)
     
-    #     i += 1
+        i += 1
     
-    #     tnow = time.time()
+        tnow = time.time()
     
-    #     if i % 10 == 0 and i > 0:
-    #         deltaT = tnow - t0
-    #         rate = 1.0 / (deltaT)
-    #         print(f"DeltaT: {deltaT:.3f} -- Rate: {rate:.2f} Hz -- Nbytes: {len(test_data)}")
+        if i % 10 == 0 and i > 0:
+            deltaT = tnow - t0
+            rate = 1.0 / (deltaT)
+            print(f"DeltaT: {deltaT:.3f} -- Rate: {rate:.2f} Hz -- Nbytes: {len(test_data)}")
     
-    #     socket.send(test_data, flags=zmq.NOBLOCK, copy=False)
+        socket.send(test_data, flags=zmq.NOBLOCK, copy=False)
     
-    #     t0 = tnow
+        t0 = tnow
     
-    # tl.start()
-    # while True:
-    #     try:
-    #         time.sleep(1)
-    #     except KeyboardInterrupt:
-    #         tl.stop()
-    #         break
+    tl.start()
+    while True:
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            tl.stop()
+            break
