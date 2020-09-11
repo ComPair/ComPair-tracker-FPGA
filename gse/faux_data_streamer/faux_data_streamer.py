@@ -1,25 +1,30 @@
+#!/usr/bin/env python 
+
 import time
 import zmq
 import silayer
 import sys
+from datetime import timedelta
+
+from timeloop import Timeloop
+
+tl = Timeloop()
 
 
 
 if __name__ == "__main__":
 
-    '''
-    This is an extrel
-    '''
-
-
     if len(sys.argv) != 3:
-        print(f"Usage: python {sys.argv[0]} <path to data file to send> <rate>")
+        print(f"Usage: python {sys.argv[0]} <packet rate in Hz> <path to data file to send>")
         exit(0)
        
+    faux_data_iterator = silayer.raw2hdf.lame_byte_iterator(sys.argv[2])
+    nominal_rate = float(sys.argv[1])
 
     context = zmq.Context()
     socket = context.socket(zmq.PUB)
     socket.setsockopt(zmq.LINGER, 1)
+
     socket.bind('tcp://*:9998')
 
     print("Binded to socket. Running")
@@ -50,4 +55,36 @@ if __name__ == "__main__":
         exit()
             	
 
+# =======
+#     socket.bind("tcp://*:9998")    
 
+#     t0 = time.time()
+#     i = 0
+# >>>>>>> gui_lag_debugger
+
+    # @tl.job(interval=timedelta(seconds=1./nominal_rate))
+    # def send_packet():
+    #     global i, t0
+    
+    #     test_data = next(faux_data_iterator)
+    
+    #     i += 1
+    
+    #     tnow = time.time()
+    
+    #     if i % 10 == 0 and i > 0:
+    #         deltaT = tnow - t0
+    #         rate = 1.0 / (deltaT)
+    #         print(f"DeltaT: {deltaT:.3f} -- Rate: {rate:.2f} Hz -- Nbytes: {len(test_data)}")
+    
+    #     socket.send(test_data, flags=zmq.NOBLOCK, copy=False)
+    
+    #     t0 = tnow
+    
+    # tl.start()
+    # while True:
+    #     try:
+    #         time.sleep(1)
+    #     except KeyboardInterrupt:
+    #         tl.stop()
+    #         break
