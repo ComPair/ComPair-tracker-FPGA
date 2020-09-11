@@ -8,7 +8,9 @@ from bokeh.models.widgets import Panel, Tabs
 from bokeh.io import push_notebook, show, output_notebook
 from bokeh.plotting import figure
 from bokeh.models import ColumnDataSource, Range1d, TextInput
+
 import time
+import datetime
 import bokeh
 from bokeh.palettes import Dark2_5 as palette
 # itertools handles the cycling
@@ -16,7 +18,7 @@ import itertools
 
 colors = itertools.cycle(palette)
 from bokeh.models.widgets import Button, Toggle
-from bokeh.models.widgets import RadioButtonGroup, DataTable, DateFormatter, TableColumn
+from bokeh.models.widgets import RadioButtonGroup, DataTable, DateFormatter, TableColumn, CheckboxButtonGroup
 from bokeh.models.callbacks import CustomJS
 
 from functools import partial
@@ -45,27 +47,58 @@ def connect_to_host(host="si-layer.local", data_port=9998):
 
 socket = None #
 
-interesting_channels = [0, 1, 2]
+
+#### For testing only.
+n_ASICs = 4
+n_ch = 32
+
+show_ch = []
+channel_active = np.array([False for i in range(n_ch)])
+for i in range(n_ch):
+    if channel_active[i]:
+        show_ch += [i] 
+    else:
+        continue
+
+
 
 ############## 
 # Main plot update loop
 ##############
 event_number = 0
-def patch_plots():
+
+def patch_channelds_only():
     global stats_ds, channel_ds, binned_data_ds, timestream_ds
-    global socket
-    global GO
+    global socket, GO
     global event_number
-    global interesting_channels
 
 
     if GO:
-        #print("Callback")
         data = socket.recv()
+
+        dp = DataPacket(data)
+        ap = dp.asic_packets[0]
+        event_number += 1
         
-        #n_received += 1
-        #i += 1
+        timeseries = {'time': [event_number]}
+        patches = {}
         
+        for ch in range(n_ch):
+            timeseries[f'ch{ch:02d}'] = [ap.data[ch]]
+
+        channel_ds.data['values'] = ap.data
+        timestream_ds.stream(timeseries, rollover=250)
+
+
+def patch_plots():
+    global stats_ds, channel_ds, binned_data_ds, timestream_ds
+    global socket, GO
+    global event_number
+
+
+    if GO:
+        data = socket.recv()
+
         dp = DataPacket(data)
         ap = dp.asic_packets[0]
         event_number += 1
@@ -75,10 +108,8 @@ def patch_plots():
         
         for ch in range(n_ch):
             ch_name = f'ch{ch:02d}'
-            
             timeseries[ch_name] = [ap.data[ch]]
-            
-            bin_number = int(np.histogram(ap.data[ch], bins=bin_edges)[0].argmax())   
+            bin_number = ap.data[ch] #int(np.histogram(ap.data[ch], bins=bin_edges)[0].argmax())   
             
             old_bin_content = binned_data_ds.data[ch_name][bin_number]
             
@@ -88,12 +119,13 @@ def patch_plots():
         binned_data_ds.patch(patches)
         timestream_ds.stream(timeseries, rollover=250)    
 
+        '''
         stats_patches = {}
 
         stats_patches['mean'] = []
         stats_patches['sigma'] = []
         stats_patches['N'] = []
-        for ch in range(3):
+        for ch in range(n_ch):
             ch_name = f'ch{ch:02d}'        
             stats_patches['mean'] += [(ch, calc_mean(bin_centers, binned_data_ds.data[ch_name]))]   
             stats_patches['sigma'] += [(ch, np.sqrt(calc_var(bin_centers, binned_data_ds.data[ch_name])))]   
@@ -101,20 +133,14 @@ def patch_plots():
 
 
         stats_ds.patch(stats_patches)
+        '''
 
-#        for ch in range(32):
-#            stats_ds.data['mean'] = [calc_mean(bin_centers, binned_data_ds.data[f'ch{ch:02d}']) for ch in range(32)]
-#            stats_ds.data['sigma'] = [np.sqrt(calc_var(bin_centers, binned_data_ds.data[f'ch{ch:02d}'])) for ch in range(32)]
-#            stats_ds.data['N'] = [np.sum(binned_data_ds.data[f'ch{ch:02d}']) for ch in range(32)]
-
-#### For testing only.
-n_ASICs = 2
 
 ################################
 # Construct datasources.
 ################################
 # Step plot
-n_ch = 32
+
 channel_ds = ColumnDataSource(data={'values': np.zeros(n_ch), 'channels': np.array(range(n_ch))})
      
 
@@ -128,13 +154,60 @@ timestream_ds = ColumnDataSource(data=timeseries)
 
 
 ch_display = make_channel_display(channel_ds)
-ts_display = make_channel_timestream(timestream_ds)
+ts_display, ts_list = make_channel_timestream(timestream_ds, n_ch, show_ch=show_ch)
+
+checkbox = CheckboxButtonGroup(labels=[f"ch{ch:02d}" for ch in range(n_ch)], active=show_ch)
+
+#callback_dict = 
+
+#def set_channel_visibility(checkbox, plot_list):
+#    for index, active in enumerate(checkbox.active):
+#        print(index, active)
+#        plot_list[i].visible = active
+
+#checkbox.callback = set_channel_visibility(checkbox, ts_list)
+'''checkbox.callback = CustomJS(args=dict(x=ts_list[0], y=ts_list[1], z=ts_list[2]), code="""
+    //console.log(cb_obj.active);
+    x.visible = false;
+    y.visible = false;
+    z.visible = false;
+    for (i in cb_obj.active) {
+        //console.log(cb_obj.active[i]);
+        if (cb_obj.active[i] == 0) {
+            x.visible = true;
+        } else if (cb_obj.active[i] == 1) {
+            y.visible = true;
+        } else if (cb_obj.active[i] == 2) {
+            z.visible = true;
+        }
+    }
+""")'''
+
+checkbox.callback = CustomJS(args=dict(ts_list=ts_list), code="""
+    
+    for (i=0; i < 32; i++){
+        ts_list[i].visible = false;
+    }
+
+    for (i in cb_obj.active) {
+        for (j=0; j < 32; j++){
+            if (cb_obj.active[i] == j) {
+                ts_list[j].visible = true;
+            }
+        }
+    }
+
+
+""")
+
+
 
 
 ### Histogram
 bin_edges = np.array(range(1025)) - 0.5
 bin_centers = (bin_edges[:-1] + bin_edges[1:]) / 2
 binned_data = np.zeros(len(bin_centers))
+
 
 hdict = {}
 for ch in range(n_ch):
@@ -147,9 +220,8 @@ hdict['bottom'] = np.zeros(len(bin_centers))
 
 binned_data_ds = ColumnDataSource(hdict)
 
-hist_display = make_channel_binner(binned_data_ds)
-hist_display_list = [make_channel_binner(binned_data_ds, [i]) for i in range(n_ch)]
-#show(Tabs(tabs=[Panel(child=hist_display_list[i], title=f'ch{i:02d}') for i in range(3)]))
+### Same histogram, but fast (?)
+hist_display, hist_list = make_channel_binner(binned_data_ds, n_ch, [0, 1, 2])
 
 ### Statistics
 stats_ds = ColumnDataSource({'mean': np.zeros(n_ch), 'sigma': np.zeros(n_ch), 'N': np.zeros(n_ch)})
@@ -210,7 +282,6 @@ def start_DAQ(button):
     global nclick
     global socket
 
-    nclick += 1
     if socket is not None:
         if GO:          
             button.button_type = 'danger'
@@ -225,28 +296,31 @@ def start_DAQ(button):
 start_daq_button = Button(label='STOPPED', button_type='warning', disabled=True)
 
 GO = False
-nclick = 0
     
 start_daq_button.on_click(lambda : start_DAQ(start_daq_button))
 
-inputs = column(column(layer_server_ip_input,connect_buttion), start_daq_button)
+inputs = column(column(
+                layer_server_ip_input, connect_buttion), 
+                start_daq_button,
+                checkbox)
 
-ASIC_layout = layout(row(column(ch_display, row(hist_display, ts_display)), data_table))
+ASIC_layout = layout(row(column(ch_display, row(ts_display))))#, data_table))
+#ASIC_layout = layout(row(column(ch_display, row(hist_display, ts_display)) ))#, data_table))
 display_list = [ASIC_layout for i in range(n_ASICs)]
 
 
-ASIC_tabs = Tabs(tabs=[Panel(child=display_list[i], title=f'ASIC {i:02d}') for i in range(len(display_list))])
+tabs = Tabs(tabs=[Panel(child=display_list[i], title=f'ASIC {i:02d}') for i in range(len(display_list))])
 
 
-#ASIC_tabs.js_on_change("active", CustomJS(args=dict(tabs=ASIC_tabs), code="""
-#           if (typeof(previously_active) == "undefined") {
-#                previously_active = 0
-#           }
-#           
-#           tabs.tabs[tabs.active].child.visible = true
-#           tabs.tabs[previously_active].child.visible = false
-#           previously_active = tabs.active
-#        """))
+# tabs.js_on_change("active", CustomJS(args=dict(tabs=tabs), code="""
+#            if (typeof(previously_active) == "undefined") {
+#                 previously_active = 0
+#            }
+           
+#            tabs.tabs[tabs.active].child.visible = true
+#            tabs.tabs[previously_active].child.visible = false
+#            previously_active = tabs.active
+#         """))
 
 
 #ASIC_tabs
@@ -256,6 +330,14 @@ ASIC_tabs = Tabs(tabs=[Panel(child=display_list[i], title=f'ASIC {i:02d}') for i
 #ASIC_tabs = Tabs(tabs=[i for i in ASIC_panels])
 #curdoc().add_root(column(inputs, column(ch_display, ts_display), width=800))
 
-curdoc().add_root(row(inputs, ASIC_tabs))
 
-curdoc().add_periodic_callback(patch_plots, 100)
+
+curdoc().add_root(row(inputs, tabs))
+
+#click_connect(connect_buttion, start_daq_button)
+
+#start_DAQ(start_daq_button)
+
+#curdoc().add_periodic_callback(patch_plots, 50)
+
+curdoc().add_periodic_callback(patch_channelds_only, 50)

@@ -161,7 +161,8 @@ class Client:
                 raise ValueError(f"Specified path ({config_register}) is not a file.")
             with open(config_register, "rb") as f:
                 payload = f.read()
-        elif type(config_register) is VataCfg:
+        #elif type(config_register) is VataCfg:
+        elif isinstance(config_register, VataCfg):
             payload = config_register.to_binary()
         else:
             raise ValueError(
