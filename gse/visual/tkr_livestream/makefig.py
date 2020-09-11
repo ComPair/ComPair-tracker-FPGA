@@ -20,7 +20,7 @@ def make_channel_display(datasource):
     
     return channel_display
 
-def make_channel_timestream(datasource, show_ch = [0, 1, 2]):
+def make_channel_timestream(datasource, n_ch, show_ch = [0, 1, 2]):
     channel_stream = figure(title='ASIC_<x>', tools='', 
            plot_height=350, plot_width=400,
            background_fill_color="#fafafa")#,  output_backend="webgl")
@@ -30,14 +30,19 @@ def make_channel_timestream(datasource, show_ch = [0, 1, 2]):
     
     colors = itertools.cycle(palette)        
 
-    for ch in show_ch:
+    line_list = []
+    for ch in range(n_ch):
         color=next(colors)
-        channel_stream.line('time', f'ch{ch:02d}', source=datasource, color=color)
-        channel_stream.circle('time', f'ch{ch:02d}', source=datasource, color=color)
+        ch_line = channel_stream.line('time', f'ch{ch:02d}', 
+            source=datasource, color=next(colors), legend_label=f'ch{ch:02d}')
+        if ch not in show_ch:
+            ch_line.visible = False
 
-    return channel_stream
+        line_list += [ch_line]
+    
+    return channel_stream, line_list
 
-def make_channel_binner(datasource, show_ch = [0, 1, 2]):
+def make_channel_binner(datasource, n_ch, show_ch = []):
     hist_fig = figure(title='ASIC_<x>', #tools='', 
                       plot_height=350, plot_width=400,
                       background_fill_color="#fafafa")#,  output_backend="webgl")
@@ -46,9 +51,13 @@ def make_channel_binner(datasource, show_ch = [0, 1, 2]):
 
     colors = itertools.cycle(palette)        
 
-    #print("Making histograms for channels: ", show_ch)
-    for ch in show_ch:
-        hist_fig.quad(top=f'ch{ch:02d}', left='left', right='right', bottom='bottom', 
+    hist_list = []
+    for ch in range(n_ch):
+        color=next(colors)
+        ch_hist = hist_fig.quad(top=f'ch{ch:02d}', left='left', right='right', bottom='bottom', 
                       source=datasource, color=next(colors), legend_label=f'ch{ch:02d}')
-                
-    return hist_fig
+        hist_list += [ch_hist]
+        if ch not in show_ch:
+            ch_hist.visible = False
+
+    return hist_fig, hist_list
