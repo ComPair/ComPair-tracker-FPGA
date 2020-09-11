@@ -91,8 +91,8 @@ rootfs: ./work/$(BUILD)/.export_hardware.done
 	cd src/petalinux/apps ; $(PREFIX) make $(POSTFIX)
 	exit 0
 
-rootfs_scripts: ./work/$(BUILD)/.export_hardware.done 
-	cd src/users/apps ; $(PREFIX) ./copy-scripts.sh $(POSTFIX)
+rootfs_scripts: 
+	cd src/petalinux/users/ ; $(PREFIX) ./copy-scripts.sh 10.10.0.11 $(POSTFIX)
 	exit 0
 
 # Remove the work directory. Cannot be undone!
