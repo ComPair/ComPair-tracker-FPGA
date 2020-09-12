@@ -1,6 +1,6 @@
 
 ################################################################
-# This is a generated script based on design: dbe_production_bd
+# This is a generated script based on design: dbe_reva_production_bd
 #
 # Though there are limitations about the generated script,
 # the main purpose of this utility is to make learning
@@ -35,7 +35,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 ################################################################
 
 # To test this script, run the following commands from Vivado Tcl console:
-# source dbe_production_bd_script.tcl
+# source dbe_reva_production_bd_script.tcl
 
 # If there is no project opened, this script will create a
 # project, but make sure you do not have an existing project
@@ -50,7 +50,7 @@ if { $list_projs eq "" } {
 
 # CHANGE DESIGN NAME HERE
 variable design_name
-set design_name dbe_production_bd
+set design_name dbe_reva_production_bd
 
 # If you do not already have an existing IP Integrator design open,
 # you can create a design using the following command:
