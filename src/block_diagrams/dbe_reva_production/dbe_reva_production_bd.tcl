@@ -125,7 +125,6 @@ set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
 nasa.gov:user:AXI_cal_pulse:1.1\
-xilinx.com:ip:util_vector_logic:2.0\
 trenz.biz:user:SC0720:1.0\
 xilinx.com:ip:axi_fifo_mm_s:4.2\
 nasa.gov:user:dac121s101:1.0\
@@ -342,9 +341,12 @@ proc create_root_design { parentCell } {
   set DIG_B_SPI1_MISO_In [ create_bd_port -dir I DIG_B_SPI1_MISO_In ]
   set DIG_B_SPI1_MOSI_Out [ create_bd_port -dir O DIG_B_SPI1_MOSI_Out ]
   set DIG_B_SPI1_SCLK_Out [ create_bd_port -dir O DIG_B_SPI1_SCLK_Out ]
+  set ETH_PHY_LED_GRN_Out [ create_bd_port -dir O ETH_PHY_LED_GRN_Out ]
+  set ETH_PHY_LED_ORG_Out [ create_bd_port -dir O ETH_PHY_LED_ORG_Out ]
+  set ETH_PHY_LED_YEL_Out [ create_bd_port -dir O ETH_PHY_LED_YEL_Out ]
   set EXTCLK [ create_bd_port -dir I EXTCLK ]
-  set Event_ID_Latch_P [ create_bd_port -dir I Event_ID_Latch_P ]
-  set Event_ID_P [ create_bd_port -dir I Event_ID_P ]
+  set Event_ID_In [ create_bd_port -dir I Event_ID_In ]
+  set Event_ID_Latch_In [ create_bd_port -dir I Event_ID_Latch_In ]
   set PL_pin_K16 [ create_bd_port -dir I PL_pin_K16 ]
   set PL_pin_K19 [ create_bd_port -dir I PL_pin_K19 ]
   set PL_pin_K20 [ create_bd_port -dir O PL_pin_K20 ]
@@ -355,33 +357,17 @@ proc create_root_design { parentCell } {
   set PL_pin_P16 [ create_bd_port -dir I PL_pin_P16 ]
   set PL_pin_P22 [ create_bd_port -dir I PL_pin_P22 ]
   set PPS [ create_bd_port -dir I PPS ]
-  set Si_BUSY_P [ create_bd_port -dir O -from 0 -to 0 Si_BUSY_P ]
-  set Si_HIT_P [ create_bd_port -dir O -from 0 -to 0 Si_HIT_P ]
-  set Si_RDY_P [ create_bd_port -dir O Si_RDY_P ]
-  set Si_SPARE_P [ create_bd_port -dir O Si_SPARE_P ]
-  set Trig_Ack_P [ create_bd_port -dir I Trig_Ack_P ]
-  set Trig_ENA_P [ create_bd_port -dir I Trig_ENA_P ]
+  set Si_Busy_Out [ create_bd_port -dir O Si_Busy_Out ]
+  set Si_Hit_A_Out [ create_bd_port -dir O Si_Hit_A_Out ]
+  set Si_Hit_B_Out [ create_bd_port -dir O Si_Hit_B_Out ]
+  set Si_Rdy_Out [ create_bd_port -dir O Si_Rdy_Out ]
+  set Trig_Ack_In [ create_bd_port -dir I Trig_Ack_In ]
+  set Trig_Hit_In [ create_bd_port -dir I Trig_Hit_In ]
   set eth_phy_led0_yellow [ create_bd_port -dir O -from 0 -to 0 eth_phy_led0_yellow ]
   set eth_phy_led1_green [ create_bd_port -dir O -from 0 -to 0 eth_phy_led1_green ]
 
   # Create instance: AXI_cal_pulse_0, and set properties
   set AXI_cal_pulse_0 [ create_bd_cell -type ip -vlnv nasa.gov:user:AXI_cal_pulse:1.1 AXI_cal_pulse_0 ]
-
-  # Create instance: INV_SI_BUSY, and set properties
-  set INV_SI_BUSY [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 INV_SI_BUSY ]
-  set_property -dict [ list \
-   CONFIG.C_OPERATION {not} \
-   CONFIG.C_SIZE {1} \
-   CONFIG.LOGO_FILE {data/sym_notgate.png} \
- ] $INV_SI_BUSY
-
-  # Create instance: INV_SI_HIT, and set properties
-  set INV_SI_HIT [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_vector_logic:2.0 INV_SI_HIT ]
-  set_property -dict [ list \
-   CONFIG.C_OPERATION {not} \
-   CONFIG.C_SIZE {1} \
-   CONFIG.LOGO_FILE {data/sym_notgate.png} \
- ] $INV_SI_HIT
 
   # Create instance: SC0720_0, and set properties
   set SC0720_0 [ create_bd_cell -type ip -vlnv trenz.biz:user:SC0720:1.0 SC0720_0 ]
@@ -1508,10 +1494,8 @@ proc create_root_design { parentCell } {
   connect_bd_net -net DIG_ASIC_9_OUT_6_V_In_1 [get_bd_ports DIG_ASIC_9_OUT_6_V_In] [get_bd_pins vata_460p3_axi_inter_9/vata_o6]
   connect_bd_net -net DIG_A_SPI1_MISO_In_1 [get_bd_ports DIG_A_SPI1_MISO_In] [get_bd_pins processing_system7_0/SPI0_MISO_I]
   connect_bd_net -net DIG_B_SPI1_MISO_In_1 [get_bd_ports DIG_B_SPI1_MISO_In] [get_bd_pins processing_system7_0/SPI1_MISO_I]
-  connect_bd_net -net Event_ID_Latch_P_1 [get_bd_ports Event_ID_Latch_P] [get_bd_pins vata_460p3_axi_inter_0/event_id_latch] [get_bd_pins vata_460p3_axi_inter_1/event_id_latch] [get_bd_pins vata_460p3_axi_inter_10/event_id_latch] [get_bd_pins vata_460p3_axi_inter_11/event_id_latch] [get_bd_pins vata_460p3_axi_inter_2/event_id_latch] [get_bd_pins vata_460p3_axi_inter_3/event_id_latch] [get_bd_pins vata_460p3_axi_inter_4/event_id_latch] [get_bd_pins vata_460p3_axi_inter_5/event_id_latch] [get_bd_pins vata_460p3_axi_inter_6/event_id_latch] [get_bd_pins vata_460p3_axi_inter_7/event_id_latch] [get_bd_pins vata_460p3_axi_inter_8/event_id_latch] [get_bd_pins vata_460p3_axi_inter_9/event_id_latch]
-  connect_bd_net -net Event_ID_P_1 [get_bd_ports Event_ID_P] [get_bd_pins vata_460p3_axi_inter_0/event_id_data] [get_bd_pins vata_460p3_axi_inter_1/event_id_data] [get_bd_pins vata_460p3_axi_inter_10/event_id_data] [get_bd_pins vata_460p3_axi_inter_11/event_id_data] [get_bd_pins vata_460p3_axi_inter_2/event_id_data] [get_bd_pins vata_460p3_axi_inter_3/event_id_data] [get_bd_pins vata_460p3_axi_inter_4/event_id_data] [get_bd_pins vata_460p3_axi_inter_5/event_id_data] [get_bd_pins vata_460p3_axi_inter_6/event_id_data] [get_bd_pins vata_460p3_axi_inter_7/event_id_data] [get_bd_pins vata_460p3_axi_inter_8/event_id_data] [get_bd_pins vata_460p3_axi_inter_9/event_id_data]
-  connect_bd_net -net INV_SI_BUSY_Res [get_bd_ports Si_BUSY_P] [get_bd_pins INV_SI_BUSY/Res]
-  connect_bd_net -net INV_SI_HIT_Res [get_bd_ports Si_HIT_P] [get_bd_pins INV_SI_HIT/Res]
+  connect_bd_net -net Event_ID_Latch_P_1 [get_bd_ports Event_ID_Latch_In] [get_bd_pins vata_460p3_axi_inter_0/event_id_latch] [get_bd_pins vata_460p3_axi_inter_1/event_id_latch] [get_bd_pins vata_460p3_axi_inter_10/event_id_latch] [get_bd_pins vata_460p3_axi_inter_11/event_id_latch] [get_bd_pins vata_460p3_axi_inter_2/event_id_latch] [get_bd_pins vata_460p3_axi_inter_3/event_id_latch] [get_bd_pins vata_460p3_axi_inter_4/event_id_latch] [get_bd_pins vata_460p3_axi_inter_5/event_id_latch] [get_bd_pins vata_460p3_axi_inter_6/event_id_latch] [get_bd_pins vata_460p3_axi_inter_7/event_id_latch] [get_bd_pins vata_460p3_axi_inter_8/event_id_latch] [get_bd_pins vata_460p3_axi_inter_9/event_id_latch]
+  connect_bd_net -net Event_ID_P_1 [get_bd_ports Event_ID_In] [get_bd_pins vata_460p3_axi_inter_0/event_id_data] [get_bd_pins vata_460p3_axi_inter_1/event_id_data] [get_bd_pins vata_460p3_axi_inter_10/event_id_data] [get_bd_pins vata_460p3_axi_inter_11/event_id_data] [get_bd_pins vata_460p3_axi_inter_2/event_id_data] [get_bd_pins vata_460p3_axi_inter_3/event_id_data] [get_bd_pins vata_460p3_axi_inter_4/event_id_data] [get_bd_pins vata_460p3_axi_inter_5/event_id_data] [get_bd_pins vata_460p3_axi_inter_6/event_id_data] [get_bd_pins vata_460p3_axi_inter_7/event_id_data] [get_bd_pins vata_460p3_axi_inter_8/event_id_data] [get_bd_pins vata_460p3_axi_inter_9/event_id_data]
   connect_bd_net -net PHY_LEDs [get_bd_pins vio_0/probe_in0] [get_bd_pins xlconcat_0/dout]
   connect_bd_net -net PL_pin_K16_1 [get_bd_ports PL_pin_K16] [get_bd_pins SC0720_0/PL_pin_K16]
   connect_bd_net -net PL_pin_K19_1 [get_bd_ports PL_pin_K19] [get_bd_pins SC0720_0/PL_pin_K19]
@@ -1519,14 +1503,14 @@ proc create_root_design { parentCell } {
   connect_bd_net -net PL_pin_N15_1 [get_bd_ports PL_pin_N15] [get_bd_pins SC0720_0/PL_pin_N15]
   connect_bd_net -net PL_pin_P16_1 [get_bd_ports PL_pin_P16] [get_bd_pins SC0720_0/PL_pin_P16]
   connect_bd_net -net PL_pin_P22_1 [get_bd_ports PL_pin_P22] [get_bd_pins SC0720_0/PL_pin_P22]
-  connect_bd_net -net SC0720_0_PHY_LED0 [get_bd_pins SC0720_0/PHY_LED0] [get_bd_pins xlconcat_0/In0]
-  connect_bd_net -net SC0720_0_PHY_LED1 [get_bd_ports eth_phy_led1_green] [get_bd_pins SC0720_0/PHY_LED1] [get_bd_pins xlconcat_0/In1]
-  connect_bd_net -net SC0720_0_PHY_LED2 [get_bd_pins SC0720_0/PHY_LED2] [get_bd_pins xlconcat_0/In2]
+  connect_bd_net -net SC0720_0_PHY_LED0 [get_bd_ports ETH_PHY_LED_GRN_Out] [get_bd_pins SC0720_0/PHY_LED0] [get_bd_pins xlconcat_0/In0]
+  connect_bd_net -net SC0720_0_PHY_LED1 [get_bd_ports ETH_PHY_LED_ORG_Out] [get_bd_pins SC0720_0/PHY_LED1] [get_bd_pins xlconcat_0/In1]
+  connect_bd_net -net SC0720_0_PHY_LED2 [get_bd_ports ETH_PHY_LED_YEL_Out] [get_bd_pins SC0720_0/PHY_LED2] [get_bd_pins xlconcat_0/In2]
   connect_bd_net -net SC0720_0_PL_pin_K20 [get_bd_ports PL_pin_K20] [get_bd_pins SC0720_0/PL_pin_K20]
   connect_bd_net -net SC0720_0_PL_pin_L16 [get_bd_ports PL_pin_L16] [get_bd_pins SC0720_0/PL_pin_L16]
   connect_bd_net -net SC0720_0_PL_pin_N22 [get_bd_ports PL_pin_N22] [get_bd_pins SC0720_0/PL_pin_N22]
-  connect_bd_net -net Trig_Ack_P_1 [get_bd_ports Trig_Ack_P] [get_bd_pins vata_460p3_axi_inter_0/trigger_ack] [get_bd_pins vata_460p3_axi_inter_1/trigger_ack] [get_bd_pins vata_460p3_axi_inter_10/trigger_ack] [get_bd_pins vata_460p3_axi_inter_11/trigger_ack] [get_bd_pins vata_460p3_axi_inter_2/trigger_ack] [get_bd_pins vata_460p3_axi_inter_3/trigger_ack] [get_bd_pins vata_460p3_axi_inter_4/trigger_ack] [get_bd_pins vata_460p3_axi_inter_5/trigger_ack] [get_bd_pins vata_460p3_axi_inter_6/trigger_ack] [get_bd_pins vata_460p3_axi_inter_7/trigger_ack] [get_bd_pins vata_460p3_axi_inter_8/trigger_ack] [get_bd_pins vata_460p3_axi_inter_9/trigger_ack]
-  connect_bd_net -net Trig_ENA_P_1 [get_bd_ports Trig_ENA_P] [get_bd_pins vata_460p3_axi_inter_0/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_1/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_10/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_11/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_2/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_3/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_4/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_5/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_6/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_7/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_8/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_9/fast_or_trigger]
+  connect_bd_net -net Trig_Ack_P_1 [get_bd_ports Trig_Ack_In] [get_bd_pins vata_460p3_axi_inter_0/trigger_ack] [get_bd_pins vata_460p3_axi_inter_1/trigger_ack] [get_bd_pins vata_460p3_axi_inter_10/trigger_ack] [get_bd_pins vata_460p3_axi_inter_11/trigger_ack] [get_bd_pins vata_460p3_axi_inter_2/trigger_ack] [get_bd_pins vata_460p3_axi_inter_3/trigger_ack] [get_bd_pins vata_460p3_axi_inter_4/trigger_ack] [get_bd_pins vata_460p3_axi_inter_5/trigger_ack] [get_bd_pins vata_460p3_axi_inter_6/trigger_ack] [get_bd_pins vata_460p3_axi_inter_7/trigger_ack] [get_bd_pins vata_460p3_axi_inter_8/trigger_ack] [get_bd_pins vata_460p3_axi_inter_9/trigger_ack]
+  connect_bd_net -net Trig_ENA_P_1 [get_bd_ports Trig_Hit_In] [get_bd_pins vata_460p3_axi_inter_0/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_1/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_10/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_11/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_2/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_3/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_4/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_5/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_6/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_7/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_8/fast_or_trigger] [get_bd_pins vata_460p3_axi_inter_9/fast_or_trigger]
   connect_bd_net -net dac121s101_0_spi_mosi [get_bd_ports DIG_A_SPI0_MOSI_Out] [get_bd_ports DIG_B_SPI0_MOSI_Out] [get_bd_pins dac121s101_0/spi_mosi]
   connect_bd_net -net dac121s101_0_spi_sclk [get_bd_ports DIG_A_SPI0_SCLK_Out] [get_bd_ports DIG_B_SPI0_SCLK_Out] [get_bd_pins dac121s101_0/spi_sclk]
   connect_bd_net -net dac121s101_0_spi_sync [get_bd_pins dac121s101_0/spi_sync] [get_bd_pins xlslice_4/Din] [get_bd_pins xlslice_5/Din] [get_bd_pins xlslice_6/Din] [get_bd_pins xlslice_7/Din]
@@ -1545,14 +1529,14 @@ proc create_root_design { parentCell } {
   connect_bd_net -net processing_system7_0_SPI1_SS_O [get_bd_ports DIG_B_SPI1_CS0n_Out] [get_bd_pins processing_system7_0/SPI1_SS_O]
   connect_bd_net -net rst_ps7_0_100M_peripheral_aresetn [get_bd_pins AXI_cal_pulse_0/s00_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data0/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data1/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data10/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data11/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data2/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data3/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data4/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data5/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data6/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data7/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data8/s_axi_aresetn] [get_bd_pins axi_fifo_mm_s_data9/s_axi_aresetn] [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/M01_ARESETN] [get_bd_pins ps7_0_axi_periph/M02_ARESETN] [get_bd_pins ps7_0_axi_periph/M03_ARESETN] [get_bd_pins ps7_0_axi_periph/M04_ARESETN] [get_bd_pins ps7_0_axi_periph/M05_ARESETN] [get_bd_pins ps7_0_axi_periph/M06_ARESETN] [get_bd_pins ps7_0_axi_periph/M07_ARESETN] [get_bd_pins ps7_0_axi_periph/M08_ARESETN] [get_bd_pins ps7_0_axi_periph/M09_ARESETN] [get_bd_pins ps7_0_axi_periph/M10_ARESETN] [get_bd_pins ps7_0_axi_periph/M11_ARESETN] [get_bd_pins ps7_0_axi_periph/M12_ARESETN] [get_bd_pins ps7_0_axi_periph/M13_ARESETN] [get_bd_pins ps7_0_axi_periph/M14_ARESETN] [get_bd_pins ps7_0_axi_periph/M15_ARESETN] [get_bd_pins ps7_0_axi_periph/M16_ARESETN] [get_bd_pins ps7_0_axi_periph/M17_ARESETN] [get_bd_pins ps7_0_axi_periph/M18_ARESETN] [get_bd_pins ps7_0_axi_periph/M19_ARESETN] [get_bd_pins ps7_0_axi_periph/M20_ARESETN] [get_bd_pins ps7_0_axi_periph/M21_ARESETN] [get_bd_pins ps7_0_axi_periph/M22_ARESETN] [get_bd_pins ps7_0_axi_periph/M23_ARESETN] [get_bd_pins ps7_0_axi_periph/M24_ARESETN] [get_bd_pins ps7_0_axi_periph/M25_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn] [get_bd_pins sync_vata_distn_0/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_0/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_1/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_10/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_11/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_2/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_3/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_4/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_5/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_6/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_7/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_8/s00_axi_aresetn] [get_bd_pins vata_460p3_axi_inter_9/s00_axi_aresetn]
   connect_bd_net -net rst_ps7_0_5M_peripheral_aresetn [get_bd_pins dac121s101_0/s00_axi_aresetn] [get_bd_pins ps7_0_axi_periph_1/ARESETN] [get_bd_pins ps7_0_axi_periph_1/M00_ARESETN] [get_bd_pins ps7_0_axi_periph_1/M01_ARESETN] [get_bd_pins ps7_0_axi_periph_1/M02_ARESETN] [get_bd_pins ps7_0_axi_periph_1/S00_ARESETN] [get_bd_pins rst_ps7_0_5M/peripheral_aresetn]
-  connect_bd_net -net sync_vata_distn_0_FEE_busy [get_bd_pins INV_SI_BUSY/Op1] [get_bd_pins sync_vata_distn_0/FEE_busy]
-  connect_bd_net -net sync_vata_distn_0_FEE_sideA_hit [get_bd_pins INV_SI_HIT/Op1] [get_bd_pins sync_vata_distn_0/FEE_sideA_hit]
-  connect_bd_net -net sync_vata_distn_0_FEE_sideB_hit [get_bd_ports Si_SPARE_P] [get_bd_pins sync_vata_distn_0/FEE_sideB_hit]
+  connect_bd_net -net sync_vata_distn_0_FEE_busy [get_bd_ports Si_Busy_Out] [get_bd_pins sync_vata_distn_0/FEE_busy]
+  connect_bd_net -net sync_vata_distn_0_FEE_ready [get_bd_ports Si_Rdy_Out] [get_bd_pins sync_vata_distn_0/FEE_ready]
+  connect_bd_net -net sync_vata_distn_0_FEE_sideA_hit [get_bd_ports Si_Hit_A_Out] [get_bd_pins sync_vata_distn_0/FEE_sideA_hit]
+  connect_bd_net -net sync_vata_distn_0_FEE_sideB_hit [get_bd_ports Si_Hit_B_Out] [get_bd_pins sync_vata_distn_0/FEE_sideB_hit]
   connect_bd_net -net sync_vata_distn_0_force_trigger [get_bd_pins sync_vata_distn_0/force_trigger] [get_bd_pins vata_460p3_axi_inter_0/force_trigger] [get_bd_pins vata_460p3_axi_inter_1/force_trigger] [get_bd_pins vata_460p3_axi_inter_10/force_trigger] [get_bd_pins vata_460p3_axi_inter_11/force_trigger] [get_bd_pins vata_460p3_axi_inter_2/force_trigger] [get_bd_pins vata_460p3_axi_inter_3/force_trigger] [get_bd_pins vata_460p3_axi_inter_4/force_trigger] [get_bd_pins vata_460p3_axi_inter_5/force_trigger] [get_bd_pins vata_460p3_axi_inter_6/force_trigger] [get_bd_pins vata_460p3_axi_inter_7/force_trigger] [get_bd_pins vata_460p3_axi_inter_8/force_trigger] [get_bd_pins vata_460p3_axi_inter_9/force_trigger]
   connect_bd_net -net sync_vata_distn_0_global_counter [get_bd_pins sync_vata_distn_0/global_counter] [get_bd_pins vata_460p3_axi_inter_0/global_counter] [get_bd_pins vata_460p3_axi_inter_1/global_counter] [get_bd_pins vata_460p3_axi_inter_10/global_counter] [get_bd_pins vata_460p3_axi_inter_11/global_counter] [get_bd_pins vata_460p3_axi_inter_2/global_counter] [get_bd_pins vata_460p3_axi_inter_3/global_counter] [get_bd_pins vata_460p3_axi_inter_4/global_counter] [get_bd_pins vata_460p3_axi_inter_5/global_counter] [get_bd_pins vata_460p3_axi_inter_6/global_counter] [get_bd_pins vata_460p3_axi_inter_7/global_counter] [get_bd_pins vata_460p3_axi_inter_8/global_counter] [get_bd_pins vata_460p3_axi_inter_9/global_counter]
   connect_bd_net -net sync_vata_distn_0_global_counter_rst [get_bd_pins sync_vata_distn_0/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_0/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_1/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_10/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_11/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_2/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_3/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_4/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_5/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_6/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_7/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_8/global_counter_rst] [get_bd_pins vata_460p3_axi_inter_9/global_counter_rst]
   connect_bd_net -net sync_vata_distn_0_vata_hits [get_bd_pins sync_vata_distn_0/vata_hits] [get_bd_pins vata_460p3_axi_inter_0/vata_hits] [get_bd_pins vata_460p3_axi_inter_1/vata_hits] [get_bd_pins vata_460p3_axi_inter_10/vata_hits] [get_bd_pins vata_460p3_axi_inter_11/vata_hits] [get_bd_pins vata_460p3_axi_inter_2/vata_hits] [get_bd_pins vata_460p3_axi_inter_3/vata_hits] [get_bd_pins vata_460p3_axi_inter_4/vata_hits] [get_bd_pins vata_460p3_axi_inter_5/vata_hits] [get_bd_pins vata_460p3_axi_inter_6/vata_hits] [get_bd_pins vata_460p3_axi_inter_7/vata_hits] [get_bd_pins vata_460p3_axi_inter_8/vata_hits] [get_bd_pins vata_460p3_axi_inter_9/vata_hits]
-  connect_bd_net -net vata_460p3_axi_inter_0_FEE_ready [get_bd_ports Si_RDY_P] [get_bd_pins sync_vata_distn_0/FEE_ready]
   connect_bd_net -net vata_460p3_axi_inter_0_cald [get_bd_ports DIG_ASIC_0145_CALD_PR_Out] [get_bd_pins vata_460p3_axi_inter_0/cald]
   connect_bd_net -net vata_460p3_axi_inter_0_caldb [get_bd_ports DIG_ASIC_0145_CALDB_PR_Out] [get_bd_pins vata_460p3_axi_inter_0/caldb]
   connect_bd_net -net vata_460p3_axi_inter_0_vata_hit_busy [get_bd_pins sync_vata_distn_0/vata_hit_busy00] [get_bd_pins vata_460p3_axi_inter_0/vata_hit_busy]
