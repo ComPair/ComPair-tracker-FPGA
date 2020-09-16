@@ -1,0 +1,1 @@
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets EVENT_ID_LATCH_IN_IBUF]
