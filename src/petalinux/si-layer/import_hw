@@ -1,2 +1,2 @@
 #!/bin/bash
-echo E | petalinux-config --get-hw-description=../../../work/dbe_production/zynq/zynq.sdk
+echo E | petalinux-config --get-hw-description=../../../work/$BUILD/zynq/zynq.sdk

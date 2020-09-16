@@ -34,3 +34,5 @@
 #define CONFIG_SYS_I2C_MUX_ADDR                0x74
 #define CONFIG_SYS_I2C_MUX_EEPROM_SEL          0x4
 #endif
+
+#define CONFIG_PREBOOT    "echo U-BOOT for petalinux;echo importing env from FSBL shared area at 0xFFFFFC00; if itest *0xFFFFFC00 == 0xCAFEBABE; then echo Found valid magic; env import -t 0xFFFFFC04; fi;setenv preboot; echo; dhcp"
