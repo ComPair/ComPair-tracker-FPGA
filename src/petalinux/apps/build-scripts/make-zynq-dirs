@@ -10,11 +10,11 @@ fi
 BUILD=$1
 IP_ADDR=$2
 
-if ! ping -c 1 -w 1 $IP_ADDR 1>/dev/null; then
-    echo "Could not ping $IP_ADDR"
-    echo "Check SILAYER_IP in Makefile"
-    exit 2 
-fi
+#if ! ping -c 1 -w 1 $IP_ADDR 1>/dev/null; then
+#    echo "Could not ping $IP_ADDR"
+#    echo "Check SILAYER_IP in Makefile"
+#    exit 2 
+#fi
 
 BSP_DIR=$(pwd)/../../../../work/$BUILD/zynq/zynq.sdk/bsp_petalinux/ps7_cortexa9_0/include/
 

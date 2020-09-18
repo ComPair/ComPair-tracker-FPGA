@@ -365,7 +365,7 @@ int VataCtrl::read_fifo(u32 *data, int nbuffer, u32 &nread) {
 // Return -1 if no data is available.
 // Return >0, with number of u32 words, if data is in fifo, but it is an incomplete packet.
 // WARNING: BUFFER BETTER BE LARGE ENOUGH!!!!
-int VataCtrl::read_fifo_full_packet(u32 *data) {
+int VataCtrl::read_fifo_full_packet(u32 *data) { 
     if (pfifo == NULL) {
         this->mmap_fifo();
     }

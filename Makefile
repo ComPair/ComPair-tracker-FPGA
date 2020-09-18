@@ -91,6 +91,10 @@ rootfs: ./work/$(BUILD)/.export_hardware.done
 	cd src/petalinux/apps ; $(PREFIX) make $(POSTFIX)
 	exit 0
 
+rootfs_scripts: 
+	cd src/petalinux/users/ ; $(PREFIX) ./copy-scripts.sh 10.10.0.11 $(POSTFIX)
+	exit 0
+
 # Remove the work directory. Cannot be undone!
 clean:
 	@echo "++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -106,5 +110,7 @@ help:
 	@echo "save_bd              -- Exports block diagram."
 	@echo "export_hardware      -- Export hardware files for SDK."
 	@echo "sdk_project_dbe      -- Build petalinux bsp."
-	@echo "rootfs         -- Build the rootfs on the zynq."
+	@echo "rootfs               -- Build the rootfs on the zynq."
+	@echo "rootfs_scripts       -- Copy script directories over to the Zynq."
+
 	@echo "help                 -- Prints this help."
