@@ -24,7 +24,7 @@ architecture arch_imp of event_id_s2p is
     signal data: std_logic_vector(EVENT_ID_WIDTH-1 downto 0) := (others => '0');
     signal trigger_event_id_clr : std_logic := '0';
     signal last_event_id_clr : std_logic := '0';
-
+    signal last_event_id_latch : std_logic := '0';
 begin
 
     process (rst_n, clk)
@@ -43,13 +43,18 @@ begin
     end process;
             
 
-    process (rst_n, trigger_event_id_clr, event_id_latch)
+    process (rst_n, clk)
     begin
         if rst_n = '0' or trigger_event_id_clr = '1' then
             data <= (others => '0');
-        elsif rising_edge(event_id_latch) then
-            data(EVENT_ID_WIDTH-1 downto 1) <= data(EVENT_ID_WIDTH-2 downto 0);
-            data(0) <= event_id_data;
+        elsif rising_edge(clk) then
+            if last_event_id_latch = '0' and event_id_latch = '1' then
+                data(EVENT_ID_WIDTH-1 downto 1) <= data(EVENT_ID_WIDTH-2 downto 0);
+                data(0) <= event_id_data;
+            else
+                data <= data;
+            end if;
+            last_event_id_latch <= event_id_latch;
         end if;
     end process;
 
