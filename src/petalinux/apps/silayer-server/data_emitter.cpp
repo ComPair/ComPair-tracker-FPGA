@@ -14,7 +14,7 @@ DataEmitter::DataEmitter(zmq::context_t *ctx) {
     emit_sock.bind("tcp://eth0:" EMIT_PORT);
     running = false;
 
-    data_buffer = new u32[ASIC_NDATA];
+    //data_buffer = new u32[ASIC_NDATA];
 }
 
 // Return true if halt message was received.
@@ -55,11 +55,14 @@ void DataEmitter::read_fifo(int i) {
         // Packet was read!
         // Check event id (first element in buffer)
         long int current_event_id = (long int)data_buffer[0];
+        std::cout << "I: Full packet read from VATA " << i << std::endl
+                  << " > event-id: " << current_event_id << std::endl;
         if (packets.find(current_event_id) == packets.end()) {
+            std::cout << " > Inserting new packet into packet map." << std::endl;
             packets.insert({current_event_id, new DataPacket()});
         }
         DataPacket *packet = packets[current_event_id];
-        if (!(packet->set_vata_data(i, data_buffer))) {
+        if (!(packet->set_vata_data(i, data_buffer, vatas))) {
             std::cout << "E: data_aligner attempted to input data for packet with incorrect event id!"
                       << std::endl;
         }

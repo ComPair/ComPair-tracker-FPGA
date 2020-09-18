@@ -29,6 +29,7 @@ class DataPacket {
         u8 get_header_size();
         u16 get_packet_size();
         void set_timeout();
+        bool set_vata_data(int i, u32 *data, VataCtrl *vatas);
         bool read_vata_data(int i, VataCtrl *vatas);
         void to_msg(u16 packet_size, char *buf);
         bool is_done();
