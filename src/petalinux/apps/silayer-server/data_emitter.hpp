@@ -17,6 +17,9 @@
 #define FIFO_READ_TIMEOUT_US 10000   // 10 ms (timeout is in microseconts)
 #define INPROC_CHANNEL "emit"
 
+#define MAX_PACKET_MAP_SIZE 5                 // Once we get to this point, start checking for old packets to remove.
+#define PACKET_REMOVE_TIMEOUT_MS 1000         // Once packets have been around for this many milliseconds, remove.
+
 class DataEmitter {
     private:
         zmq::context_t *context;
@@ -34,6 +37,7 @@ class DataEmitter {
         void read_fifos();
         void read_fifo(int);
         void send_data(DataPacket &dp);
+        void erase_old_packets();
 
     public:
         DataEmitter() = default;
