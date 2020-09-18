@@ -6,7 +6,6 @@
 -- Clears the `event_id_out` on rising edge of event_id_clr
 library ieee;
 use ieee.std_logic_1164.all;
---use ieee.numeric_std.all;
 
 entity event_id_s2p is
     generic (
@@ -23,38 +22,37 @@ end event_id_s2p;
 architecture arch_imp of event_id_s2p is
     signal data: std_logic_vector(EVENT_ID_WIDTH-1 downto 0) := (others => '0');
     signal trigger_event_id_clr : std_logic := '0';
-    signal last_event_id_clr : std_logic := '0';
-    signal last_event_id_latch : std_logic := '0';
 begin
 
     process (rst_n, clk)
+        variable resync : std_logic_vector(2 downto 0);
     begin
         if rst_n = '0' then
             trigger_event_id_clr <= '0';
-            last_event_id_clr <= '0';
+            resync := (others => '0');
         elsif rising_edge(clk) then
-            if last_event_id_clr = '0' and event_id_clr = '1' then
+            if resync(1) = '1' and resync(2) = '0' then
                 trigger_event_id_clr <= '1';
             else
                 trigger_event_id_clr <= '0';
             end if;
-            last_event_id_clr <= event_id_clr;
+            resync := resync(1 downto 0) & event_id_clr;
         end if;
     end process;
-            
 
     process (rst_n, clk)
+        variable resync: std_logic_vector(2 downto 0);
     begin
         if rst_n = '0' or trigger_event_id_clr = '1' then
             data <= (others => '0');
+            resync := (others => '0');
         elsif rising_edge(clk) then
-            if last_event_id_latch = '0' and event_id_latch = '1' then
-                data(EVENT_ID_WIDTH-1 downto 1) <= data(EVENT_ID_WIDTH-2 downto 0);
-                data(0) <= event_id_data;
+            if resync(1) = '1' and resync(2) = '0' then
+                data <= data(EVENT_ID_WIDTH-2 downto 0) & event_id_data;
             else
                 data <= data;
             end if;
-            last_event_id_latch <= event_id_latch;
+            resync := resync(1 downto 0) & event_id_latch;
         end if;
     end process;
 
