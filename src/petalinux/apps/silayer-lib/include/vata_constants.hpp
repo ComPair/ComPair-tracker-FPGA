@@ -11,7 +11,7 @@
 #define N_CFG_REG 17
 
 
-#define N_ASIC_PACKET   16                  // Each asic packet should be 16 x 32 bits.
+#define N_ASIC_PACKET   19                  // Each asic packet should be 19 x 32 bits.
 #define DATA_PACKET_HEADER_NBYTES       3   //  [N-DATA_TOT, TIME0, TIME1]
 
 // AXI register offsets

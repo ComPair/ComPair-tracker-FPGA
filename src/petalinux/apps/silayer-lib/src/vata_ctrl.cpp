@@ -325,6 +325,8 @@ int VataCtrl::read_fifo(std::vector<u32> &data, int &nread, u32 &nremain) {
         return 0;
     }
     int rlr = (int)pfifo[XLLF_RLF_OFFSET/4]/4;
+    //std::cout << "XXX: read_fifo: rlr = " << rlr << std::endl;
+
     if ((int)data.size() < rlr)
         data.resize(rlr);
     for (nread=0; nread<rlr; nread++) {
@@ -356,6 +358,29 @@ int VataCtrl::read_fifo(u32 *data, int nbuffer, u32 &nread) {
         data[nread] = pfifo[XLLF_RDFD_OFFSET/4];        
     }
     return 1;
+}
+
+// Read a full data packet.
+// Return 0 on success.
+// Return -1 if no data is available.
+// Return >0, with number of u32 words, if data is in fifo, but it is an incomplete packet.
+// WARNING: BUFFER BETTER BE LARGE ENOUGH!!!!
+int VataCtrl::read_fifo_full_packet(u32 *data) { 
+    if (pfifo == NULL) {
+        this->mmap_fifo();
+    }
+    u32 rdfo = pfifo[XLLF_RDFO_OFFSET/4];
+    if (rdfo == 0) {
+        return -1;
+    }
+    u32 rlr = pfifo[XLLF_RLF_OFFSET/4]/4;
+    if (rlr < N_ASIC_PACKET) {
+        return (int)rlr;
+    }
+    for (int i=0; i<N_ASIC_PACKET; i++) {
+        data[i] = pfifo[XLLF_RDFD_OFFSET/4];
+    }
+    return 0;
 }
 
 // Force a trigger.
