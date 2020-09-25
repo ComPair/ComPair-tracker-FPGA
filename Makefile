@@ -92,7 +92,7 @@ rootfs: ./work/$(BUILD)/.export_hardware.done
 	exit 0
 
 rootfs_scripts: 
-	cd src/petalinux/users/ ; $(PREFIX) ./copy-scripts.sh 10.10.0.11 $(POSTFIX)
+	cd src/petalinux/users/ ; $(PREFIX) copy-scripts.sh $(ZYNQ-IP-ADDR) $(POSTFIX)
 	exit 0
 
 # Remove the work directory. Cannot be undone!
