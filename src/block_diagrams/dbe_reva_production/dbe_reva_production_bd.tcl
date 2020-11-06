@@ -1641,10 +1641,10 @@ proc create_root_design { parentCell } {
   connect_bd_net -net vata_460p3_axi_inter_9_vata_s2 [get_bd_ports DIG_ASIC_9_S2_OUT] [get_bd_pins vata_460p3_axi_inter_9/vata_s2]
   connect_bd_net -net vata_460p3_axi_inter_9_vata_s_latch [get_bd_ports DIG_ASIC_9_S_LATCH_OUT] [get_bd_pins vata_460p3_axi_inter_9/vata_s_latch]
   connect_bd_net -net xlconstant_0_dout [get_bd_pins processing_system7_0/SPI0_MOSI_I] [get_bd_pins processing_system7_0/SPI0_SS_I] [get_bd_pins processing_system7_0/SPI1_MOSI_I] [get_bd_pins processing_system7_0/SPI1_SS_I] [get_bd_pins xlconstant_0/dout]
-  connect_bd_net -net xlslice_4_Dout [get_bd_ports DIG_A_SPI0_CS0N_OUT] [get_bd_pins xlslice_4/Dout]
-  connect_bd_net -net xlslice_5_Dout [get_bd_ports DIG_A_SPI0_CS1N_OUT] [get_bd_pins xlslice_5/Dout]
-  connect_bd_net -net xlslice_6_Dout [get_bd_ports DIG_B_SPI0_CS0N_OUT] [get_bd_pins xlslice_6/Dout]
-  connect_bd_net -net xlslice_7_Dout [get_bd_ports DIG_B_SPI0_CS1N_OUT] [get_bd_pins xlslice_7/Dout]
+  connect_bd_net -net xlslice_4_Dout [get_bd_ports DIG_A_SPI0_CS1N_OUT] [get_bd_pins xlslice_4/Dout]
+  connect_bd_net -net xlslice_5_Dout [get_bd_ports DIG_A_SPI0_CS0N_OUT] [get_bd_pins xlslice_5/Dout]
+  connect_bd_net -net xlslice_6_Dout [get_bd_ports DIG_B_SPI0_CS1N_OUT] [get_bd_pins xlslice_6/Dout]
+  connect_bd_net -net xlslice_7_Dout [get_bd_ports DIG_B_SPI0_CS0N_OUT] [get_bd_pins xlslice_7/Dout]
 
   # Create address segments
   create_bd_addr_seg -range 0x00010000 -offset 0x43C20000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs AXI_cal_pulse_0/S00_AXI/S00_AXI_reg] SEG_AXI_cal_pulse_0_S00_AXI_reg
@@ -1679,7 +1679,6 @@ proc create_root_design { parentCell } {
   # Restore current instance
   current_bd_instance $oldCurInst
 
-  validate_bd_design
   save_bd_design
 }
 # End of create_root_design()
@@ -1691,4 +1690,6 @@ proc create_root_design { parentCell } {
 
 create_root_design ""
 
+
+common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 
