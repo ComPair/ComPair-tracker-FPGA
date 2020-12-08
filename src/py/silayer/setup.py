@@ -1,7 +1,7 @@
 from distutils.core import setup, Extension
 
-with open('requirements.txt') as f:
-    requirements = f.read().splitlines()
+#with open('requirements.txt') as f:
+#    requirements = f.read().splitlines()
 
 raw2hdf_ext = Extension(
     "silayer._raw2hdf", sources=["src/raw2hdf.c"], depends=["src/raw2hdf.h"],
@@ -14,5 +14,6 @@ setup(
     packages=["silayer",],
     package_dir={"silayer": "python"},
     ext_modules=[raw2hdf_ext,],
-	install_requires=requirements,    
+    install_requires=['numpy', 'h5py',]
+	#install_requires=requirements,    
 )
