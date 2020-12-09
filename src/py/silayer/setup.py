@@ -1,4 +1,4 @@
-from distutils.core import setup, Extension
+from setuptools import setup, Extension
 
 #with open('requirements.txt') as f:
 #    requirements = f.read().splitlines()
