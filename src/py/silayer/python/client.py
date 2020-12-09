@@ -646,6 +646,16 @@ class Client:
         """
         return self.send_recv("sync force-trigger")
 
+    def force_fsm_to_idle(self, vata):
+        """Force a vata's firmware to the idle state.
+
+        Parameters
+        ----------
+        vata: int
+            Which vata to idle.
+        """
+        return self.send_recv(f"vata {vata} fsm-idle")
+
     def start_data_stream(self, dname=None):
         """Start streaming and recording data from the layer. Returns immediately.
 

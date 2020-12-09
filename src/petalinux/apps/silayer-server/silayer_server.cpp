@@ -623,6 +623,11 @@ int LayerServer::_clear_fifo(int nvata) {
     _send_msg(retmsg, sizeof(retmsg));
     return 0;
 }
+int LayerServer::_fsm_idle(int nvata) {
+    // Force vata to idle...
+    return vatas[nvata].force_fsm_to_idle();
+}
+
 
 void LayerServer::_send_msg(const char *msg, int msg_sz) {
     zmq::message_t response(msg_sz);
@@ -1082,6 +1087,8 @@ int LayerServer::_process_vata_msg(char *msg) {
         }
     } else if (strncmp("clear-fifo", cmd, 10) == 0) {
         _clear_fifo(nvata);
+    } else if (strncmp("fsm-idle", cmd, 8) == 0) {
+        _fsm_idle(nvata);
     } else {
         #ifdef VERBOSE
         std::cerr << "Could not parse command: " << cmd << std::endl;    

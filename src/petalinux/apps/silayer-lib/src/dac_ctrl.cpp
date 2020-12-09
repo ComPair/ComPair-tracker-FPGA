@@ -34,13 +34,6 @@ int parse_set_counts_args(char *silayer_side_str, char *dac_choice_str, char *co
     if (parse_dac_choice(dac_choice_str, dac_choice) != 0) {
         return 1;
     }
-    if (strncmp("cal", dac_choice_str, 3) == 0) {
-        *dac_choice = CalDac;
-    } else if (strncmp("vth", dac_choice_str, 3) == 0) {
-        *dac_choice = VthDac;
-    } else {
-        return 1;
-    }
     *counts = (u32)atoi(counts_str); 
     return 0; // success
 }

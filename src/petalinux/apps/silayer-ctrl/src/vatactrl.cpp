@@ -52,6 +52,7 @@ void usage(char *argv0) {
               << "    --get-n-fifo                : print number of data packets in fifo to stdout" << std::endl
               << "    --single-read-fifo          : read a single data packet, print to stdout" << std::endl
               << "    --read-fifo                 : read the entire fifo, each packet to a single line of stdout" << std::endl;
+              << "    --force-fsm-idle            : force firmware fsm to idle state." << std::endl;
 }
 
 VataCtrl get_vata_from_args(int argc, char **argv) {
@@ -214,6 +215,8 @@ int parse_args(VataCtrl vata, int argc, char **argv) {
                     std::cout << std::endl;
                 }
             }
+        } else if (strcmp("--force-fsm-idle", argv[i]) == 0) {
+            vata.force_fsm_to_idle();
         } else {
             std::cerr << "ERROR: Unrecognized command line option: " << argv[i] << std::endl;
             return VT_PARSE_ARGS_ERR;

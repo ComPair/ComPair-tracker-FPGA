@@ -73,6 +73,8 @@ class LayerServer {
         int _get_n_fifo(int nvata, char* &cmd);
         int _clear_fifo(int nvata);
 
+        int _fsm_idle(int nvata);
+
         int _process_emit_msg(char *msg);
         int _process_cal_msg(char *msg);
         int _process_dac_msg(char *msg);
