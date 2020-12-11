@@ -690,3 +690,18 @@ class VataCfg:
             The flag specifying if we are reading out all channels or not.
         """
         self["all2"] = self["ro_all"] = int(readout_all)
+
+
+pos_default_vcfg = VataCfg()
+pos_default_vcfg.set_iramp_values(4, 0) #Set IRAMP DAC values (i.e. gain)
+pos_default_vcfg.set_polarity('p') #Set Polarity 
+pos_default_vcfg.set_readout_all() #Set Readout All Channels
+pos_default_vcfg['vthr'] = 0 #Set the Vthr DAC value. 
+pos_default_vcfg['cm_thr_dis'] = 1 #Disable CM subtraction from digital threshold
+
+neg_default_vcfg = VataCfg()
+neg_default_vcfg.set_iramp_values(4, 0) #Set IRAMP DAC values (i.e. gain)
+neg_default_vcfg.set_polarity('n') #Set Polarity 
+neg_default_vcfg.set_readout_all() #Set Readout All Channels
+neg_default_vcfg['vthr'] = 0 #Set the Vthr DAC value. 
+neg_default_vcfg['cm_thr_dis'] = 1 #Disable CM subtraction from digital threshold
