@@ -51,7 +51,7 @@ void usage(char *argv0) {
               << "    --reset-event-count         : reset the event counter" << std::endl
               << "    --get-n-fifo                : print number of data packets in fifo to stdout" << std::endl
               << "    --single-read-fifo          : read a single data packet, print to stdout" << std::endl
-              << "    --read-fifo                 : read the entire fifo, each packet to a single line of stdout" << std::endl;
+              << "    --read-fifo                 : read the entire fifo, each packet to a single line of stdout" << std::endl
               << "    --force-fsm-idle            : force firmware fsm to idle state." << std::endl;
 }
 
@@ -169,8 +169,8 @@ int parse_args(VataCtrl vata, int argc, char **argv) {
         } else if (strcmp("--get-trigger-ena-mask", argv[i]) == 0) {
             u32 ena_mask = vata.get_trigger_ena_mask();
             std::cout << ena_mask << std::endl;
-        } else if (strcmp("--force-trigger", argv[i]) == 0) { 
-            vata.force_trigger();
+        //} else if (strcmp("--force-trigger", argv[i]) == 0) { 
+        //    vata.force_trigger();
         } else if (strcmp("--set-ack-timeout", argv[i]) == 0) {
             if (++i >= argc) {
                 std::cerr << "ERROR: No timeout specified." << std::endl;

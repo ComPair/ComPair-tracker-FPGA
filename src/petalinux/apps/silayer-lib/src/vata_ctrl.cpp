@@ -396,6 +396,7 @@ int VataCtrl::force_fsm_to_idle() {
     if (paxi == NULL)
         this->mmap_axi();
     paxi[0] = AXI0_CTRL_FORCE_FSM_IDLE;
+    return 0;
 }
 
 // vim: set ts=4 sw=4 sts=4 et:

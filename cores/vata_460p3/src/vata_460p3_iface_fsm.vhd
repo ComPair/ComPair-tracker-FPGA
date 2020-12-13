@@ -1191,26 +1191,40 @@ begin
     end process;
 
     -- Event counter:
-    process (rst_n, event_counter_rst, inc_event_counter)
+    process (rst_n, clk_100MHz, event_counter_rst, inc_event_counter)
     begin
         if rst_n = '0' or event_counter_rst = '1' then
             uevent_counter <= (others => '0');
-        elsif rising_edge(inc_event_counter) then -- we are finished with data readout for an event
+        elsif falling_edge(clk_100MHz) and inc_event_counter = '1' then
+            -- we are finished with data readout for an event
             uevent_counter <= uevent_counter + to_unsigned(1, uevent_counter'length);
         else
             uevent_counter <= uevent_counter;
         end if;
     end process;
+    -- Previous version of the above process
+    --process (rst_n, clk_100MHz, event_counter_rst, inc_event_counter)
+    --begin
+    --    if rst_n = '0' or event_counter_rst = '1' then
+    --        uevent_counter <= (others => '0');
+    --    --elsif rising_edge(inc_event_counter) then -- we are finished with data readout for an event
+    --    elsif inc_event_counter = '1' then -- we are finished with data readout for an event
+    --        uevent_counter <= uevent_counter + to_unsigned(1, uevent_counter'length);
+    --    else
+    --        uevent_counter <= uevent_counter;
+    --    end if;
+    --end process;
 
-    -- Latch data that goes into the packet on `set_pkt_data` rising edge.
-    process (rst_n, set_pkt_data)
+    -- Latch data that goes into the packet when `set_pkt_data` is high.
+    process (rst_n, clk_100MHz, set_pkt_data)
     begin
         if rst_n = '0' then
             pkt_running_counter <= (others => '0');
             pkt_live_counter    <= (others => '0');
             pkt_event_counter   <= (others => '0');
             pkt_event_triggers  <= (others => '0');
-        elsif rising_edge(set_pkt_data) then
+        --elsif rising_edge(set_pkt_data) then
+        elsif falling_edge(clk_100MHz) and set_pkt_data = '1' then
             pkt_running_counter <= running_counter;
             pkt_live_counter    <= std_logic_vector(ulive_counter);
             pkt_event_counter   <= std_logic_vector(uevent_counter);
