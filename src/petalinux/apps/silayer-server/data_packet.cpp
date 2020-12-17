@@ -9,6 +9,10 @@ DataPacket::DataPacket() {
     }
     nread = 0;
     flags = 0;
+    event_id = -1;
+    // Set packet_time on creation...
+    auto dtn = std::chrono::high_resolution_clock::now().time_since_epoch();
+    packet_time = std::chrono::duration_cast<std::chrono::nanoseconds>(dtn).count();
 }
 
 DataPacket::~DataPacket() {
@@ -47,6 +51,37 @@ bool DataPacket::read_vata_data(int i, VataCtrl *vatas) {
     nread++;
     need_data[i] = false;
     return true;
+}
+
+// Set the packet data for vata i, given the data.
+// If the event id is not set, this will set it and return true.
+// Otherwise, it will check that the event_id matches that of the asic data,
+// if it does, data will be set and return true. Otherwise, return false.
+bool DataPacket::set_vata_data(int i, u32 *data, VataCtrl *vatas) {
+    long int event_id_check = (long int)data[0];
+    if (event_id < 0)
+        event_id = event_id_check;
+    else if (event_id != event_id_check)
+        return false;
+
+    for (int j=0; j<ASIC_NDATA; j++) {
+        asic_data[i][j] = data[j];
+    }
+    ndata[i] = (u16)(ASIC_NDATA*sizeof(u32) + sizeof(u16));
+    nfifo[i] = (u16)vatas[i].get_n_fifo();
+    nread++;
+    need_data[i] = false;
+    return true;
+}
+
+bool DataPacket::is_done() {
+    // Return whether all asics have been read from.
+    for (int i=0; i<(int)N_VATA; i++) {
+        if (need_data[i])
+            return false;
+    }
+    return true;
+
 }
 
 u8 DataPacket::get_header_size() {

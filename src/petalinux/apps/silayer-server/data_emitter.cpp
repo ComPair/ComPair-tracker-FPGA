@@ -13,6 +13,8 @@ DataEmitter::DataEmitter(zmq::context_t *ctx) {
 
     emit_sock.bind("tcp://eth0:" EMIT_PORT);
     running = false;
+
+    //data_buffer = new u32[ASIC_NDATA];
 }
 
 // Return true if halt message was received.
@@ -46,27 +48,65 @@ void DataEmitter::send_data(DataPacket &data_packet) {
     emit_sock.send(response, zmq::send_flags::none);
 }
 
-void DataEmitter::read_fifos() {
-    DataPacket data_packet;
-    data_packet.set_packet_time();
-    //data_packet.collect_header_data(vatas);
-    auto t0 = std::chrono::high_resolution_clock::now();
-    auto fifo_read_timeout = std::chrono::microseconds(FIFO_READ_TIMEOUT_US);
-    while (data_packet.nread < (int)N_VATA) {
-        for (int i=0; i<(int)N_VATA; i++) {
-            if (data_packet.need_data[i]) {
-                data_packet.read_vata_data(i, vatas);
-            }
+void DataEmitter::read_fifo(int i) {
+    // Read vata i's fifo into data packets map.
+    int success = vatas[i].read_fifo_full_packet(data_buffer);
+    if (success == 0) {
+        // Packet was read!
+        // Check event id (first element in buffer)
+        long int current_event_id = (long int)data_buffer[0];
+        //std::cout << "I: Full packet read from VATA " << i << std::endl
+        //          << " > event-id: " << current_event_id << std::endl;
+        if (packets.find(current_event_id) == packets.end()) {
+            // New event_id encountered. Insert into the map.
+            // First check that we aren't holding onto too many stale packets...
+            if (packets.size() > MAX_PACKET_MAP_SIZE)
+                erase_old_packets();
+            //std::cout << " > Inserting new packet into packet map." << std::endl;
+            packets.insert({current_event_id, new DataPacket()});
         }
-        auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
-                            (std::chrono::high_resolution_clock::now() - t0)
-                        );
-        if (duration > fifo_read_timeout) {
-            data_packet.set_timeout();
-            break; 
+        DataPacket *packet = packets[current_event_id];
+        if (!(packet->set_vata_data(i, data_buffer, vatas))) {
+            std::cout << "E: data_aligner attempted to input data for packet with incorrect event id!"
+                      << std::endl;
+        }
+        if (packet->is_done()) {
+            // Send packet and delete from packet map.
+            //std::cout << "I: sending complete packet for event: " << current_event_id << std::endl;
+            send_data(*packet);
+            packets.erase(current_event_id);
+            delete packet;
         }
     }
-    send_data(data_packet);
+}
+
+void DataEmitter::read_fifos() {
+    // Read each fifo, send any packets that are completed...
+    // XXX: Currently no timeout on packet time!
+    for (int i=0; i<(int)N_VATA; i++) {
+        read_fifo(i);
+    }
+    
+    //DataPacket data_packet;
+    //data_packet.set_packet_time();
+    ////data_packet.collect_header_data(vatas);
+    //auto t0 = std::chrono::high_resolution_clock::now();
+    //auto fifo_read_timeout = std::chrono::microseconds(FIFO_READ_TIMEOUT_US);
+    //while (data_packet.nread < (int)N_VATA) {
+    //    for (int i=0; i<(int)N_VATA; i++) {
+    //        if (data_packet.need_data[i]) {
+    //            data_packet.read_vata_data(i, vatas);
+    //        }
+    //    }
+    //    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+    //                        (std::chrono::high_resolution_clock::now() - t0)
+    //                    );
+    //    if (duration > fifo_read_timeout) {
+    //        data_packet.set_timeout();
+    //        break; 
+    //    }
+    //}
+    //send_data(data_packet);
 }
 
 void DataEmitter::check_fifos() {
@@ -75,6 +115,20 @@ void DataEmitter::check_fifos() {
         if (vatas[i].get_n_fifo() > 0 ) {
             read_fifos();
             return;
+        }
+    }
+}
+
+void DataEmitter::erase_old_packets() {
+    auto dtn = std::chrono::high_resolution_clock::now().time_since_epoch();
+    u64 current_time = std::chrono::duration_cast<std::chrono::nanoseconds>(dtn).count();
+    u64 timeout = 1000000 * PACKET_REMOVE_TIMEOUT_MS;
+    for (std::map<long int, DataPacket*>::iterator it=packets.begin(); it != packets.end(); it++) {
+        DataPacket *packet = it->second;
+        if ((current_time - packet->packet_time) > timeout) {
+            std::cout << "Timeout for packet " << packet->event_id << ". Removing." << std::endl;
+            packets.erase(it->first);
+            delete packet;
         }
     }
 }

@@ -11,7 +11,7 @@
 #define N_CFG_REG 17
 
 
-#define N_ASIC_PACKET   16                  // Each asic packet should be 16 x 32 bits.
+#define N_ASIC_PACKET   19                  // Each asic packet should be 19 x 32 bits.
 #define DATA_PACKET_HEADER_NBYTES       3   //  [N-DATA_TOT, TIME0, TIME1]
 
 // AXI register offsets
@@ -31,7 +31,7 @@
 #define AXI0_CTRL_TRIGGER_INT_CAL       2
 #define AXI0_CTRL_POWER_CYCLE           3
 #define AXI0_CTRL_RST_EV_COUNT          4
-#define AXI0_CTRL_FORCE_TRIGGER         5
+#define AXI0_CTRL_FORCE_FSM_IDLE        5
 
 // Trigger enable mask bit mapping
 // 0-11: asics. 12: TM hit. 13: TM ack. 14: Force trigger

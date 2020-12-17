@@ -1,5 +1,5 @@
-BUILD = dbe_production
-SILAYER_IP = 10.10.0.11
+# BUILD = dbe_production
+SILAYER_IP = $(ZYNQ-IP-ADDR) #10.10.0.11
 
 all: server
 

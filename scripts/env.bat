@@ -21,3 +21,5 @@ REM some useful aliases to work better in linux
 %SYSTEMROOT%\System32\doskey.exe vi=vim -N $*
 %SYSTEMROOT%\System32\doskey.exe which=sh -c "which $*"
 SET BUILD=dbe_reva_production
+
+SET ZYNQ-IP-ADDR=10.10.0.20

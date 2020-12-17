@@ -9,6 +9,8 @@ from . import data_recvr
 from .cfg_reg import VataCfg
 from .trigger_mask import trigger_ena_dict
 
+from .cfg_reg import neg_default_vcfg, pos_default_vcfg
+
 SILAYER_HOST = "si-layer.local"
 DATA_PORT = 9998
 SERVER_PORT = 5556
@@ -16,6 +18,8 @@ SERVER_PORT = 5556
 DAC_SIDES = ["A", "B"]
 DAC_CHOICES = ["cal", "vth"]
 
+DEFAULT_HOLD = 200
+VTHR_DAC_MIDPOINT = 2050
 
 def byte2bits(byte):
     return [byte >> i & 1 for i in range(8)]
@@ -646,6 +650,16 @@ class Client:
         """
         return self.send_recv("sync force-trigger")
 
+    def force_fsm_to_idle(self, vata):
+        """Force a vata's firmware to the idle state.
+
+        Parameters
+        ----------
+        vata: int
+            Which vata to idle.
+        """
+        return self.send_recv(f"vata {vata} fsm-idle")
+
     def start_data_stream(self, dname=None):
         """Start streaming and recording data from the layer. Returns immediately.
 
@@ -744,4 +758,80 @@ class Client:
     ##    self.recv_ctrl_sock.recv()
     ##    self.recv_proc.join()
 
+    def startup_ASIC(self, ASIC, cfg, enable_forced = True, enable_local=False):
+        print(f"ASIC {ASIC}")
+        print("----------------")
+        print(f"Setting config; response: {self.set_config(ASIC, cfg)}")
+        self.set_hold(ASIC, DEFAULT_HOLD)
+        self.clear_fifo(ASIC)
+        self.reset_event_count(ASIC)
+        print("Setting up trigger configuration: ")
+        self.trigger_disable_bit(ASIC)
 
+        if enable_forced: 
+            print(f"\t syncctrl forced_readout triggers: {self.trigger_enable_forced(ASIC)}")
+        if enable_local:
+            print(f"\t                   local triggers: {self.trigger_enable_asic(ASIC)}")
+
+        print()  
+    
+    def startup_ASICs(self, 
+                      config_A=None, 
+                      config_B=None, 
+                      enable_forced=True,
+                      enable_local=False
+                      ):
+        '''
+        Set ASICs on both sides to a default configuration. 
+        Default: all 12 ASICs, side A negative, side A positive
+        If config_A or config_B is none, the ddefault is used. 
+        '''
+        if config_A is None:
+            config_A = neg_default_vcfg   
+
+        if config_B is None:
+            config_B = pos_default_vcfg            
+
+        for i in range(6):
+            self.startup_ASIC(i, config_A, enable_forced, enable_local)
+        for i in range(6, 12):
+            self.startup_ASIC(i, config_B, enable_forced, enable_local)    
+
+    def reset_ASIC_event_data(self, ASIC_list=list(range(12))):
+        '''
+        Reset ASIC event info for a list of ASICs. 
+        Default: all 12 ASICs
+        '''
+        for i in ASIC_list:
+            self.reset_event_count(i)
+            self.clear_fifo(i)
+
+    def print_ASIC_event_data(self, ASIC_list=list(range(12))):
+        '''
+        Print ASIC event counters for a list of ASICs. 
+        Default: all 12 ASICs
+        '''
+        for i in ASIC_list:        
+            print(f"ASIC {i:02d} --\
+                    N_fifo: {self.get_n_fifo(i):10d}\
+                    event count: {self.get_event_count(i):10d}")
+
+
+    def set_external_trigger_threshold(self, side, threshold):
+        '''
+        Set the external trigger threshold. 
+        Assumes that dac = 2050 is the midpoint (0 mV) for both sides.
+        This will have some play AFE to AFE!
+        SG: There might be a sign error here! Needs testing.
+        '''
+        if side not in DAC_SIDES:
+            raise ValueError(f"Invalid side: {side} must be in {DAC_SIDES}")
+        else: 
+            if side == 'B': 
+                dac_val = VTHR_DAC_MIDPOINT+threshold 
+                dac_val = min(4095, dac_val)
+            else:
+                dac_val = VTHR_DAC_MIDPOINT-threshold
+                dac_val = max(0, dac_val)
+
+            self.dac_set_counts(side, "vth", dac_val)
