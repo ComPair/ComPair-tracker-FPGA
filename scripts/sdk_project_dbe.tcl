@@ -52,7 +52,8 @@ sdk setws $sdk_ws_dir
 file delete -force $sdk_ws_dir/.metadata
 file delete -force $sdk_ws_dir/hw_0
 file delete -force $sdk_ws_dir/bsp_fsbl
-file delete -force $sdk_ws_dir/app_fsbl
+file delete -force $sdk_ws_dir/zynq_fsbl
+file delete -force $sdk_ws_dir/zynq_fsbl_bsp
 file delete -force $sdk_ws_dir/bsp_petalinux
 file delete -force $sdk_ws_dir/calctrl
 file delete -force $sdk_ws_dir/dacctrl
@@ -61,43 +62,48 @@ file delete -force $sdk_ws_dir/dacctrl
 sdk createhw -name hw_0 -hwspec $hdf_filename
 
 # ##################      First Stage Boot Loader
-createbsp -name bsp_fsbl -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
-setlib -bsp bsp_fsbl -lib xilrsa
-setlib -bsp bsp_fsbl -lib xilffs
-updatemss -mss [file normalize $sdk_ws_dir/bsp_fsbl/system.mss]
-regenbsp -bsp bsp_fsbl
-sdk createapp -bsp bsp_fsbl -name app_fsbl -app "Zynq FSBL" -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
-sdk configapp -app app_fsbl build-config debug
-sdk configapp -app  app_fsbl -set compiler-optimization {Optimize for size (-Os)}
-sdk configapp -app app_fsbl build-config release
-sdk configapp -app  app_fsbl -set compiler-optimization {Optimize for size (-Os)}
+sdk createapp -name zynq_fsbl -app "Zynq FSBL" -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone 
+puts "${PROJECT_BASE}/src/baremetal/zynq_fsbl"
+puts "${sdk_ws_dir}/zynq_fsbl"
+#exec rm -rf ${sdk_ws_dir}/zynq_fsbl/src
+exec cp -f ${PROJECT_BASE}/src/baremetal/zynq_fsbl/te_fsbl_hooks_te0720.c ${sdk_ws_dir}/zynq_fsbl/src 
+exec cp -f ${PROJECT_BASE}/src/baremetal/zynq_fsbl/te_fsbl_hooks_te0720.h ${sdk_ws_dir}/zynq_fsbl/src 
+exec cp -f ${PROJECT_BASE}/src/baremetal/zynq_fsbl/te_fsbl_hooks.c ${sdk_ws_dir}/zynq_fsbl/src 
+exec cp -f ${PROJECT_BASE}/src/baremetal/zynq_fsbl/te_fsbl_hooks.h ${sdk_ws_dir}/zynq_fsbl/src 
+exec cp -f ${PROJECT_BASE}/src/baremetal/zynq_fsbl/fsbl_hooks.c ${sdk_ws_dir}/zynq_fsbl/src 
+exec cp -f ${PROJECT_BASE}/src/baremetal/zynq_fsbl/fsbl_hooks.h ${sdk_ws_dir}/zynq_fsbl/src 
+exec cp -f ${PROJECT_BASE}/src/baremetal/zynq_fsbl/main.c ${sdk_ws_dir}/zynq_fsbl/src 
+sdk configapp -app zynq_fsbl build-config debug
+sdk configapp -app  zynq_fsbl -set compiler-optimization {Optimize for size (-Os)}
+sdk configapp -app zynq_fsbl build-config release
+sdk configapp -app  zynq_fsbl -set compiler-optimization {Optimize for size (-Os)}
 
 
-# ##################      Linux Applications
-createbsp -name bsp_petalinux -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
-updatemss -mss [file normalize $sdk_ws_dir/bsp_petalinux/system.mss]
-regenbsp -bsp bsp_petalinux
+# # ##################      Linux Applications
+# createbsp -name bsp_petalinux -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
+# updatemss -mss [file normalize $sdk_ws_dir/bsp_petalinux/system.mss]
+# regenbsp -bsp bsp_petalinux
 
-sdk createapp -name calctrl -app "Empty Application" -proc ps7_cortexa9 -hwproject hw_0 -os linux -bsp bsp_petalinux -lang c++
-puts "${PROJECT_BASE}/src/sdk-apps/calctrl"
-puts "${sdk_ws_dir}/calctrl"
-exec rm -rf ${sdk_ws_dir}/calctrl/src
-exec cp -rf ${PROJECT_BASE}/src/sdk-apps/calctrl/ ${sdk_ws_dir}/calctrl/src 
+# sdk createapp -name calctrl -app "Empty Application" -proc ps7_cortexa9 -hwproject hw_0 -os linux -bsp bsp_petalinux -lang c++
+# puts "${PROJECT_BASE}/src/sdk-apps/calctrl"
+# puts "${sdk_ws_dir}/calctrl"
+# exec rm -rf ${sdk_ws_dir}/calctrl/src
+# exec cp -rf ${PROJECT_BASE}/src/sdk-apps/calctrl/ ${sdk_ws_dir}/calctrl/src 
 
-sdk configapp -app calctrl build-config debug
-sdk configapp -app calctrl include-path ${sdk_ws_dir}/bsp_petalinux/ps7_cortexa9_0/include
+# sdk configapp -app calctrl build-config debug
+# sdk configapp -app calctrl include-path ${sdk_ws_dir}/bsp_petalinux/ps7_cortexa9_0/include
 
-sdk createapp -name dacctrl -app "Empty Application" -proc ps7_cortexa9 -hwproject hw_0 -os linux -bsp bsp_petalinux -lang c++
-puts "${PROJECT_BASE}/src/sdk-apps/dacctrl"
-puts "${sdk_ws_dir}/dacctrl"
-exec rm -rf ${sdk_ws_dir}/dacctrl/src
-exec cp -rf ${PROJECT_BASE}/src/sdk-apps/dacctrl/ ${sdk_ws_dir}/dacctrl/src 
+# sdk createapp -name dacctrl -app "Empty Application" -proc ps7_cortexa9 -hwproject hw_0 -os linux -bsp bsp_petalinux -lang c++
+# puts "${PROJECT_BASE}/src/sdk-apps/dacctrl"
+# puts "${sdk_ws_dir}/dacctrl"
+# exec rm -rf ${sdk_ws_dir}/dacctrl/src
+# exec cp -rf ${PROJECT_BASE}/src/sdk-apps/dacctrl/ ${sdk_ws_dir}/dacctrl/src 
 
-sdk configapp -app dacctrl build-config debug
-sdk configapp -app dacctrl include-path ${sdk_ws_dir}/bsp_petalinux/ps7_cortexa9_0/include
+# sdk configapp -app dacctrl build-config debug
+# sdk configapp -app dacctrl include-path ${sdk_ws_dir}/bsp_petalinux/ps7_cortexa9_0/include
 
-# projects -clean
-projects -build
+# # projects -clean
+# projects -build
 
 # ##################      GPIO Application
 # createbsp -name bsp_gpio -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
@@ -144,7 +150,7 @@ projects -build
 # Build all
 #regenbsp -bsp bsp_gpio
 #regenbsp -bsp bsp_lwip
-#projects -build
+projects -build
 
 
 # # # if everything is successful "touch" a file so make will not it's done
