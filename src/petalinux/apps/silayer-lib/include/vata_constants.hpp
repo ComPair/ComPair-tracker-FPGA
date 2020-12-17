@@ -31,7 +31,7 @@
 #define AXI0_CTRL_TRIGGER_INT_CAL       2
 #define AXI0_CTRL_POWER_CYCLE           3
 #define AXI0_CTRL_RST_EV_COUNT          4
-#define AXI0_CTRL_FORCE_TRIGGER         5
+#define AXI0_CTRL_FORCE_FSM_IDLE        5
 
 // Trigger enable mask bit mapping
 // 0-11: asics. 12: TM hit. 13: TM ack. 14: Force trigger

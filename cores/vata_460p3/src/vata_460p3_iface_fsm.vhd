@@ -6,6 +6,7 @@ entity vata_460p3_iface_fsm is
         port (
                 clk_100MHz              : in std_logic; -- 10 ns
                 rst_n                   : in std_logic;
+                force_fsm_idle          : in std_logic;
                 fast_or_trigger         : in std_logic;
                 fast_or_trigger_ena     : in std_logic;
                 trigger_ack             : in std_logic;
@@ -158,6 +159,9 @@ architecture arch_imp of vata_460p3_iface_fsm is
     constant RO_WFIFO_18              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"35";
     constant RO_SET_MODE_M3           : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"36";
     constant RO_LATCH_MODE_M3         : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"37";
+    constant ABORT_WFIFO              : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"38";
+    constant ABORT_SET_MODE_M3        : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"39";
+    constant ABORT_LATCH_MODE_M3      : std_logic_vector(STATE_BITWIDTH-1 downto 0) := x"3A";
 
     constant EVENT_ID_WIDTH : integer := 32;
 
@@ -173,6 +177,10 @@ architecture arch_imp of vata_460p3_iface_fsm is
     signal inc_reg_indx      : std_logic;
     signal rst_reg_indx_519  : std_logic;
     signal rst_reg_indx_0    : std_logic;
+
+    signal cfg_bit   : std_logic;
+    signal cfg_reg0  : std_logic;
+    signal cfg_reg1  : std_logic;
 
     signal reg_from_vata     : unsigned(519 downto 0);
     signal read_o5           : std_logic := '0';
@@ -271,7 +279,7 @@ begin
         end if;
     end process;
 
-    process (rst_n, current_state, trigger_acq, set_config, get_config, state_counter)
+    process (rst_n, current_state, trigger_acq, set_config, get_config, state_counter, force_fsm_idle)
     begin
         state_counter_clr <= '0';
         dec_reg_indx      <= '0';
@@ -304,7 +312,10 @@ begin
                         next_state <= IDLE;
                     end if;
                 when SC_SET_MODE_M1 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                         state_counter_clr <= '1';
                         rst_reg_indx_519 <= '1';
                         next_state <= SC_LATCH_MODE_M1;
@@ -312,35 +323,50 @@ begin
                         next_state <= SC_SET_MODE_M1;
                     end if;
                 when SC_LATCH_MODE_M1 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                         state_counter_clr <= '1';
                         next_state <= SC_LOWER_LATCH_M1;
                     else
                         next_state <= SC_LATCH_MODE_M1;
                     end if;
                 when SC_LOWER_LATCH_M1 =>
-                    if state_counter >= to_unsigned(499, state_counter'length) then -- 5us
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(499, state_counter'length) then -- 5us
                         state_counter_clr <= '1';
                         next_state <= SC_SET_DATA_I3;
                     else
                         next_state <= SC_LOWER_LATCH_M1;
                     end if;
                 when SC_SET_DATA_I3 =>
-                    if state_counter >= to_unsigned(499, state_counter'length) then -- 5us
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(499, state_counter'length) then -- 5us
                         state_counter_clr <= '1';
                         next_state <= SC_CLOCK_DATA;
                     else
                         next_state <= SC_SET_DATA_I3;
                     end if;
                 when SC_CLOCK_DATA =>
-                    if state_counter >= to_unsigned(999, state_counter'length) then -- 10us - 1clk
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(999, state_counter'length) then -- 10us - 1clk
                         state_counter_clr <= '1';
                         next_state <= SC_LOWER_CLOCK;
                     else
                         next_state <= SC_CLOCK_DATA;
                     end if;
                 when SC_LOWER_CLOCK =>
-                    if state_counter >= to_unsigned(499, state_counter'length) then -- 5us
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(499, state_counter'length) then -- 5us
                         state_counter_clr <= '1';
                         if reg_indx = 0 then
                             next_state <= SC_SET_MODE_M3;
@@ -352,20 +378,29 @@ begin
                         next_state <= SC_LOWER_CLOCK;
                     end if;
                 when SC_SET_MODE_M3 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                         state_counter_clr <= '1';
                         next_state <= SC_LATCH_MODE_M3;
                     else
                         next_state <= SC_SET_MODE_M3;
                     end if;
                 when SC_LATCH_MODE_M3 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                         next_state <= IDLE;
                     else
                         next_state <= SC_LATCH_MODE_M3;
                     end if;
                 when GC_SET_MODE_M2 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                         state_counter_clr <= '1';
                         rst_reg_indx_519 <= '1';
                         reg_clr <= '1';
@@ -374,14 +409,20 @@ begin
                         next_state <= GC_SET_MODE_M2;
                     end if;
                 when GC_LATCH_MODE_M2 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                         state_counter_clr <= '1';
                         next_state <= GC_LOWER_LATCH_M2;
                     else
                         next_state <= GC_LATCH_MODE_M2;
                     end if;
                 when GC_LOWER_LATCH_M2 =>
-                    if state_counter >= to_unsigned(499, state_counter'length) then -- 5us
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(499, state_counter'length) then -- 5us
                         state_counter_clr <= '1';
                         read_o5 <= '1';
                         next_state <= GC_SET_DATA_I3;
@@ -389,14 +430,20 @@ begin
                         next_state <= GC_LOWER_LATCH_M2;
                     end if;
                 when GC_SET_DATA_I3 =>
-                    if state_counter >= to_unsigned(499, state_counter'length) then -- 5us
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(499, state_counter'length) then -- 5us
                         state_counter_clr <= '1';
                         next_state <= GC_CLOCK_DATA;
                     else
                         next_state <= GC_SET_DATA_I3;
                     end if;
                 when GC_CLOCK_DATA =>
-                    if reg_indx > 0 and state_counter >= to_unsigned(29, state_counter'length) then -- 300 ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif reg_indx > 0 and state_counter >= to_unsigned(29, state_counter'length) then -- 300 ns
                         state_counter_clr <= '1';
                         shift_reg_left_1 <= '1';
                         next_state <= GC_SHIFT_CFG_REG;
@@ -407,18 +454,29 @@ begin
                         next_state <= GC_CLOCK_DATA;
                     end if;
                 when GC_SHIFT_CFG_REG =>
-                    state_counter_clr <= '1';
-                    read_o5 <= '1';
-                    next_state <= GC_READ_O5;
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        state_counter_clr <= '1';
+                        read_o5 <= '1';
+                        next_state <= GC_READ_O5;
+                    end if;
                 when GC_READ_O5 =>
-                    if state_counter >= to_unsigned(969, state_counter'length) then -- (10us - 300 ns)
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(969, state_counter'length) then -- (10us - 300 ns)
                         state_counter_clr <= '1';
                         next_state <= GC_LOWER_CLOCK;
                     else
                         next_state <= GC_READ_O5;
                     end if;
                 when GC_LOWER_CLOCK =>
-                    if state_counter >= to_unsigned(499, state_counter'length) then -- 5us
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(499, state_counter'length) then -- 5us
                         state_counter_clr <= '1';
                         if reg_indx = 0 then
                             next_state <= GC_XFER_DATA;
@@ -430,22 +488,37 @@ begin
                         next_state <= GC_LOWER_CLOCK;
                     end if;
                 when GC_XFER_DATA =>
-                    next_state <= GC_SET_MODE_M3;
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= GC_SET_MODE_M3;
+                    end if;
                 when GC_SET_MODE_M3 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                         state_counter_clr <= '1';
                         next_state <= GC_LATCH_MODE_M3;
                     else
                         next_state <= GC_SET_MODE_M3;
                     end if;
                 when GC_LATCH_MODE_M3 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                         next_state <= IDLE;
                     else
                         next_state <= GC_LATCH_MODE_M3;
                     end if;
                 when ACQ_DELAY =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= unsigned(hold_time) then
                         state_counter_clr <= '1';
@@ -454,7 +527,11 @@ begin
                         next_state <= ACQ_DELAY;
                     end if;
                 when ACQ_HOLD =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(34, state_counter'length) then -- 350ns
                         state_counter_clr <= '1';
@@ -465,7 +542,11 @@ begin
                 when ACQ_LOWER_I1 =>
                     -- XXX NOTE: THERE IS A DELAY BETWEEN LOWERING HOLD AND STARTING CONVERSION!!!!
                     -- XXX UNSURE IF THIS SHOULD BE AS SHORT AS POSSIBLE???
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(1, state_counter'length) then -- 20ns
                         state_counter_clr <= '1';
@@ -474,33 +555,33 @@ begin
                         next_state <= ACQ_LOWER_I1;
                     end if;
                 when ACQ_SET_MODE_M4 =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     else
                         state_counter_clr <= '1';
                         next_state <= CONV_LATCH_M4;
                     end if;
-                    --if state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
-                    --    state_counter_clr <= '1';
-                    --    next_state <= CONV_LATCH_M4;
-                    --else
-                    --    next_state <= ACQ_SET_MODE_M4;
-                    --end if;
                 when CONV_LATCH_M4 =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     else
                         state_counter_clr <= '1';
                         next_state <= CONV_RAISE_I3;
                     end if;
-                    --if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
-                    --    state_counter_clr <= '1';
-                    --    next_state <= CONV_LOWER_I4;
-                    --else
-                    --    next_state <= CONV_LATCH_M4;
-                    --end if;
                 when CONV_RAISE_I3 =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
                         state_counter_clr <= '1';
@@ -509,7 +590,11 @@ begin
                         next_state <= CONV_RAISE_I3;
                     end if;
                 when CONV_LOWER_I4 =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(14, state_counter'length) then -- 150ns
                         state_counter_clr <= '1';
@@ -518,7 +603,11 @@ begin
                         next_state <= CONV_LOWER_I4;
                     end if;
                 when CONV_CLK_HI =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
                         state_counter_clr <= '1';
@@ -531,7 +620,11 @@ begin
                         next_state <= CONV_CLK_HI;
                     end if;
                 when CONV_CLK_LO =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
                         state_counter_clr <= '1';
@@ -540,7 +633,11 @@ begin
                         next_state <= CONV_CLK_LO;
                     end if;
                 when CONV_SET_MODE_M5 =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(4, state_counter'length) then -- 50ns
                         state_counter_clr <= '1';
@@ -550,7 +647,11 @@ begin
                     end if;
                 when RO_LATCH_MODE_M5 =>
                     -- XXX UNSURE HOW LONG THIS DELAY IS IN THE TIMING DIAGRAM!!!!!
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(39, state_counter'length) then -- 400ns
                         state_counter_clr <= '1';
@@ -560,7 +661,11 @@ begin
                         next_state <= RO_LATCH_MODE_M5;
                     end if;
                 when RO_CLK_HI =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(24, state_counter'length) then -- 250ns
                         state_counter_clr <= '1';
@@ -570,7 +675,11 @@ begin
                         next_state <= RO_CLK_HI;
                     end if;
                 when RO_READ_O6 =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(7, state_counter'length) then -- 80ns
                         state_counter_clr <= '1';
@@ -581,7 +690,11 @@ begin
                         next_state <= RO_READ_O6;
                     end if;
                 when RO_CLK_LO =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     elsif state_counter >= to_unsigned(32, state_counter'length) then -- 330ns
                         state_counter_clr <= '1';
@@ -601,7 +714,11 @@ begin
                         next_state <= RO_CLK_LO;
                     end if;
                 when RO_SHIFT_DATA =>
-                    if abort_daq = '1' then
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif abort_daq = '1' then
+                        state_counter_clr <= '1';
                         next_state <= RO_SET_MODE_M3;
                     else
                         inc_reg_indx <= '1';
@@ -612,41 +729,175 @@ begin
                             next_state <= RO_SHIFT_DATA;
                         end if;
                     end if;
-                when RO_WFIFO_00 => next_state <= RO_WFIFO_01;
-                when RO_WFIFO_01 => next_state <= RO_WFIFO_02;
-                when RO_WFIFO_02 => next_state <= RO_WFIFO_03;
-                when RO_WFIFO_03 => next_state <= RO_WFIFO_04;
-                when RO_WFIFO_04 => next_state <= RO_WFIFO_05;
-                when RO_WFIFO_05 => next_state <= RO_WFIFO_06;
-                when RO_WFIFO_06 => next_state <= RO_WFIFO_07;
-                when RO_WFIFO_07 => next_state <= RO_WFIFO_08;
-                when RO_WFIFO_08 => next_state <= RO_WFIFO_09;
-                when RO_WFIFO_09 => next_state <= RO_WFIFO_10;
-                when RO_WFIFO_10 => next_state <= RO_WFIFO_11;
-                when RO_WFIFO_11 => next_state <= RO_WFIFO_12;
-                when RO_WFIFO_12 => next_state <= RO_WFIFO_13;
-                when RO_WFIFO_13 => next_state <= RO_WFIFO_14;
-                when RO_WFIFO_14 => next_state <= RO_WFIFO_15;
-                when RO_WFIFO_15 => next_state <= RO_WFIFO_16;
-                when RO_WFIFO_16 => next_state <= RO_WFIFO_17;
-                when RO_WFIFO_17 => next_state <= RO_WFIFO_18;
+                when RO_WFIFO_00 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_01;
+                    end if;
+                when RO_WFIFO_01 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_02;
+                    end if;
+                when RO_WFIFO_02 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_03;
+                    end if;
+                when RO_WFIFO_03 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_04;
+                    end if;
+                when RO_WFIFO_04 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_05;
+                    end if;
+                when RO_WFIFO_05 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_06;
+                    end if;
+                when RO_WFIFO_06 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_07;
+                    end if;
+                when RO_WFIFO_07 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_08;
+                    end if;
+                when RO_WFIFO_08 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_09;
+                    end if;
+                when RO_WFIFO_09 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_10;
+                    end if;
+                when RO_WFIFO_10 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_11;
+                    end if;
+                when RO_WFIFO_11 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_12;
+                    end if;
+                when RO_WFIFO_12 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_13;
+                    end if;
+                when RO_WFIFO_13 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_14;
+                    end if;
+                when RO_WFIFO_14 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_15;
+                    end if;
+                when RO_WFIFO_15 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_16;
+                    end if;
+                when RO_WFIFO_16 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_17;
+                    end if;
+                when RO_WFIFO_17 =>
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        next_state <= RO_WFIFO_18;
+                    end if;
                 when RO_WFIFO_18 =>
                     state_counter_clr <= '1';
-                    inc_event_counter <= '1';
-                    next_state <= RO_SET_MODE_M3;
+                    if force_fsm_idle = '1' then
+                        next_state <= ABORT_SET_MODE_M3;
+                    else
+                        inc_event_counter <= '1';
+                        next_state <= RO_SET_MODE_M3;
+                    end if;
                 when RO_SET_MODE_M3 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then --100ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then --100ns
                         state_counter_clr <= '1';
                         next_state <= RO_LATCH_MODE_M3;
                     else
                         next_state <= RO_SET_MODE_M3;
                     end if;
                 when RO_LATCH_MODE_M3 =>
-                    if state_counter >= to_unsigned(9, state_counter'length) then --100ns
+                    if force_fsm_idle = '1' then
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_SET_MODE_M3;
+                    elsif state_counter >= to_unsigned(9, state_counter'length) then --100ns
                         state_counter_clr <= '1';
                         next_state <= IDLE;
                     else
                         next_state <= RO_LATCH_MODE_M3;
+                    end if;
+                when ABORT_WFIFO =>
+                    state_counter_clr <= '1';
+                    next_state <= ABORT_SET_MODE_M3;
+                when ABORT_SET_MODE_M3 =>
+                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                        state_counter_clr <= '1';
+                        next_state <= ABORT_LATCH_MODE_M3;
+                    else
+                        next_state <= ABORT_SET_MODE_M3;
+                    end if;
+                when ABORT_LATCH_MODE_M3 =>
+                    if state_counter >= to_unsigned(9, state_counter'length) then -- 100ns
+                        next_state <= IDLE;
+                    else
+                        next_state <= ABORT_LATCH_MODE_M3;
                     end if;
                 when others =>
                     next_state <= IDLE;
@@ -662,252 +913,201 @@ begin
         vata_hit <= '0'; vata_busy <= '1';
         case (current_state) is
             when IDLE =>
-                vata_mode <= "010"; vata_s_latch <= '0';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= "010"; vata_s_latch <= '0';
                 vata_busy <= '0';
                 vata_hit <= not vata_o6;
-            ---- Set config states ----
+            ---- Set config states---------------------------------------------------------------------------
             when SC_SET_MODE_M1 =>
-                vata_mode <= "000"; vata_s_latch <= '0';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "000"; vata_s_latch <= '0';
             when SC_LATCH_MODE_M1 =>
-                vata_mode <= "000"; vata_s_latch <= '1';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "000"; vata_s_latch <= '1';
             when SC_LOWER_LATCH_M1 =>
-                vata_mode <= "000"; vata_s_latch <= '0';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "000"; vata_s_latch <= '0';
             when SC_SET_DATA_I3 =>
-                vata_mode <= "000";
-                vata_i1   <= '0';
-                vata_i3   <= cfg_reg_from_ps(reg_indx);
+                vata_i1 <= '0'; vata_i3 <= cfg_bit ;                 vata_mode <= "000";
                 if reg_indx = 519 then
                     vata_i4 <= '0';
                 else
                     vata_i4 <= '1';
                 end if;
             when SC_CLOCK_DATA =>
-                vata_mode <= "000";
-                vata_i3 <= cfg_reg_from_ps(reg_indx);
-                vata_i1 <= '1'; vata_i4 <= '1';
+                vata_i1 <= '1'; vata_i3 <= cfg_bit ; vata_i4 <= '1'; vata_mode <= "000";
             when SC_LOWER_CLOCK =>
-                vata_mode <= "000";
-                vata_i3 <= cfg_reg_from_ps(reg_indx);
-                vata_i1 <= '0'; vata_i4 <= '1';
+                vata_i1 <= '0'; vata_i3 <= cfg_bit ; vata_i4 <= '1'; vata_mode <= "000";
             when SC_SET_MODE_M3 =>
-                vata_mode <= "010"; vata_s_latch <= '0';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "010"; vata_s_latch <= '0';
             when SC_LATCH_MODE_M3 =>
-                vata_mode <= "010"; vata_s_latch <= '1';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
-            ----Get config states----
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "010"; vata_s_latch <= '1';
+            ----Get config states----------------------------------------------------------------------------
             --- Unsure if vata_i4 should be low???
             when GC_SET_MODE_M2 =>
-                vata_mode <= "001"; vata_s_latch <= '0';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "001"; vata_s_latch <= '0';
             when GC_LATCH_MODE_M2 =>
-                vata_mode <= "001"; vata_s_latch <= '1';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "001"; vata_s_latch <= '1';
             when GC_LOWER_LATCH_M2 =>
-                vata_mode <= "001"; vata_s_latch <= '0';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "001"; vata_s_latch <= '0';
             when GC_SET_DATA_I3 =>
-                vata_mode <= "001";
-                vata_i1 <= '0'; vata_i4 <= '0';
-                vata_i3 <= reg_from_vata(0);
+                vata_i1 <= '0'; vata_i3 <= cfg_reg0; vata_i4 <= '0'; vata_mode <= "001"; vata_s_latch <= '0';
             when GC_CLOCK_DATA =>
-                vata_mode <= "001";
-                vata_i3 <= reg_from_vata(0);
-                vata_i1 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '1'; vata_i3 <= cfg_reg0; vata_i4 <= '0'; vata_mode <= "001"; vata_s_latch <= '0';
             when GC_SHIFT_CFG_REG =>
-                vata_mode <= "001";
-                vata_i3 <= reg_from_vata(1);
-                vata_i1 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '1'; vata_i3 <= cfg_reg1; vata_i4 <= '0'; vata_mode <= "001"; vata_s_latch <= '0';
             when GC_READ_O5 =>
-                vata_mode <= "001";
-                vata_i3 <= reg_from_vata(1);
-                vata_i1 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '1'; vata_i3 <= cfg_reg1; vata_i4 <= '0'; vata_mode <= "001"; vata_s_latch <= '0';
             when GC_LOWER_CLOCK =>
-                vata_mode <= "001";
+                vata_i1 <= '0';                      vata_i4 <= '0'; vata_mode <= "001"; vata_s_latch <= '0';
                 if reg_indx = 0 then
-                    vata_i3 <= reg_from_vata(0);
+                    vata_i3 <= cfg_reg0;
                 else
-                    vata_i3 <= reg_from_vata(1);
+                    vata_i3 <= cfg_reg1;
                 end if;
-                vata_i1 <= '0'; vata_i4 <= '0';
             when GC_XFER_DATA =>
-                vata_mode <= "001";
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "001"; vata_s_latch <= '0';
                 cfg_reg_from_pl <= std_logic_vector(reg_from_vata);
             when GC_SET_MODE_M3 =>
-                vata_mode <= "010"; vata_s_latch <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "010"; vata_s_latch <= '0';
             when GC_LATCH_MODE_M3 =>
-                vata_mode <= "010"; vata_s_latch <= '1';
-            ----Acquisition modes-----------------------
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "010"; vata_s_latch <= '1';
+            ----Acquisition modes----------------------------------------------------------------------------
             when ACQ_DELAY =>
-                vata_mode <= "010"; 
-                --bram_wea  <= (others => '0'); -- just in case?
-                vata_i1   <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= "010"; vata_s_latch <= '0';
             when ACQ_HOLD =>
-                vata_mode <= "010";
-                vata_i1   <= '1'; vata_i3 <= '0'; vata_i4 <= '1';
+                vata_i1 <= '1'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= "010"; vata_s_latch <= '0';
             when ACQ_LOWER_I1 =>
-                vata_mode <= "010";
-                vata_i1   <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= "010"; vata_s_latch <= '0';
             when ACQ_SET_MODE_M4 =>
-                vata_mode <= "011";
-                vata_i1   <= '0'; vata_i3 <= '0'; vata_i4 <= '1';
-            ----Data conversion modes-------------------
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= "011"; vata_s_latch <= '0';
+            ----Data conversion modes------------------------------------------------------------------------
             when CONV_LATCH_M4 =>
-                vata_mode <= "011"; vata_s_latch <= '1';
-                vata_i1   <= '0'; vata_i3 <= '0'; vata_i4 <= '1'; -- i3 goes hi here in timing diagram
+                -- i3 goes hi here in timing diagram
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= "011"; vata_s_latch <= '1';
             when CONV_RAISE_I3 =>
-                vata_mode <= "011"; vata_s_latch <= '1';
-                vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '1';
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '1'; vata_mode <= "011"; vata_s_latch <= '1';
             when CONV_LOWER_I4 =>
-                vata_mode <= "011"; vata_s_latch <= '0';
-                vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "011"; vata_s_latch <= '0';
             when CONV_CLK_HI =>
-                vata_mode <= "011";
-                vata_i1   <= '1'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '1'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "011"; vata_s_latch <= '0';
             when CONV_CLK_LO =>
-                vata_mode <= "011";
-                vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "011"; vata_s_latch <= '0';
             when CONV_SET_MODE_M5 =>
-                vata_mode <= "100";
-                vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            ----Data readout states--------------------
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "100"; vata_s_latch <= '0';
+            ----Data readout states--------------------------------------------------------------------------
             when RO_LATCH_MODE_M5 =>
-                vata_mode <= "100"; vata_s_latch <= '1';
-                vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "100"; vata_s_latch <= '1';
             when RO_CLK_HI =>
-                vata_mode <= "100";
-                vata_i1   <= '1'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '1'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "100"; vata_s_latch <= '0';
             when RO_READ_O6 =>
-                vata_mode <= "100";
-                vata_i1   <= '1'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '1'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "100"; vata_s_latch <= '0';
             when RO_CLK_LO =>
-                vata_mode <= "100";
-                vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "100"; vata_s_latch <= '0';
             when RO_SHIFT_DATA =>
-                vata_mode <= "100";
-                vata_i1   <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            ----Write header data------------------------
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "100"; vata_s_latch <= '0';
+            ----Write header data----------------------------------------------------------------------------
             when RO_WFIFO_00 =>
                 -- Write event ID
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= event_id_out; -- Write event id at head of data packet
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_01 =>
                 -- Write event number
                 -- We just wrote the event id, so now clear it:
                 event_id_clr <= '1';
-                vata_mode    <= "100";
                 data_tvalid  <= '1';
                 data_tdata   <= pkt_event_counter;
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_02 =>
                 -- Event trigger info
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata(15 downto 0)  <= pkt_event_triggers;
                 data_tdata(31 downto 16) <= (others => '0'); -- Room for more data here.
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_03 =>
                 -- LSB's of the global counter
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= pkt_running_counter(31 downto 0);  -- lowest 32 bits the pkt_running_counter
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_04 =>
                 -- MSB's of the global counter
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= pkt_running_counter(63 downto 32); -- highest 32 bits of pkt_running_counter
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_05 =>
                 -- LSB's of the live-time counter
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= pkt_live_counter(31 downto 0);  -- lowest 32 bits the pkt_live_counter
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_06 =>
                 -- MSB's of the live-time counter
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= pkt_live_counter(63 downto 32); -- highest 32 bits of pkt_live_counter
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
-            ----Write asic data------------------------
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
+            ----Write asic data------------------------------------------------------------------------------
             when RO_WFIFO_07 =>
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(31 downto 0));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_08 =>
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(63 downto 32));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_09 =>
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(95 downto 64));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_10 =>
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(127 downto 96));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_11 =>
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(159 downto 128));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_12 =>
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(191 downto 160));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_13 =>
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(223 downto 192));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_14 =>
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(255 downto 224));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_15 =>
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(287 downto 256));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_16 =>
-                vata_mode   <= "100";
                 data_tvalid <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(319 downto 288));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_17 =>
-                vata_mode   <= "100";
                 data_tvalid  <= '1';
                 data_tdata  <= std_logic_vector(reg_from_vata(351 downto 320));
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0'; vata_mode <= "100";
             when RO_WFIFO_18 =>
-                vata_mode   <= "100";
                 data_tvalid               <= '1';
                 data_tdata(26 downto 0)   <= std_logic_vector(reg_from_vata(378 downto 352));
                 data_tdata(31 downto 27)  <= (others => '0');
                 data_tlast                <= '1';
-                vata_i1 <= '0'; vata_i3 <= '1'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "100"; vata_s_latch <= '0';
             when RO_SET_MODE_M3 =>
-                vata_mode <= "010"; vata_s_latch <= '0';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "010"; vata_s_latch <= '0';
             when RO_LATCH_MODE_M3 =>
-                vata_mode <= "010"; vata_s_latch <= '1';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "010"; vata_s_latch <= '1';
+            when ABORT_WFIFO =>
+                data_tvalid <= '1';
+                data_tdata  <= (others => '1'); -- Aborted data packet. Write last word, as max val.
+                data_tlast  <= '1';
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "100"; vata_s_latch <= '0';
+            when ABORT_SET_MODE_M3 =>
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "010"; vata_s_latch <= '0';
+            when ABORT_LATCH_MODE_M3 =>
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "010"; vata_s_latch <= '1';
             when others =>
-                vata_mode <= vata_mode; vata_s_latch <= '0';
-                vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0';
+                -- Should never get here!
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= vata_mode; vata_s_latch <= '0';
         end case;
     end process;
 
@@ -991,26 +1191,40 @@ begin
     end process;
 
     -- Event counter:
-    process (rst_n, event_counter_rst, inc_event_counter)
+    process (rst_n, clk_100MHz, event_counter_rst, inc_event_counter)
     begin
         if rst_n = '0' or event_counter_rst = '1' then
             uevent_counter <= (others => '0');
-        elsif rising_edge(inc_event_counter) then -- we are finished with data readout for an event
+        elsif falling_edge(clk_100MHz) and inc_event_counter = '1' then
+            -- we are finished with data readout for an event
             uevent_counter <= uevent_counter + to_unsigned(1, uevent_counter'length);
         else
             uevent_counter <= uevent_counter;
         end if;
     end process;
+    -- Previous version of the above process
+    --process (rst_n, clk_100MHz, event_counter_rst, inc_event_counter)
+    --begin
+    --    if rst_n = '0' or event_counter_rst = '1' then
+    --        uevent_counter <= (others => '0');
+    --    --elsif rising_edge(inc_event_counter) then -- we are finished with data readout for an event
+    --    elsif inc_event_counter = '1' then -- we are finished with data readout for an event
+    --        uevent_counter <= uevent_counter + to_unsigned(1, uevent_counter'length);
+    --    else
+    --        uevent_counter <= uevent_counter;
+    --    end if;
+    --end process;
 
-    -- Latch data that goes into the packet on `set_pkt_data` rising edge.
-    process (rst_n, set_pkt_data)
+    -- Latch data that goes into the packet when `set_pkt_data` is high.
+    process (rst_n, clk_100MHz, set_pkt_data)
     begin
         if rst_n = '0' then
             pkt_running_counter <= (others => '0');
             pkt_live_counter    <= (others => '0');
             pkt_event_counter   <= (others => '0');
             pkt_event_triggers  <= (others => '0');
-        elsif rising_edge(set_pkt_data) then
+        --elsif rising_edge(set_pkt_data) then
+        elsif falling_edge(clk_100MHz) and set_pkt_data = '1' then
             pkt_running_counter <= running_counter;
             pkt_live_counter    <= std_logic_vector(ulive_counter);
             pkt_event_counter   <= std_logic_vector(uevent_counter);
@@ -1030,6 +1244,10 @@ begin
     vata_s0 <= vata_mode(0);
     vata_s1 <= vata_mode(1);
     vata_s2 <= vata_mode(2);
+
+    cfg_bit  <= cfg_reg_from_ps(reg_indx);
+    cfg_reg0 <= reg_from_vata(0);
+    cfg_reg1 <= reg_from_vata(1);
 
     live_counter    <= std_logic_vector(ulive_counter);
     event_counter   <= std_logic_vector(uevent_counter);
@@ -1058,6 +1276,7 @@ begin
     state_out          <= current_state;
     event_id_out_debug <= event_id_out;
     trigger_acq_out    <= trigger_acq;
+
 
 end arch_imp;
 -- vim: set ts=4 sw=4 sts=4 et:

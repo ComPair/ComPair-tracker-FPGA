@@ -48,7 +48,8 @@ class VataCtrl {
         int read_fifo(std::vector<u32> &data, int &nread, u32 &nremain);
         int read_fifo(u32 *data, int nbuffer, u32 &nread);
         int read_fifo_full_packet(u32 *data);
-        int force_trigger();
+        //int force_trigger();
+        int force_fsm_to_idle();
         
     private:
         int mmap_axi();

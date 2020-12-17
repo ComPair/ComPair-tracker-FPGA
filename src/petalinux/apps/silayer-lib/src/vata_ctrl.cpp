@@ -384,11 +384,18 @@ int VataCtrl::read_fifo_full_packet(u32 *data) {
 }
 
 // Force a trigger.
-int VataCtrl::force_trigger() {
+//int VataCtrl::force_trigger() {
+//    if (paxi == NULL)
+//        this->mmap_axi();
+//    //#define AXI0_CTRL_
+//    paxi[0] = AXI0_CTRL_FORCE_TRIGGER;
+//    return 0;
+//}
+
+int VataCtrl::force_fsm_to_idle() {
     if (paxi == NULL)
         this->mmap_axi();
-    //#define AXI0_CTRL_
-    paxi[0] = AXI0_CTRL_FORCE_TRIGGER;
+    paxi[0] = AXI0_CTRL_FORCE_FSM_IDLE;
     return 0;
 }
 

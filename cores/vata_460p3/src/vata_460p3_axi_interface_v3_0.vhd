@@ -133,6 +133,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
         port (
             clk_100MHz              : in std_logic; -- 10 ns
             rst_n                   : in std_logic;
+            force_fsm_idle          : in std_logic;
             fast_or_trigger         : in std_logic;
             fast_or_trigger_ena     : in std_logic;
             trigger_ack             : in std_logic;
@@ -232,6 +233,7 @@ architecture arch_imp of vata_460p3_axi_interface_v3_0 is
     signal ack_trigger_ena        : std_logic := '0';
     signal local_vata_trigger_ena : std_logic_vector(11 downto 0);
     signal force_trigger_ena      : std_logic := '0';
+    signal force_fsm_idle         : std_logic := '0';
 begin
 
 -- Instantiation of Axi Bus Interface S00_AXI
@@ -284,6 +286,7 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
         port map (
             clk_100MHz                  => s00_axi_aclk,
             rst_n                       => s00_axi_aresetn,
+            force_fsm_idle              => force_fsm_idle,
             fast_or_trigger             => fast_or_trigger,
             fast_or_trigger_ena         => fast_or_trigger_ena,
             trigger_ack                 => trigger_ack,
@@ -364,6 +367,7 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
     int_cal_trigger     <= ctrl_triggers(2);
     trigger_power_cycle <= ctrl_triggers(3);
     event_counter_rst   <= ctrl_triggers(4);
+    force_fsm_idle      <= ctrl_triggers(5);
 
     -- Debug
     trigger_ack_timeout_out <= trigger_ack_timeout;
