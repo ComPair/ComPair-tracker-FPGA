@@ -1,0 +1,10 @@
+
+
+OPTION psf_version = 2.1;
+
+BEGIN DRIVER sync_vata_distn
+	OPTION supported_peripherals = (sync_vata_distn);
+	OPTION copyfiles = all;
+	OPTION VERSION = 1.0;
+	OPTION NAME = sync_vata_distn;
+END DRIVER
