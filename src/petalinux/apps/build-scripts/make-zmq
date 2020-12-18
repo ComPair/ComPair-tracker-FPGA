@@ -7,17 +7,17 @@ ZMQ_SRCDIR=zeromq-${ZMQ_VERSION}
 ZMQ_TARBALL=${ZMQ_SRCDIR}.tar.gz
 
 if [ -z "$1" ]; then 
-    echo "Usage: $0 ZYNQ-IP-ADDR"
+    echo "Usage: $0 ZYNQIP"
     exit 1
 fi
 
 IP_ADDR=$1
 
-if ! ping -c 1 -w 1 $IP_ADDR 1>/dev/null; then
-    echo "Could not ping $IP_ADDR"
-    echo "Check SILAYER_IP in Makefile"
-    exit 2 
-fi
+# if ! ping -c 1 -w 1 $IP_ADDR 1>/dev/null; then
+#     echo "Could not ping $IP_ADDR"
+#     echo "Check SILAYER_IP in Makefile"
+#     exit 2 
+# fi
 SILAYER=root@${IP_ADDR} 
 
 wget https://github.com/zeromq/libzmq/releases/download/v${ZMQ_VERSION}/zeromq-${ZMQ_VERSION}.tar.gz 1>/dev/null 2>/dev/null

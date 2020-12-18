@@ -80,9 +80,9 @@ sdk configapp -app  zynq_fsbl -set compiler-optimization {Optimize for size (-Os
 
 
 # # ##################      Linux Applications
-# createbsp -name bsp_petalinux -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
-# updatemss -mss [file normalize $sdk_ws_dir/bsp_petalinux/system.mss]
-# regenbsp -bsp bsp_petalinux
+ createbsp -name bsp_petalinux -proc [get_processor_name hw_0] -hwproject hw_0 -os standalone
+ updatemss -mss [file normalize $sdk_ws_dir/bsp_petalinux/system.mss]
+ regenbsp -bsp bsp_petalinux
 
 # sdk createapp -name calctrl -app "Empty Application" -proc ps7_cortexa9 -hwproject hw_0 -os linux -bsp bsp_petalinux -lang c++
 # puts "${PROJECT_BASE}/src/sdk-apps/calctrl"

@@ -26,7 +26,7 @@ $(info **********)
 $(info BUILD not set)
 $(info On Linux: export BUILD=dbe_production)
 $(info On Windows: set BUILD=dbe_production)
-$(info Valid BUILD options = {dbe_production, dbe_production, breakout})
+$(info Valid BUILD options = {dbe_production, dbe_reva_production, breakout})
 $(info **********)
 $(error Error: Need to set BUILD in environment.)
 endif
