@@ -910,12 +910,9 @@ begin
         vata_i1 <= '0'; vata_i3 <= '0'; vata_i4 <= '0'; vata_s_latch <= '0';
         data_tvalid <= '0'; data_tlast <= '0'; data_tdata <= (others => '0');
         event_id_clr <= '0';
-        vata_hit <= '0'; vata_busy <= '1';
         case (current_state) is
             when IDLE =>
                 vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= "010"; vata_s_latch <= '0';
-                vata_busy <= '0';
-                vata_hit <= not vata_o6;
             ---- Set config states---------------------------------------------------------------------------
             when SC_SET_MODE_M1 =>
                 vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= "000"; vata_s_latch <= '0';
@@ -1110,6 +1107,19 @@ begin
                 vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '0'; vata_mode <= vata_mode; vata_s_latch <= '0';
         end case;
     end process;
+
+
+    process (current_state, vata_o6)
+    begin
+        if current_state = IDLE then
+            vata_busy <= '0';
+            vata_hit <= not vata_o6;
+        else
+            vata_hit <= '0';
+            vata_busy <= '1';
+        end if;
+    end process;
+
 
     process (rst_n, clk_100MHz)
     begin
