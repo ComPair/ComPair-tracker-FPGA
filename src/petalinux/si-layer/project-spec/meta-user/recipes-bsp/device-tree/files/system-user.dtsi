@@ -68,6 +68,8 @@
         gpio-controller;
         #gpio-cells = <2>;
         reg = <0x20>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pull_up_mux>;
 		pull_up_mux: pinmux@2 {
 			pins = "gpio0", "gpio1", "gpio2", "gpio3","gpio4", "gpio5", "gpio6", "gpio7";
 			bias-pull-up;
