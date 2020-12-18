@@ -1,4 +1,71 @@
 #!/bin/sh
+i2cset -y 0 0x20 0x01 0xCF #hex(0b11001111), set LED and EEPROM CS to outputs, leave gbp4/5 as inputs
+i2cset -y 0 0x20 0x0C 0xFF #Set port A to use 100k pull-ups
+
+offset=890
+flash_delay=0.25
+for ((i=0; i<14; i++)) ; do
+   this_pin=$((offset+i))
+   echo "Setting up pin $this_pin" 
+   echo $this_pin > /sys/class/gpio/export
+done
+
+for ((i=0; i<8; i++)) ; do
+   this_pin=$((offset+i))
+   echo "Setting $this_pin to IN" 
+   echo in > /sys/class/gpio/gpio$this_pin/direction
+   echo 1 > /sys/class/gpio/gpio$this_pin/active_low
+done
+
+for ((i=8; i<14; i++)) ; do
+   this_pin=$((offset+i))
+   echo "Setting $this_pin to OUT" 
+   echo out > /sys/class/gpio/gpio$this_pin/direction
+done
+
+
+for ((i=8; i<14; i++)) ; do
+   this_pin=$((offset+i))
+   echo "Setting pin $this_pin low" 
+   echo 0 > /sys/class/gpio/gpio$this_pin/value
+done
+
+for ((i=8; i<12; i++)) ; do
+   echo 1 > /sys/class/gpio/gpio$((offset+i))/value
+done
+sleep $flash_delay
+for ((i=8; i<12; i++)) ; do
+   echo 0 > /sys/class/gpio/gpio$((offset+i))/value
+done
+sleep $flash_delay
+for ((i=8; i<12; i++)) ; do
+   echo 1 > /sys/class/gpio/gpio$((offset+i))/value
+done
+sleep $flash_delay
+for ((i=8; i<12; i++)) ; do
+   echo 0 > /sys/class/gpio/gpio$((offset+i))/value
+done
+sleep $flash_delay
+for ((i=8; i<12; i++)) ; do
+   echo 1 > /sys/class/gpio/gpio$((offset+i))/value
+done
+sleep $flash_delay
+for ((i=0; i<4; i++)) ; do
+   #echo 0 > /sys/class/gpio/gpio$((offset+11-i))/value
+   echo 0 > /sys/class/gpio/gpio$((offset+8+i))/value
+   sleep $flash_delay
+done
+
+dip_switches=0
+for ((i=0; i<8; i++)) ; do
+  this_sw=$(cat /sys/class/gpio/gpio$((offset+i))/value)
+  echo "DIP$i = $this_sw"
+  dip_switches=$((dip_switches+this_sw*2**i))
+done
+echo "Value = $dip_switches"
+
+
+<<COMMENT1
 echo 887 > /sys/class/gpio/export
 echo 888 > /sys/class/gpio/export
 echo 889 > /sys/class/gpio/export
@@ -61,3 +128,4 @@ echo 0 > /sys/class/gpio/gpio899/value #IIC-gpb4
 echo 0 > /sys/class/gpio/gpio900/value #IIC-gpb5
 echo 0 > /sys/class/gpio/gpio901/value #IIC-A-eeprom-csn
 echo 0 > /sys/class/gpio/gpio902/value #IIC-B-eeprom-csn
+COMMENT1
