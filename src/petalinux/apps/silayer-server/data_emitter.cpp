@@ -40,7 +40,6 @@ bool DataEmitter::start_received(zmq::message_t &msg) {
 }
 
 void DataEmitter::send_data(DataPacket &data_packet) {
-    data_packet.set_asic_flags();
     u16 packet_size = data_packet.get_packet_size();
     zmq::message_t response(packet_size);
     data_packet.to_msg(packet_size, (char *)response.data());
@@ -56,16 +55,14 @@ void DataEmitter::read_fifo(int i) {
         // Packet was read!
         // Check event id (first element in buffer)
         long int current_event_id = (long int)data_buffer[0];
+        //std::cout << "I: Full packet read from VATA " << i << std::endl
+        //          << " > event-id: " << current_event_id << std::endl;
         if (packets.find(current_event_id) == packets.end()) {
             // New event_id encountered. Insert into the map.
             // First check that we aren't holding onto too many stale packets...
-            if (packets.size() > MAX_PACKET_MAP_SIZE) {
-#               ifdef SEND_PARTIAL_PACKETS
-                    send_then_erase_old_packets();
-#               else
-                    erase_old_packets();
-#               endif
-            }
+            if (packets.size() > MAX_PACKET_MAP_SIZE)
+                erase_old_packets();
+            //std::cout << " > Inserting new packet into packet map." << std::endl;
             packets.insert({current_event_id, new DataPacket()});
         }
         DataPacket *packet = packets[current_event_id];
@@ -75,6 +72,7 @@ void DataEmitter::read_fifo(int i) {
         }
         if (packet->is_done()) {
             // Send packet and delete from packet map.
+            //std::cout << "I: sending complete packet for event: " << current_event_id << std::endl;
             send_data(*packet);
             packets.erase(current_event_id);
             delete packet;
@@ -129,21 +127,6 @@ void DataEmitter::erase_old_packets() {
         DataPacket *packet = it->second;
         if ((current_time - packet->packet_time) > timeout) {
             std::cout << "Timeout for packet " << packet->event_id << ". Removing." << std::endl;
-            packets.erase(it->first);
-            delete packet;
-        }
-    }
-}
-
-void DataEmitter::send_then_erase_old_packets() {
-    auto dtn = std::chrono::high_resolution_clock::now().time_since_epoch();
-    u64 current_time = std::chrono::duration_cast<std::chrono::nanoseconds>(dtn).count();
-    u64 timeout = 1000000 * PACKET_REMOVE_TIMEOUT_MS;
-    for (std::map<long int, DataPacket*>::iterator it=packets.begin(); it != packets.end(); it++) {
-        DataPacket *packet = it->second;
-        if ((current_time - packet->packet_time) > timeout) {
-            std::cout << "Timeout for packet " << packet->event_id << ". Sending." << std::endl;
-            send_data(*packet);
             packets.erase(it->first);
             delete packet;
         }
