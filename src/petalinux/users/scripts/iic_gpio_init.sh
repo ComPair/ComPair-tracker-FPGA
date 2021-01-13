@@ -1,6 +1,5 @@
 #!/bin/sh
-i2cset -y 0 0x20 0x01 0xCF #hex(0b11001111), set LED and EEPROM CS to outputs, leave gbp4/5 as inputs
-i2cset -y 0 0x20 0x0C 0xFF #Set port A to use 100k pull-ups
+#i2cset -y 0 0x20 0x01 0xCF #hex(0b11001111), set LED and EEPROM CS to outputs, leave gbp4/5 as inputs
 
 offset=890
 flash_delay=0.25
