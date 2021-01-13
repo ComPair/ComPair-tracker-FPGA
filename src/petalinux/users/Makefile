@@ -1,4 +1,4 @@
-SILAYER_IP = $(ZYNQ-IP-ADDR) #10.10.0.11
+SILAYER_IP = $(ZYNQIP) #10.10.0.11
 
 all: server
 
