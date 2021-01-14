@@ -54,6 +54,7 @@ entity vata_460p3_axi_interface_v3_0 is
         trigger_ack_timeout_state : out std_logic_vector(3 downto 0);
         trigger_ack_timeout_out   : out std_logic_vector(31 downto 0);
         vata_hits_rising_edge_out : out std_logic_vector(1 downto 0);
+        local_vata_trigger_ena_out : out std_logic_vector(11 downto 0);  
         -- User ports ends
         -- Do not modify the ports beyond this line
 
@@ -371,7 +372,7 @@ vata_460p3_axi_interface_v3_0_S00_AXI_inst : vata_460p3_axi_interface_v3_0_S00_A
 
     -- Debug
     trigger_ack_timeout_out <= trigger_ack_timeout;
-
+    local_vata_trigger_ena_out <= local_vata_trigger_ena;
     -- User logic ends
 
 end arch_imp;
