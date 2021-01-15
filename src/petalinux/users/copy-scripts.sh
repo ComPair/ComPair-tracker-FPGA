@@ -13,3 +13,4 @@ DEST_DIR=/home/root/
 ssh root@${IP_ADDR} "if [ ! -d ${DEST_DIR} ]; then mkdir -p ${DEST_DIR}; fi"
 scp -r scripts/ root@${IP_ADDR}:${DEST_DIR}
 scp -r scripts2/ root@${IP_ADDR}:${DEST_DIR}
+scp -r cfg/ root@${IP_ADDR}:${DEST_DIR}/config/
