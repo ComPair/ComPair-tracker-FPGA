@@ -36,8 +36,10 @@ entity sync_vata_distn_v1_0 is
         vata_hit_busy10    : in std_logic_vector(1 downto 0);
         vata_hit_busy11    : in std_logic_vector(1 downto 0);
         -- Concatenate hit signals to send back to individual vata's:
+        -- This is combined with and NOT FEE_BUSY
         vata_hits          : out std_logic_vector(11 downto 0);
-
+        -- Debugging port; same as above port but ignoring the FEE_busy 
+        vata_hits_noblock  : out std_logic_vector(11 downto 0);
         -- User ports ends
         -- Do not modify the ports beyond this line
 
@@ -279,19 +281,31 @@ begin
     vata_busy10 <= vata_hit_busy10(0);
     vata_busy11 <= vata_hit_busy11(0);
 
-    vata_hits(0)  <= vata_hit00;
-    vata_hits(1)  <= vata_hit01;
-    vata_hits(2)  <= vata_hit02;
-    vata_hits(3)  <= vata_hit03;
-    vata_hits(4)  <= vata_hit04;
-    vata_hits(5)  <= vata_hit05;
-    vata_hits(6)  <= vata_hit06;
-    vata_hits(7)  <= vata_hit07;
-    vata_hits(8)  <= vata_hit08;
-    vata_hits(9)  <= vata_hit09;
-    vata_hits(10) <= vata_hit10;
-    vata_hits(11) <= vata_hit11;
+    vata_hits(0)  <= vata_hit00 and not FEE_busy_buf;
+    vata_hits(1)  <= vata_hit01 and not FEE_busy_buf;
+    vata_hits(2)  <= vata_hit02 and not FEE_busy_buf;
+    vata_hits(3)  <= vata_hit03 and not FEE_busy_buf;
+    vata_hits(4)  <= vata_hit04 and not FEE_busy_buf;
+    vata_hits(5)  <= vata_hit05 and not FEE_busy_buf;
+    vata_hits(6)  <= vata_hit06 and not FEE_busy_buf;
+    vata_hits(7)  <= vata_hit07 and not FEE_busy_buf;
+    vata_hits(8)  <= vata_hit08 and not FEE_busy_buf;
+    vata_hits(9)  <= vata_hit09 and not FEE_busy_buf;
+    vata_hits(10) <= vata_hit10 and not FEE_busy_buf;
+    vata_hits(11) <= vata_hit11 and not FEE_busy_buf;
 
+    vata_hits_noblock(0)  <= vata_hit00;
+    vata_hits_noblock(1)  <= vata_hit01;
+    vata_hits_noblock(2)  <= vata_hit02;
+    vata_hits_noblock(3)  <= vata_hit03;
+    vata_hits_noblock(4)  <= vata_hit04;
+    vata_hits_noblock(5)  <= vata_hit05;
+    vata_hits_noblock(6)  <= vata_hit06;
+    vata_hits_noblock(7)  <= vata_hit07;
+    vata_hits_noblock(8)  <= vata_hit08;
+    vata_hits_noblock(9)  <= vata_hit09;
+    vata_hits_noblock(10) <= vata_hit10;
+    vata_hits_noblock(11) <= vata_hit11;
     -- User logic ends
 
 end arch_imp;
