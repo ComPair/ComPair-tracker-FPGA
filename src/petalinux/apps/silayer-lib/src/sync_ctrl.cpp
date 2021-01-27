@@ -8,6 +8,8 @@
 namespace sync_regoffs {
     int cmd = 0;
     int counter = 1;
+    int disable_hits = 3;
+    int global_enable = 4;
 };
 
 namespace sync_cmds {
@@ -59,8 +61,6 @@ int SyncCtrl::mmap_axi() {
 void SyncCtrl::counter_reset() {
     if (paxi == NULL)
         this->mmap_axi();
-    // Write the configuration settings...
-    //paxi[SYNC_CMD_REGOFF] = SYNC_COUNTER_RST_CMD;
     paxi[sync_regoffs::cmd] = sync_cmds::counter_rst;
 }
 
@@ -68,7 +68,6 @@ u64 SyncCtrl::get_counter() {
     if (paxi == NULL)
         this->mmap_axi();
     u64 *pcounter;
-    //pcounter = (u64*)(paxi + SYNC_COUNTER_REGOFF);
     pcounter = (u64*)(paxi + sync_regoffs::counter);
     return *pcounter;
 }
@@ -76,8 +75,66 @@ u64 SyncCtrl::get_counter() {
 void SyncCtrl::force_trigger() {
     if (paxi == NULL)
         this->mmap_axi();
-    //paxi[SYNC_CMD_REGOFF] = SYNC_FORCE_TRIGGER_CMD;
     paxi[sync_regoffs::cmd] = sync_cmds::force_trigger;
+}
+
+/* int asic_hit_disable(int asic)
+ * Disable a given asic from contributing hits.
+ * 0 <= asic <= N_VATA
+ * Return 0 on success, 1 if you chose a bad asic.
+ */
+int SyncCtrl::asic_hit_disable(int asic) {
+    if (asic < 0 || asic >= (int)N_VATA)
+        return 1;
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[sync_regoffs::disable_hits] &= ~(1 << asic);
+    return 0;
+}
+
+/* int asic_hit_enable(int asic)
+ * Enable a given asic to contribute hits.
+ * 0 <= asic <= N_VATA
+ * Return 0 on success, 1 if you chose a bad asic.
+ */
+int SyncCtrl::asic_hit_enable(int asic) {
+    if (asic < 0 || asic >= (int)N_VATA)
+        return 1;
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[sync_regoffs::disable_hits] |= 1 << asic;
+    return 0;
+}
+
+/* u32 get_asic_hit_disable_mask()
+ * Return the current asic hit mask.
+ */
+u32 SyncCtrl::get_asic_hit_disable_mask() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    return paxi[sync_regoffs::disable_hits];
+}
+
+// Enable the global hit bit
+void SyncCtrl::global_hit_enable() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[sync_regoffs::global_enable] = 1;
+}
+
+// Disable the global hit bit
+void SyncCtrl::global_hit_disable() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    paxi[sync_regoffs::global_enable] = 0;
+}
+
+// Return whether the global hit bit is enabled.
+bool SyncCtrl::is_global_hit_enabled() {
+    if (paxi == NULL)
+        this->mmap_axi();
+    u32 val = paxi[sync_regoffs::global_enable] & 0x1;
+    return val == 1;
 }
 
 // vim: set ts=4 sw=4 sts=4 et:

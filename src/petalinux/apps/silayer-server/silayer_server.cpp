@@ -914,12 +914,69 @@ int LayerServer::_sync_get_counter() {
     return 0;
 }
 
+int LayerServer::_sync_get_global_hit_enable() {
+    bool is_enabled = syncctrl.is_global_hit_enabled();
+    #ifdef VERBOSE
+    std::cout << "Sync global hit enabled: " << is_enabled << std::endl;
+    #endif
+    zmq::message_t response(sizeof(bool));
+    std::memcpy(response.data(), &is_enabled, sizeof(bool));
+    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
+int LayerServer::_sync_get_asic_hit_disable_mask() {
+    u32 hit_disable_mask = syncctrl.get_asic_hit_disable_mask();
+    zmq::message_t response(sizeof(u32));
+    std::memcpy(response.data(), &hit_disable_mask, sizeof(u32));
+    socket.send(response, zmq::send_flags::none);
+    return 0;
+}
+
+int LayerServer::_sync_set_asic_hit_enable(char* &cmd, int ena) {
+    int asic = _parse_positive_int(cmd);
+    if (asic < 0) {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: set-asic-hit-enable: Could not parse asic number." << std::endl;
+        #endif
+        return 1;
+    }
+
+    if (ena == 1) {
+        if (syncctrl.asic_hit_enable(asic) != 0) {
+            #ifdef VERBOSE
+            std::cerr << "ERROR: set-asic-hit-enable: Could not enable asic hit." << std::endl;
+            #endif
+            return 1;
+        }
+    } else if (ena == 0) {
+        if (syncctrl.asic_hit_disable(asic) != 0) {
+            #ifdef VERBOSE
+            std::cerr << "ERROR: set-asic-hit-disable: Could not disable asic hit." << std::endl;
+            #endif
+            return 1;
+        }
+    } else {
+        #ifdef VERBOSE
+        std::cerr << "ERROR: unexpected `ena` value." << std::endl;
+        #endif
+        return 1;
+    }
+    return 0;
+}
+
 /************************************
  * Process sync message
  * 
  * sync counter-reset
  * sync get-counter
  * sync force-trigger
+ * sync get-global-hit-ena
+ * sync global-hit-enable
+ * sync global-hit-disable
+ * sync asic-hit-enable N
+ * sync asic-hit-disable N
+ * sync get-asic-hit-disable-mask
  * Nothing else.
  ***********************************/
 int LayerServer::_process_sync_msg(char *msg) {
@@ -935,6 +992,30 @@ int LayerServer::_process_sync_msg(char *msg) {
         return 0;
     } else if (strncmp("force-trigger", cmd, 13) == 0) {
         syncctrl.force_trigger();
+    } else if (strncmp("get-global-hit-ena", cmd, 18) == 0) {
+        // Get and send off the global hit ena bit.
+        _sync_get_global_hit_enable();
+        return 0;
+    } else if (strncmp("global-hit-enable", cmd, 17) == 0) {
+        syncctrl.global_hit_enable();
+    } else if (strncmp("global-hit-disable", cmd, 18) == 0) {
+        syncctrl.global_hit_disable();
+    } else if (strncmp("asic-hit-enable", cmd, 15) == 0) {
+        if (_sync_set_asic_hit_enable(cmd, 1) != 0) {
+            const char retmsg[] = "error";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("asic-hit-disable", cmd, 16) == 0) {
+        if (_sync_set_asic_hit_enable(cmd, 0) != 0) {
+            const char retmsg[] = "error";
+            _send_msg(retmsg, sizeof(retmsg));
+            return 1;
+        }
+    } else if (strncmp("get-asic-hit-disable-mask", cmd, 25) == 0) {
+        // Get and send off the asic disable mask.
+        _sync_get_asic_hit_disable_mask();
+        return 0;
     } else {
         const char retmsg[] = "ERROR: unsupported sync command.";
         _send_msg(retmsg, sizeof(retmsg));
