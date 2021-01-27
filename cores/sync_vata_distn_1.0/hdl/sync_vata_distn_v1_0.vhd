@@ -112,7 +112,7 @@ architecture arch_imp of sync_vata_distn_v1_0 is
         port
             ( clk           : in std_logic
             ; rst_n         : in std_logic
-            ; counter_rst : in std_logic
+            ; counter_rst   : in std_logic
             ; counter       : out std_logic_vector(63 downto 0)
             );
     end component sync_vata_fsm;
@@ -165,40 +165,40 @@ architecture arch_imp of sync_vata_distn_v1_0 is
 
 begin
 
--- Instantiation of Axi Bus Interface S00_AXI
+    -- Instantiation of Axi Bus Interface S00_AXI
     sync_vata_distn_v1_0_S00_AXI_inst : sync_vata_distn_v1_0_S00_AXI
-    generic map
-        ( C_S_AXI_DATA_WIDTH  => C_S00_AXI_DATA_WIDTH
-        , C_S_AXI_ADDR_WIDTH  => C_S00_AXI_ADDR_WIDTH
-        )
-    port map 
-        ( counter        => counter_buf
-        , counter_rst    => global_counter_rst  
-        , force_trigger  => force_trigger
-        , disable_hits   => disable_hits
-        , global_hit_ena => global_hit_ena
-        , S_AXI_ACLK     => s00_axi_aclk
-        , S_AXI_ARESETN  => s00_axi_aresetn
-        , S_AXI_AWADDR   => s00_axi_awaddr
-        , S_AXI_AWPROT   => s00_axi_awprot
-        , S_AXI_AWVALID  => s00_axi_awvalid
-        , S_AXI_AWREADY  => s00_axi_awready
-        , S_AXI_WDATA    => s00_axi_wdata
-        , S_AXI_WSTRB    => s00_axi_wstrb
-        , S_AXI_WVALID   => s00_axi_wvalid
-        , S_AXI_WREADY   => s00_axi_wready
-        , S_AXI_BRESP    => s00_axi_bresp
-        , S_AXI_BVALID   => s00_axi_bvalid
-        , S_AXI_BREADY   => s00_axi_bready
-        , S_AXI_ARADDR   => s00_axi_araddr
-        , S_AXI_ARPROT   => s00_axi_arprot
-        , S_AXI_ARVALID  => s00_axi_arvalid
-        , S_AXI_ARREADY  => s00_axi_arready
-        , S_AXI_RDATA    => s00_axi_rdata
-        , S_AXI_RRESP    => s00_axi_rresp
-        , S_AXI_RVALID   => s00_axi_rvalid
-        , S_AXI_RREADY   => s00_axi_rready
-    );
+        generic map
+            ( C_S_AXI_DATA_WIDTH  => C_S00_AXI_DATA_WIDTH
+            , C_S_AXI_ADDR_WIDTH  => C_S00_AXI_ADDR_WIDTH
+            )
+        port map 
+            ( counter        => counter_buf
+            , counter_rst    => global_counter_rst  
+            , force_trigger  => force_trigger
+            , disable_hits   => disable_hits
+            , global_hit_ena => global_hit_ena
+            , S_AXI_ACLK     => s00_axi_aclk
+            , S_AXI_ARESETN  => s00_axi_aresetn
+            , S_AXI_AWADDR   => s00_axi_awaddr
+            , S_AXI_AWPROT   => s00_axi_awprot
+            , S_AXI_AWVALID  => s00_axi_awvalid
+            , S_AXI_AWREADY  => s00_axi_awready
+            , S_AXI_WDATA    => s00_axi_wdata
+            , S_AXI_WSTRB    => s00_axi_wstrb
+            , S_AXI_WVALID   => s00_axi_wvalid
+            , S_AXI_WREADY   => s00_axi_wready
+            , S_AXI_BRESP    => s00_axi_bresp
+            , S_AXI_BVALID   => s00_axi_bvalid
+            , S_AXI_BREADY   => s00_axi_bready
+            , S_AXI_ARADDR   => s00_axi_araddr
+            , S_AXI_ARPROT   => s00_axi_arprot
+            , S_AXI_ARVALID  => s00_axi_arvalid
+            , S_AXI_ARREADY  => s00_axi_arready
+            , S_AXI_RDATA    => s00_axi_rdata
+            , S_AXI_RRESP    => s00_axi_rresp
+            , S_AXI_RVALID   => s00_axi_rvalid
+            , S_AXI_RREADY   => s00_axi_rready
+            );
     
     sync_vata_fsm_inst : sync_vata_fsm
         port map
@@ -244,6 +244,20 @@ begin
                       or vata_hit11
            , data_out => FEE_sideB_hit
            );
+
+    --    create 50ns long pulse for FEE_ready based of `not FEE_busy`
+    fee_ready_stay_high_inst : stay_high_n_cycles
+        generic map
+            ( N_CYCLES_WIDTH => 4
+            , N_CYCLES       => 5
+            ) 
+        port map
+            ( clk      => s00_axi_aclk
+            , rst_n    => s00_axi_aresetn
+            , data_in  => not FEE_busy_buf
+            , data_out => FEE_ready
+            );
+
     -- XXX Does FEE_busy need to use the `global_hit_ena`?
     FEE_busy_buf <= vata_busy00
                  or vata_busy01
@@ -258,18 +272,6 @@ begin
                  or vata_busy10
                  or vata_busy11;
     FEE_busy <= FEE_busy_buf;
-    --    create 50ns long pulse for FEE_ready based of `not FEE_busy`
-    fee_ready_stay_high_inst : stay_high_n_cycles
-        generic map
-            ( N_CYCLES_WIDTH => 4
-            , N_CYCLES       => 5
-            ) 
-        port map
-            ( clk      => s00_axi_aclk
-            , rst_n    => s00_axi_aresetn
-            , data_in  => not FEE_busy_buf
-            , data_out => FEE_ready
-            );
 
     global_counter     <= counter_buf;
     global_counter_rst <= counter_rst_buf;
@@ -313,18 +315,19 @@ begin
     vata_hits(10) <= vata_hit10 and not FEE_busy_buf;
     vata_hits(11) <= vata_hit11 and not FEE_busy_buf;
 
-    vata_hits_noblock(0)  <= vata_hit00;
-    vata_hits_noblock(1)  <= vata_hit01;
-    vata_hits_noblock(2)  <= vata_hit02;
-    vata_hits_noblock(3)  <= vata_hit03;
-    vata_hits_noblock(4)  <= vata_hit04;
-    vata_hits_noblock(5)  <= vata_hit05;
-    vata_hits_noblock(6)  <= vata_hit06;
-    vata_hits_noblock(7)  <= vata_hit07;
-    vata_hits_noblock(8)  <= vata_hit08;
-    vata_hits_noblock(9)  <= vata_hit09;
-    vata_hits_noblock(10) <= vata_hit10;
-    vata_hits_noblock(11) <= vata_hit11;
+    -- Debugging --
+    vata_hits_noblock(0)  <= vata_hit_busy00(1);
+    vata_hits_noblock(1)  <= vata_hit_busy01(1);
+    vata_hits_noblock(2)  <= vata_hit_busy02(1);
+    vata_hits_noblock(3)  <= vata_hit_busy03(1);
+    vata_hits_noblock(4)  <= vata_hit_busy04(1);
+    vata_hits_noblock(5)  <= vata_hit_busy05(1);
+    vata_hits_noblock(6)  <= vata_hit_busy06(1);
+    vata_hits_noblock(7)  <= vata_hit_busy07(1);
+    vata_hits_noblock(8)  <= vata_hit_busy08(1);
+    vata_hits_noblock(9)  <= vata_hit_busy09(1);
+    vata_hits_noblock(10) <= vata_hit_busy10(1);
+    vata_hits_noblock(11) <= vata_hit_busy11(1);
     -- User logic ends
 
 end arch_imp;
