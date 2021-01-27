@@ -88,7 +88,7 @@ int SyncCtrl::asic_hit_disable(int asic) {
         return 1;
     if (paxi == NULL)
         this->mmap_axi();
-    paxi[sync_regoffs::disable_hits] &= ~(1 << asic);
+    paxi[sync_regoffs::disable_hits] |= 1 << asic;
     return 0;
 }
 
@@ -102,7 +102,7 @@ int SyncCtrl::asic_hit_enable(int asic) {
         return 1;
     if (paxi == NULL)
         this->mmap_axi();
-    paxi[sync_regoffs::disable_hits] |= 1 << asic;
+    paxi[sync_regoffs::disable_hits] &= ~(1 << asic);
     return 0;
 }
 
