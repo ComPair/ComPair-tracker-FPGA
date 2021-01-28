@@ -1170,6 +1170,8 @@ int LayerServer::_process_vata_msg(char *msg) {
         _clear_fifo(nvata);
     } else if (strncmp("fsm-idle", cmd, 8) == 0) {
         _fsm_idle(nvata);
+        const char retmsg[] = "ok";
+        _send_msg(retmsg, sizeof(retmsg));
     } else {
         #ifdef VERBOSE
         std::cerr << "Could not parse command: " << cmd << std::endl;    
@@ -1180,7 +1182,6 @@ int LayerServer::_process_vata_msg(char *msg) {
     }
     // The above vata commands send a response.
     // No need to send one here.
-
     return 0;
 }
 
