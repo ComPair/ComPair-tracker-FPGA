@@ -1,1 +1,12 @@
 project-spec/hw-description/
+images/linux/
+.petalinux/*
+!.petalinux/metadata
+*.o
+*.jou
+*.log
+.metadata/
+meta-plnx-generated/
+.Xil/
+build/
+components/
