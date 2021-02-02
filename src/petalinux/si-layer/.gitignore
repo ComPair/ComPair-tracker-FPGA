@@ -10,3 +10,4 @@ meta-plnx-generated/
 .Xil/
 build/
 components/
+pre-built/
