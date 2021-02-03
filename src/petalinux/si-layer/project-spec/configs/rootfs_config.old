@@ -147,10 +147,10 @@ CONFIG_system-zynq=y
 #
 # i2c-tools 
 #
-# CONFIG_i2c-tools is not set
-# CONFIG_i2c-tools-dev is not set
+CONFIG_i2c-tools=y
+CONFIG_i2c-tools-dev=y
 # CONFIG_i2c-tools-dbg is not set
-# CONFIG_i2c-tools-misc is not set
+CONFIG_i2c-tools-misc=y
 
 #
 # init-ifupdown 
@@ -432,7 +432,7 @@ CONFIG_canutils=y
 #
 # ethtool 
 #
-# CONFIG_ethtool is not set
+CONFIG_ethtool=y
 # CONFIG_ethtool-dbg is not set
 # CONFIG_ethtool-dev is not set
 
@@ -578,7 +578,7 @@ CONFIG_openssh-sftp-server=y
 #
 CONFIG_bash-completion=y
 # CONFIG_bash-completion-dev is not set
-# CONFIG_bash-completion-extra is not set
+CONFIG_bash-completion-extra=y
 # CONFIG_bash-completion-dbg is not set
 
 #
@@ -734,7 +734,7 @@ CONFIG_sed=y
 #
 # setserial 
 #
-# CONFIG_setserial is not set
+CONFIG_setserial=y
 # CONFIG_setserial-dev is not set
 # CONFIG_setserial-dbg is not set
 
@@ -2241,7 +2241,7 @@ CONFIG_run-postinsts=y
 #
 # cpufrequtils 
 #
-# CONFIG_cpufrequtils is not set
+CONFIG_cpufrequtils=y
 # CONFIG_cpufrequtils-dev is not set
 # CONFIG_cpufrequtils-dbg is not set
 
@@ -2685,8 +2685,8 @@ CONFIG_packagegroup-core-ssh-dropbear=y
 #
 # perf 
 #
-# CONFIG_perf is not set
-# CONFIG_perf-tests is not set
+CONFIG_perf=y
+CONFIG_perf-tests=y
 # CONFIG_perf-python is not set
 # CONFIG_perf-dbg is not set
 # CONFIG_perf-dev is not set
@@ -4128,10 +4128,12 @@ CONFIG_imagefeature-hwcodecs=y
 #
 # CONFIG_gpio-demo is not set
 # CONFIG_peekpoke is not set
+# CONFIG_vatactrl is not set
 
 #
 # user packages 
 #
+# CONFIG_vata-ctrl is not set
 
 #
 # PetaLinux RootFS Settings
