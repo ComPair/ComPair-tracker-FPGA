@@ -69,6 +69,9 @@ class LayerServer {
         int _dac_set_counts(char* &cmd);
         int _dac_get_input();
         int _sync_get_counter();
+        int _sync_get_global_hit_enable();
+        int _sync_get_asic_hit_disable_mask();
+        int _sync_set_asic_hit_enable(char* &cmd, int ena);
 
         int _get_n_fifo(int nvata, char* &cmd);
         int _clear_fifo(int nvata);

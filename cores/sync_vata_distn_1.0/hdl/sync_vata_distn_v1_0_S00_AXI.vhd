@@ -15,9 +15,11 @@ entity sync_vata_distn_v1_0_S00_AXI is
     );
     port (
         -- Users to add ports here
-        counter       : in std_logic_vector(63 downto 0);
-        counter_rst   : out std_logic;
-        force_trigger : out std_logic;
+        counter        : in std_logic_vector(63 downto 0);
+        counter_rst    : out std_logic;
+        force_trigger  : out std_logic;
+        disable_hits   : out std_logic_vector(C_S_AXI_DATA_WIDTH-1 downto 0);
+        global_hit_ena : out std_logic;
 
         -- User ports ends
         -- Do not modify the ports beyond this line
@@ -88,18 +90,20 @@ end sync_vata_distn_v1_0_S00_AXI;
 architecture arch_imp of sync_vata_distn_v1_0_S00_AXI is
 
     component control_register_triggers is
-        generic ( AXI_DATA_WIDTH     : integer := 32
-                ; AXI_ADDR_WIDTH     : integer := 8
-                ; N_TRIGGERS         : integer := 16
-                ; AXI_AWADDR_CONTROL : integer := 0
-                );
-        port ( axi_aclk    : in std_logic
-             ; axi_aresetn : in std_logic
-             ; axi_awaddr  : in std_logic_vector(AXI_ADDR_WIDTH-1 downto 0)
-             ; axi_wdata   : in std_logic_vector(AXI_DATA_WIDTH-1 downto 0)
-             ; axi_wready  : in std_logic
-             ; triggers    : out std_logic_vector(N_TRIGGERS-1 downto 0)
-         );
+        generic
+            ( AXI_DATA_WIDTH     : integer := 32
+            ; AXI_ADDR_WIDTH     : integer := 8
+            ; N_TRIGGERS         : integer := 16
+            ; AXI_AWADDR_CONTROL : integer := 0
+            );
+        port
+            ( axi_aclk    : in std_logic
+            ; axi_aresetn : in std_logic
+            ; axi_awaddr  : in std_logic_vector(AXI_ADDR_WIDTH-1 downto 0)
+            ; axi_wdata   : in std_logic_vector(AXI_DATA_WIDTH-1 downto 0)
+            ; axi_wready  : in std_logic
+            ; triggers    : out std_logic_vector(N_TRIGGERS-1 downto 0)
+            );
     end component control_register_triggers;
     constant N_CONTROL_TRIGGERS : integer := 2;
     signal control_triggers : std_logic_vector(N_CONTROL_TRIGGERS-1 downto 0);
@@ -460,21 +464,25 @@ begin
 
     -- Add user logic here
     control_register_triggers_inst : control_register_triggers
-        generic map ( AXI_DATA_WIDTH     => C_S_AXI_DATA_WIDTH
-                    , AXI_ADDR_WIDTH     => C_S_AXI_ADDR_WIDTH
-                    , N_TRIGGERS         => N_CONTROL_TRIGGERS
-                    , AXI_AWADDR_CONTROL => 0
-                    )
-        port map ( axi_aclk    => S_AXI_ACLK
-                 , axi_aresetn => S_AXI_ARESETN 
-                 , axi_awaddr  => S_AXI_AWADDR 
-                 , axi_wdata   => S_AXI_WDATA
-                 , axi_wready  => axi_wready
-                 , triggers    => control_triggers
-                 );
+        generic map
+            ( AXI_DATA_WIDTH     => C_S_AXI_DATA_WIDTH
+            , AXI_ADDR_WIDTH     => C_S_AXI_ADDR_WIDTH
+            , N_TRIGGERS         => N_CONTROL_TRIGGERS
+            , AXI_AWADDR_CONTROL => 0
+            )
+        port map
+            ( axi_aclk    => S_AXI_ACLK
+            , axi_aresetn => S_AXI_ARESETN 
+            , axi_awaddr  => S_AXI_AWADDR 
+            , axi_wdata   => S_AXI_WDATA
+            , axi_wready  => axi_wready
+            , triggers    => control_triggers
+            );
 
-    counter_rst   <= control_triggers(0);
-    force_trigger <= control_triggers(1);
+    counter_rst    <= control_triggers(0);
+    force_trigger  <= control_triggers(1);
+    disable_hits   <= slv_reg3;
+    global_hit_ena <= slv_reg4(0);
 
     -- User logic ends
 

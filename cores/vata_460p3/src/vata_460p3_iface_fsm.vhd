@@ -54,7 +54,7 @@ entity vata_460p3_iface_fsm is
                 trigger_acq_out         : out std_logic;
                 trigger_ack_timeout_counter : out std_logic_vector(31 downto 0);
                 trigger_ack_timeout_state   : out std_logic_vector(3 downto 0);
-                vata_hits_rising_edge_out   : out std_logic_vector(1 downto 0);
+                vata_hits_rising_edge_out   : out std_logic_vector(11 downto 0);
                 state_out             : out std_logic_vector(7 downto 0));
     end vata_460p3_iface_fsm;
 
@@ -1281,7 +1281,7 @@ begin
 
     -- DEBUG --
 
-    vata_hits_rising_edge_out <= vata_hits_rising_edge(1 downto 0);
+    vata_hits_rising_edge_out <= vata_hits_rising_edge;
 
     state_out          <= current_state;
     event_id_out_debug <= event_id_out;
