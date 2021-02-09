@@ -1,4 +1,5 @@
-project-spec/hw-description/
+project-spec/hw-description/*
+!project-spec/hw-description/.placeholder
 images/linux/
 .petalinux/*
 !.petalinux/metadata
