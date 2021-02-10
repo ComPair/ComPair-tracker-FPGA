@@ -1,0 +1,23 @@
+{signal: [
+  {node:'...r.t'},
+  {name:'MODE',wave:'x2.......2......|....2.............|.....2.',data:['M3','M4/M7','M5','M3','M7']},
+  {node:'.............a......b'},
+  {node:'..c..d.e.f...g.h.......i...j'},
+  {name:'I1',wave:'l....h.l.....hlhl|.hl..h.l.h.l.h.l.|.h.l...' },
+  {node:'.....p'},
+  {name:'I3',wave:'0........h...|.....................|.....l.',data:['Last bit','Last bit -1','Bit 1','Bit 0','Last bit','Last bit -1', 'Bit 1', 'Bit 0']},
+  {node:'.........k..l'},
+  {name:'I4',wave:'1...........l..|...................|.....h.'},
+  {node:'.................m...n'},
+  {name:'O5',wave:'.l.............|...h.l.............|.h.l...',data:['Last bit','Last bit -1','Bit 1','Bit 0','Last bit','Last bit -1','Bit 1','Bit 0']},
+  {node:'..o'},
+  {name:'O6',wave:'0.2.l......|...........2...2...2...l|2...l.',data:['Trigger','Start bit','Bit 1','Bit 2','Stop bit','Last bit -1','Bit 1','Bit 0']}
+],
+ head:{
+   text:'VATA460.3'
+ },
+ foot:{
+   text:'Figure 8: Timing diagram of a typical acquisition, conversion and read-out sequence'
+ },
+ edge:['a<->b Max 1024 Clock Pulses','c<->d Hold time','d<->e 350 ns','e<->f 150ns','f<->g 250 ns','g<->h 100 ns', 'i<->j 650 ns','k<->l 100 ns','mn Conversion done pulse','o->p'],
+}
