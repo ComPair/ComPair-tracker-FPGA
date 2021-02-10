@@ -39,28 +39,22 @@ rm -r $SETUPTOOLS_SRCDIR
 
 
 #echo "Installing supervisor..."
-#wget https://files.pythonhosted.org/packages/11/35/eab03782aaf70d87303b21a67c345b953d3b59d4e3971a568c51e523f5c0/supervisor-4.2.1.tar.gz
-#SUPERVISOR_TARBALL=supervisor-4.2.1.tar.gz
-#SUPERVISOR_SRCDIR=supervisor-4.2.1
+wget https://files.pythonhosted.org/packages/11/35/eab03782aaf70d87303b21a67c345b953d3b59d4e3971a568c51e523f5c0/supervisor-4.2.1.tar.gz 1>/dev/null 2>/dev/null	
+SUPERVISOR_TARBALL=supervisor-4.2.1.tar.gz
+SUPERVISOR_SRCDIR=supervisor-4.2.1
 
-#if [ ! -f $SUPERVISOR_TARBALL ]; then
-#    echo "ERROR: supervisord tarball wasn't downloaded?"
-#    exit 3
-#fi
+if [ ! -f $SUPERVISOR_TARBALL ]; then
+    echo "ERROR: supervisord tarball wasn't downloaded?"
+    exit 3
+fi
 
-#tar -xvf $SUPERVISOR_TARBALL 1>/dev/null
-#scp -r $SUPERVISOR_SRCDIR ${SILAYER}:$DEST_DIR 1>/dev/null
+tar -xvf $SUPERVISOR_TARBALL 1>/dev/null
+scp -r $SUPERVISOR_SRCDIR ${SILAYER}:$DEST_DIR 1>/dev/null
 
-#ssh ${SILAYER} "cd ${DEST_DIR}/${SUPERVISOR_SRCDIR} && python3 setup.py install" 
+ssh ${SILAYER} "cd ${DEST_DIR}/${SUPERVISOR_SRCDIR} && python3 setup.py install" 
 
-## Now get zmq.hpp, v4.6.0 (latest version as of 3/12/2020)
-#wget https://raw.githubusercontent.com/zeromq/cppzmq/v4.6.0/zmq.hpp 1>/dev/null 2>/dev/null
+rm ${SUPERVISOR_TARBALL}
+rm -r ${SUPERVISOR_SRCDIR}
 
-#if [ ! -f "zmq.hpp" ]; then
-#    echo "ERROR: zmq.hpp was not downloaded"
-#    exit 4
-#fi
-#scp zmq.hpp ${SILAYER}:/home/root/local/include/
-#rm zmq.hpp
-
+echo "Done."
 ## vim: set ts=4 sw=4 sts=4 et:
