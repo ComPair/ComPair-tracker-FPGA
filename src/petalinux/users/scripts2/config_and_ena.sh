@@ -8,6 +8,7 @@ fi
 
 for i in $(eval echo {0..$1})
 do
+  echo ASIC $i
   vatactrl $i --set-config ~/zynq/config/pos_default.vcfg
   vatactrl $i --get-config ~/zynq/config/readback.vcfg
   diff ~/zynq/config/pos_default.vcfg ~/zynq/config/readback.vcfg
