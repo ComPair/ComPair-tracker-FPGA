@@ -19,7 +19,7 @@ LOGURU_PATH=/home/root/local/lib/libloguru.a
 
 if ! ssh root@${IP_ADDR} "ls $LOGURU_PATH >/dev/null 2>/dev/null"; then
     echo "==== Loguru dependency has not been installed. Installing now. ===="
-    ./make-loguru $IP_ADDR
+    ./make-loguru.sh $IP_ADDR
 fi
 
 echo "==== Copying server source to zynq ===="
