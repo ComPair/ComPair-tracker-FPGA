@@ -11,8 +11,8 @@ IP_ADDR=$1
 SILAYER=root@${IP_ADDR}
 
 d=$(date +"%Y-%m-%d")
-t=$(date +"%H:%M:%S" --utc)
 ssh ${SILAYER} "date --set ${d}" >/dev/null
+t=$(date +"%H:%M:%S" --utc)
 ssh ${SILAYER} "date --set ${t}" >/dev/null
 
 ## vim: set ts=4 sw=4 sts=4 et:
