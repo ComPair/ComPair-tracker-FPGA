@@ -1,0 +1,44 @@
+
+digraph data_acq_fsm {
+	rankdir=LR;
+	size="50,50"
+	node [shape = circle];
+	IDLE -> ACQ_DELAY [ label = "trigger_acq = '1'" ]
+	ACQ_DELAY -> ACQ_HOLD [ label = "counter > hold_time" ]
+	ACQ_DELAY -> ACQ_DELAY
+	ACQ_HOLD -> ACQ_LOWER_I1 [ label = "after 350ns" ]
+	ACQ_HOLD -> ACQ_HOLD
+	ACQ_LOWER_I1 -> ACQ_SET_MODE_M4 [ label = "after 20ns" ]
+	ACQ_LOWER_I1 -> ACQ_LOWER_I1 
+	ACQ_SET_MODE_M4 -> CONV_LATCH_M4
+	CONV_LATCH_M4 -> CONV_RAISE_I3
+	CONV_RAISE_I3 -> CONV_LOWER_I4 [ label = "after 100ns" ]
+	CONV_RAISE_I3 -> CONV_RAISE_I3
+	CONV_LOWER_I4 -> CONV_CLK_HI [ label = "after 150ns" ]
+	CONV_LOWER_I4 -> CONV_LOWER_I4
+	CONV_CLK_HI -> CONV_SET_MODE_M5 [ label = "after50 ns && vata_o5 = '1'"]
+	CONV_CLK_HI -> CONV_CLK_LO [ label = "after 50ns && vata_o5 = '0'"]
+	CONV_CLK_HI -> CONV_CLK_HI
+	CONV_CLK_LO -> CONV_CLK_HI [ label = "after 50ns" ]
+	CONV_CLK_LO -> CONV_CLK_LO
+	CONV_SET_MODE_M5 -> RO_LATCH_MODE_M5 [ label = "after 50ns" ]
+	CONV_SET_MODE_M5 -> CONV_SET_MODE_M5
+	RO_LATCH_MODE_M5 -> RO_CLK_HI [ label = "after 400ns" ]
+	RO_LATCH_MODE_M5 -> RO_LATCH_MODE_M5
+	RO_CLK_HI -> RO_READ_O6 [ label = "after 250ns" ]
+	RO_CLK_HI -> RO_CLK_HI
+	RO_READ_O6 -> RO_CLK_LO [ label ="after 80ns" ]
+	RO_READ_O6 -> RO_READ_O6
+	RO_CLK_LO -> RO_WFIFO [ label = "after 330ns && vata_o5='1' && reg_indx = 379" ]
+	RO_CLK_LO -> RO_SHIFT_DATA [ label = "after 330ns && vata_o5='1' && reg_indx != 379" ]
+	RO_CLK_LO -> RO_CLK_HI [ label = "after 330ns && vata_o5='0'" ]
+	RO_CLK_LO -> RO_CLK_LO
+	RO_SHIFT_DATA -> RO_WFIFO [ label = "reg_indx >= 379"]
+	RO_SHIFT_DATA -> RO_SHIFT_DATA
+	RO_WFIFO -> RO_SET_MODE_M3 [ label = "after 19 writes" ]
+	RO_WFIFO -> RO_WFIFO
+	RO_SET_MODE_M3 -> RO_LATCH_MODE_M3 [ label = "after 100ns" ]
+	RO_SET_MODE_M3 -> RO_SET_MODE_M3
+	RO_LATCH_MODE_M3 -> IDLE [ label = "after 100ns"]
+	RO_LATCH_MODE_M3 -> RO_LATCH_MODE_M3
+}
