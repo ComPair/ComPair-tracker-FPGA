@@ -11,6 +11,5 @@ When building, you first need to do a
 where `<build_type>` is the type of build you are doing. Current options are:
 
 - breakout : Trenz breakout board option
-- dbe_aliveness : DBE aliveness testbench 
 - dbe_production : DBE Rev- production 
 - dbe_reva_production : DBE RevA production 
