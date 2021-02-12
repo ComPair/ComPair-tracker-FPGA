@@ -23,6 +23,6 @@ lib: zynq-dirs
 
 ## This will scp over the bps headers.
 zynq-dirs:
-	cd build-scripts && ./make-zynq-dirs $(BUILD) $(SILAYER_IP)
+	cd build-scripts && ./make-zynq-dirs.sh $(BUILD) $(SILAYER_IP)
 
 .PHONY: zynq-dirs lib ctrl server

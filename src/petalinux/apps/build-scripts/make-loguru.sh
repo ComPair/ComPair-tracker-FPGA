@@ -13,7 +13,7 @@ fi
 IP_ADDR=$1
 SILAYER=root@${IP_ADDR} 
 
-wget https://github.com/emilk/loguru/archive/v${VERSION}.tar.gz
+wget https://github.com/emilk/loguru/archive/v${VERSION}.tar.gz --no-check-certificate
 
 if [ ! -f $TARBALL ]; then
     echo "ERROR: loguru tarball wasn't downloaded?"
