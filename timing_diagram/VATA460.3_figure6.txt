@@ -1,0 +1,17 @@
+{signal: [
+  {node:'.a.b'},
+  {node:'...c.d'},
+  {name:'MODE',wave:'x..2...2...2...2...2...2...2...',data:['M1','M2','M3','M4','M5','M6','M7']},
+  {name:'S_LATCH',wave:'l..h.l.h.l.h.l.h.l.h.l.h.l.h.l.' },
+  {name:'S0',wave:'.l....h...l...h...l...h...l....'},
+  {name:'S1',wave:'.l........h.......l.......h....'},
+  {name:'S2',wave:'.l................h...........l'}
+],
+ head:{
+   text:'VATA460.3'
+ },
+ foot:{
+   text:'Figure 6: Timing diagram for Interface IO'
+ },
+ edge:['a<->b 100ns','c<->d 100ns'],
+}

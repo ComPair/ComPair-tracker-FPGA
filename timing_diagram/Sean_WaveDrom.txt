@@ -1,0 +1,24 @@
+{signal: [
+    {name: 'mode',wave: 'x2.........2........2.................2....', data: ['M3', 'M4', 'M5', 'M3']},    
+ {name: 'FEE_hit', wave: '0.1.0...'},
+ {name: 'fast_OR', wave: '0..1.0..'},
+ {name: 'delay_ck', wave: '0...p.|..'},
+
+ {name: 'delay_start', wave: '0...10..', node:'....a'},
+ {name: 'hold', wave: '0........10', node:'.........b'},
+ {name: 'conversion_done', wave: 'xl...............|1.0'},
+ {name: 'T_ACK', wave: '0....|....'},
+
+ {node: '.............e.g...f'},
+ {name: 'i1', wave: '0........10..hlhl|hl', node:'.............p.....f' },
+
+ {name: 'i3', wave: '0..........1.................', node:'...........c'},
+ {name: 'i4', wave: '1............0.................', node:'.............d'},
+ {name: 'O5', wave: 'xl...............|1.0'},
+
+ {name: 'O6', wave: '0.2.0.................2...2...2..0|2..l', data: ['Trigger', 'Start bit', 'Bit 1', 'Bit 2', 'Stop bit']},
+
+],
+
+ edge: ['a~b 1.4us', 'c~d 100ns', 'p-f max 1024', 'e<->g 100ns']
+}
