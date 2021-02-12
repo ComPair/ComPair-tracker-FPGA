@@ -1,0 +1,18 @@
+{signal: [
+  {name:'MODE',wave:'x2..........|........2..........|........x.',data:['M1','M2','M3','M4','M5','M6','M7']},
+  {node:'..a...............b'},
+  {node:'..c.d.e'},
+  {name:'I1',wave:'l.h.l.h.l.|.h.l.h.l....h.l.h.l.|.h.l.h.l...' },
+  {name:'I3',wave:'05..5...l.|5..5...l...5..5...l.|5..5...l...',data:['Last bit','Last bit -1','Bit 1','Bit 0','Last bit','Last bit -1', 'Bit 1', 'Bit 0']},
+  {name:'I4',wave:'.h........|..........l.....................'},
+  {node:'..f.................g'},
+  {name:'O5',wave:'0.2...2...l|2...2...l..2...2...l|2...2...l.',data:['Last bit','Last bit -1','Bit 1','Bit 0','Last bit','Last bit -1','Bit 1','Bit 0']}
+],
+ head:{
+   text:'VATA460.3'
+ },
+ foot:{
+   text:'Figure 7: Timing diagram for programing and read-back of config register'
+ },
+ edge:['a<->b Clock pulses = Number of configuration register bits','c<->d 10us','d<->e 10us','f<->g Previous configuration data'],
+}

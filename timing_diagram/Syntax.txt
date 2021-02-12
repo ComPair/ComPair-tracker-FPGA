@@ -1,0 +1,4 @@
+Notes: Glossary. 
+l : low 
+h : high 
+. : increases steps (extends)
