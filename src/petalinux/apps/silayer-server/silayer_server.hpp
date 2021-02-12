@@ -5,6 +5,7 @@
 //#define ZMQ_BUILD_DRAFT_API
 
 #include <zmq.hpp>
+#include <loguru.hpp>
 #include <string>
 #include <thread>
 

@@ -44,8 +44,6 @@ void DataEmitter::send_data(DataPacket &data_packet) {
     u16 packet_size = data_packet.get_packet_size();
     zmq::message_t response(packet_size);
     data_packet.to_msg(packet_size, (char *)response.data());
-    //std::cout << "XXX Sending data. Packet size: " << packet_size 
-    //          << ". Packet time: " << data_packet.packet_time << std::endl;
     emit_sock.send(response, zmq::send_flags::none);
 }
 
@@ -128,7 +126,7 @@ void DataEmitter::erase_old_packets() {
     for (std::map<long int, DataPacket*>::iterator it=packets.begin(); it != packets.end(); it++) {
         DataPacket *packet = it->second;
         if ((current_time - packet->packet_time) > timeout) {
-            std::cout << "Timeout for packet " << packet->event_id << ". Removing." << std::endl;
+            LOG_F(INFO, "Timeout for packet %lu. Removing.", packet->event_id);
             packets.erase(it->first);
             delete packet;
         }
@@ -142,7 +140,7 @@ void DataEmitter::send_then_erase_old_packets() {
     for (std::map<long int, DataPacket*>::iterator it=packets.begin(); it != packets.end(); it++) {
         DataPacket *packet = it->second;
         if ((current_time - packet->packet_time) > timeout) {
-            std::cout << "Timeout for packet " << packet->event_id << ". Sending." << std::endl;
+            LOG_F(INFO, "Timeout for packet %lu. Sending then removing.", packet->event_id);
             send_data(*packet);
             packets.erase(it->first);
             delete packet;
@@ -151,7 +149,7 @@ void DataEmitter::send_then_erase_old_packets() {
 }
 
 void DataEmitter::operator() () {
-    std::cout << "XXX Starting main data emitter loop" << std::endl;
+    LOG_F(INFO, "Starting main data emitter loop.");
     while (true) {
         zmq::message_t inproc_msg;
         if (running) {
@@ -169,22 +167,22 @@ void DataEmitter::operator() () {
             if (inproc_msg.size() > 0) {
                 // This if-clause only exists for showing the debug message.
                 std::string msg((char *)inproc_msg.data(), inproc_msg.size());
-                std::cout << "!!! Emitter thread received message: " <<  msg << std::endl;
+                LOG_F(INFO, "Emitter thread received message: %s", msg);
             }
         }
         
         // Process the inproc_msg. None of these are true with an empty msg.
         if (halt_received(inproc_msg)) {
             // we are shutting down. return.
-            std::cout << "!!! Emitter thread received halt message" << std::endl;
+            LOG_F(INFO, "Emitter thread received halt message. Exiting loop.");
             return;
         } else if (stop_received(inproc_msg)) {
             // Change state to running = false
-            std::cout << "!!! Emitter thread received stop message" << std::endl;
+            LOG_F(INFO, "Emitter thread received stop message. Setting running to false.");
             running = false;
         } else if (start_received(inproc_msg)) {
             // Change state to running = true
-            std::cout << "!!! Emitter thread received start message" << std::endl;
+            LOG_F(INFO, "Emitter thread received start message. Setting running to true.");
             running = true;
         }
         

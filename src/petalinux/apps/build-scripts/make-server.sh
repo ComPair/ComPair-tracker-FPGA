@@ -15,9 +15,21 @@ IP_ADDR=$1
 
 SERVER_DIR=$(pwd)/../silayer-server
 DEST_DIR=/home/root/zynq/src/
+LOGURU_PATH=/home/root/local/lib/libloguru.a
 
+if ! ssh root@${IP_ADDR} "ls $LOGURU_PATH >/dev/null 2>/dev/null"; then
+    echo "==== Loguru dependency has not been installed. Installing now. ===="
+    ./make-loguru.sh $IP_ADDR
+fi
+
+echo "==== Copying server source to zynq ===="
 ssh root@${IP_ADDR} "if [ ! -d ${DEST_DIR} ]; then mkdir -p ${DEST_DIR}; fi"
 scp -r ${SERVER_DIR} root@${IP_ADDR}:${DEST_DIR}
-ssh root@${IP_ADDR} "cd ${DEST_DIR}/silayer-server && make && make install"
+echo "==== Building server ===="
+ssh root@${IP_ADDR} << EOF
+    cd ${DEST_DIR}/silayer-server
+    make
+    make install
+EOF
 
 ## vim: set ts=4 sw=4 sts=4 et:
