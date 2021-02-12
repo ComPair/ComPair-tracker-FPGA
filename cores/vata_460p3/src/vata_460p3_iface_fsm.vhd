@@ -3,6 +3,10 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 entity vata_460p3_iface_fsm is
+        generic (
+            CONVERSION_MODE : std_logic_vector(2 downto 0) := "110" -- Use M7
+            --CONVERSION_MODE : std_logic_vector(2 downto 0) := "011" -- Use M4
+        );
         port (
                 clk_100MHz              : in std_logic; -- 10 ns
                 rst_n                   : in std_logic;
@@ -973,19 +977,19 @@ begin
             when ACQ_LOWER_I1 =>
                 vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= "010"; vata_s_latch <= '0';
             when ACQ_SET_MODE_M4 =>
-                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= "011"; vata_s_latch <= '0';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= CONVERSION_MODE; vata_s_latch <= '0';
             ----Data conversion modes------------------------------------------------------------------------
             when CONV_LATCH_M4 =>
                 -- i3 goes hi here in timing diagram
-                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= "011"; vata_s_latch <= '1';
+                vata_i1 <= '0'; vata_i3 <= '0'     ; vata_i4 <= '1'; vata_mode <= CONVERSION_MODE; vata_s_latch <= '1';
             when CONV_RAISE_I3 =>
-                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '1'; vata_mode <= "011"; vata_s_latch <= '1';
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '1'; vata_mode <= CONVERSION_MODE; vata_s_latch <= '1';
             when CONV_LOWER_I4 =>
-                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "011"; vata_s_latch <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= CONVERSION_MODE; vata_s_latch <= '0';
             when CONV_CLK_HI =>
-                vata_i1 <= '1'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "011"; vata_s_latch <= '0';
+                vata_i1 <= '1'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= CONVERSION_MODE; vata_s_latch <= '0';
             when CONV_CLK_LO =>
-                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "011"; vata_s_latch <= '0';
+                vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= CONVERSION_MODE; vata_s_latch <= '0';
             when CONV_SET_MODE_M5 =>
                 vata_i1 <= '0'; vata_i3 <= '1'     ; vata_i4 <= '0'; vata_mode <= "100"; vata_s_latch <= '0';
             ----Data readout states--------------------------------------------------------------------------
