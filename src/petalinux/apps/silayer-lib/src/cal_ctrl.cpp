@@ -4,6 +4,20 @@
 
 #include "cal_ctrl.hpp"
 
+namespace cal_defaults {
+    u32 pulse_width = 200;       // 2 us
+    u32 repetition_delay = 1000; // 1 ms
+};
+
+namespace cal_regoffs {
+    int enable        = 0;
+    int init          = 1;
+    int pulse_width   = 2;
+    int trigger_delay = 3;
+    int n_pulses      = 4;
+    int repeat_delay  = 5;
+};
+
 // There should be only a single calibrator.
 CalCtrl::CalCtrl() {
     axi_baseaddr = CAL_AXI_BASEADDR;
@@ -14,9 +28,13 @@ CalCtrl::CalCtrl() {
     vata_trigger_ena = false;
     vata_fast_or_disable = false;
     // Other default settings
-    cal_pulse_width = DEFAULT_CAL_PULSE_WIDTH;
+    cal_pulse_width = cal_defaults::pulse_width;
     vata_trigger_delay = 0;
-    repetition_delay = DEFAULT_REPETITION_DELAY;
+    repetition_delay = cal_defaults::repetition_delay;
+
+    mmap_axi();
+
+
 }
 
 // Destructor performs un-mmapping.
@@ -54,36 +72,32 @@ int CalCtrl::mmap_axi() {
 }
 
 void CalCtrl::write_settings() {
-    if (paxi == NULL)
-        this->mmap_axi();
     // Write the configuration settings...
-    paxi[CAL_ENA_REGOFF] = (u32)((vata_fast_or_disable << 2) | (vata_trigger_ena << 1) | cal_pulse_ena);
-    paxi[CAL_PULSE_WIDTH_REGOFF] = cal_pulse_width;
-    paxi[CAL_TRIGGER_DELAY_REGOFF] = vata_trigger_delay;
-    paxi[CAL_REPEAT_DELAY_REGOFF] = repetition_delay;
+    paxi[cal_regoffs::enable] = (u32)((vata_fast_or_disable << 2) | (vata_trigger_ena << 1) | cal_pulse_ena);
+    paxi[cal_regoffs::pulse_width] = cal_pulse_width;
+    paxi[cal_regoffs::trigger_delay] = vata_trigger_delay;
+    paxi[cal_regoffs::repeat_delay] = repetition_delay;
 }
 
 
 // Initiate specified number of calibration/trigger pulses.
 int CalCtrl::n_pulses(u32 n) {
     this->write_settings();
-    paxi[CAL_N_PULSES_REGOFF] = n;
-    paxi[CAL_INIT_REGOFF] = 1;
-    paxi[CAL_INIT_REGOFF] = 0;
+    paxi[cal_regoffs::n_pulses] = n;
+    paxi[cal_regoffs::init] = 1;
+    paxi[cal_regoffs::init] = 0;
     return 0;
 }
 
 int CalCtrl::start_inf_pulses() {
     this->write_settings();
-    paxi[CAL_N_PULSES_REGOFF] = 0;
-    paxi[CAL_INIT_REGOFF] = 1;
+    paxi[cal_regoffs::n_pulses] = 0;
+    paxi[cal_regoffs::init] = 1;
     return 0;
 }
 
 int CalCtrl::stop_inf_pulses() {
-    if (paxi == NULL)
-        this->mmap_axi();
-    paxi[CAL_INIT_REGOFF] = 0;
+    paxi[cal_regoffs::init] = 0;
     return 0;
 }
 

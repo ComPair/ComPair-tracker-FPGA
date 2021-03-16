@@ -416,6 +416,7 @@ int LayerServer::_cal_pulse_ena(char* &cmd) {
         LOG_F(ERROR, "Pulse enable setting: %d. Must be 0 or 1.", pulse_ena);
         return 1;
     }
+    calctrl.write_settings();
     return 0;
 }
 
@@ -435,6 +436,7 @@ int LayerServer::_cal_trigger_ena(char* &cmd) {
         LOG_F(ERROR, "calctrl vata trigger enable setting: %d. Must be 0 or 1.", trigger_ena);
         return 1;
     }
+    calctrl.write_settings();
     return 0;
 }
 
@@ -454,6 +456,7 @@ int LayerServer::_cal_fast_or_disable(char* &cmd) {
         LOG_F(ERROR, "calctrl fast-or disable setting: %d. Must be 0 or 1.", fast_or_dis);
         return 1;
     }
+    calctrl.write_settings();
     return 0;
 }
 
@@ -465,6 +468,7 @@ int LayerServer::_cal_pulse_width(char* &cmd) {
     }
     LOG_F(INFO, "Setting calctrl.cal_pulse_width to %d", pulse_width);
     calctrl.cal_pulse_width = (u32)pulse_width;
+    calctrl.write_settings();
     return 0;
 }
 
@@ -476,6 +480,7 @@ int LayerServer::_cal_trigger_delay(char* &cmd) {
     }
     LOG_F(INFO, "Setting calctrl.vata_trigger_delay to %d", trigger_delay);
     calctrl.vata_trigger_delay = (u32)trigger_delay;
+    calctrl.write_settings();
     return 0;
 }
 
@@ -487,6 +492,7 @@ int LayerServer::_cal_repeat_delay(char* &cmd) {
     }
     LOG_F(INFO, "Setting calctrl.repetition_delay to %d", repeat_delay);
     calctrl.repetition_delay = (u32)repeat_delay;
+    calctrl.write_settings();
     return 0;
 }
 
@@ -694,7 +700,7 @@ int LayerServer::_process_cal_msg(char *msg) {
 /* Set the delay value from the command string.
  *  Returns 0 on success.
  *  Returns 1 if we could not parse the command.
- *  Returns 2 ifdac value is out of range.
+ *  Returns 2 if dac value is out of range.
  */
 int LayerServer::_dac_set_delay(char* &cmd) {
     char *delay_str = strtok(NULL, " ");
@@ -949,9 +955,11 @@ int LayerServer::_process_sync_msg(char *msg) {
 
 /* 
  * Process a vata message
- * Messages have the form `vata VATA cmd [ARGS]`
+ * Messages have the form `vata VATA CMD [ARGS]`
+ *     VATA: integer. Specifies which asic the command targets.
+ *     CMD: string. Which command to run.
+ *     ARGS: space-separated parameters. Present if the given `CMD` requires arguments.
  */
- 
 int LayerServer::_process_vata_msg(char *msg) {
     LOG_F(INFO, "Processing vata message: %s", msg);
     // Initialize strtok...
@@ -973,7 +981,6 @@ int LayerServer::_process_vata_msg(char *msg) {
         return 1;
     }
     // Now move on the the command
-    //cmd = strtok(cmd, " ");
     cmd = strtok(NULL, " ");
     if (cmd == NULL) {
         LOG_F(ERROR, "No command provided?");
