@@ -15,4 +15,4 @@ scp -r scripts/ root@${IP_ADDR}:${DEST_DIR}
 scp -r scripts2/ root@${IP_ADDR}:${DEST_DIR}
 scp -r cfg/ root@${IP_ADDR}:${DEST_DIR}/zynq/config/
 scp -r lucas/profile.d/* root@${IP_ADDR}:/etc/profile.d/
-
+scp -r sean/profile.d/* root@${IP_ADDR}:/etc/profile.d/
