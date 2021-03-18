@@ -4,6 +4,28 @@
 #include <cstring>
 #include "dac_ctrl.hpp"
 
+// AXI register offsets for DAC peripheral.
+namespace dac_regoffs {
+    int input  = 0;
+    int delay  = 1;
+    int select = 2;
+    int write  = 3;
+};
+
+// DAC select masks
+namespace dac_select_masks {
+    u32 a_cal = 1 << 0;  //0b0001
+    u32 a_vth = 1 << 1;  //0b0010
+    u32 b_cal = 1 << 2;  //0b0100
+    u32 b_vth = 1 << 3;  //0b1000
+}
+
+// Value limits for user-provided dac parameters
+namespace dac_max_values {
+    u32 input = 4095;
+    u32 delay = 65535;
+}
+
 int parse_silayer_side(char *silayer_side_str, enum SilayerSide *silayer_side) {
     if (strncmp("A", silayer_side_str, 1) == 0) {
         *silayer_side = SideA;
@@ -43,6 +65,7 @@ DacCtrl::DacCtrl() {
     axi_baseaddr = DAC_AXI_BASEADDR;
     axi_highaddr = DAC_AXI_HIGHADDR;
     paxi = NULL;
+    mmap_axi();
 }
 
 // Destructor performs un-mmapping.
@@ -76,60 +99,52 @@ int DacCtrl::unmmap_axi() {
 // Return 1 if the requested value is too large.
 // 0 otherwise
 int DacCtrl::set_delay(u32 delay) {
-    if (MAX_DELAY_VAL < delay)
+    if (dac_max_values::delay < delay)
         return 1;
-    if (paxi == NULL)
-        mmap_axi();
-    paxi[DAC_DELAY_REGOFF] = delay;
+    paxi[dac_regoffs::delay] = delay;
     return 0;
 }
 
 // Get the current delay value.
 u32 DacCtrl::get_delay() {
-    if (paxi == NULL)
-        mmap_axi();
-    return paxi[DAC_DELAY_REGOFF];
+    return paxi[dac_regoffs::delay];
 }
 
 // Set the dac's input value
 // Return 1 if you try and set a crazy value.
 // Return 0 otherwise.
+// This will also command dac value to be written over SPI
 int DacCtrl::set_counts(enum SilayerSide silayer_side, enum DacChoice dac_choice, u32 counts) {
-    if (paxi == NULL)
-        this->mmap_axi();
-    //std::cout << "Setting side " << side << " " << whichdac
-    //          << " dac to " << counts << " of 4095" << std::endl;
-    if (MAX_INPUT_VAL < counts) {
+
+    if (dac_max_values::input < counts) {
         return 1;
     }
 
     if (silayer_side == SideA && dac_choice == CalDac) {
-        paxi[DAC_SELECT_REGOFF] = 1 << SIDEA_CALDAC_SHIFT; //0b0001
+        paxi[dac_regoffs::select] = dac_select_masks::a_cal;
     } else if (silayer_side == SideA && dac_choice == VthDac) { 
-        paxi[DAC_SELECT_REGOFF] = 1 << SIDEA_VTH_SHIFT;    //0b0010
+        paxi[dac_regoffs::select] = dac_select_masks::a_vth;
     } else if (silayer_side == SideB && dac_choice == CalDac) {
-        paxi[DAC_SELECT_REGOFF] = 1 << SIDEB_CALDAC_SHIFT; //0b0100
+        paxi[dac_regoffs::select] = dac_select_masks::b_cal;
     } else if (silayer_side == SideB && dac_choice == VthDac) {
-        paxi[DAC_SELECT_REGOFF] = 1 << SIDEB_VTH_SHIFT;    //0b1000
+        paxi[dac_regoffs::select] = dac_select_masks::b_vth;
     } else {
         // This should never happen now? I think.
         std::cerr << "ERROR: How did you even provide bad options????" << std::endl;
         throw "ERROR: Bad Options, nothing done.";
     }
 
-    paxi[DAC_INPUT_REGOFF] = counts;
-    paxi[DAC_WRITE_REGOFF] = 0;
-    paxi[DAC_WRITE_REGOFF] = 1;
-    paxi[DAC_WRITE_REGOFF] = 0;
+    paxi[dac_regoffs::input] = counts;
+    paxi[dac_regoffs::write] = 0;
+    paxi[dac_regoffs::write] = 1;
+    paxi[dac_regoffs::write] = 0;
     return 0;
 }
 
 // Get the current dac input, as stated
 // at the axi register.
 u32 DacCtrl::get_input() {
-    if (paxi == NULL)
-        mmap_axi();
-    return paxi[DAC_INPUT_REGOFF];
+    return paxi[dac_regoffs::input];
 }
 
 // vim: set ts=4 sw=4 sts=4 et:
