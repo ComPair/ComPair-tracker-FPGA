@@ -18,13 +18,14 @@ namespace dac_select_masks {
     u32 a_vth = 1 << 1;  //0b0010
     u32 b_cal = 1 << 2;  //0b0100
     u32 b_vth = 1 << 3;  //0b1000
-}
+};
 
-// Value limits for user-provided dac parameters
-namespace dac_max_values {
-    u32 input = 4095;
-    u32 delay = 65535;
-}
+// Special dac values
+namespace dac_values {
+    u32 max_input = 4095;
+    u32 max_delay = 65535;
+    useconds_t set_count_delay_us = 10000; // 0.01 seconds
+};
 
 int parse_silayer_side(char *silayer_side_str, enum SilayerSide *silayer_side) {
     if (strncmp("A", silayer_side_str, 1) == 0) {
@@ -99,7 +100,7 @@ int DacCtrl::unmmap_axi() {
 // Return 1 if the requested value is too large.
 // 0 otherwise
 int DacCtrl::set_delay(u32 delay) {
-    if (dac_max_values::delay < delay)
+    if (dac_values::max_delay < delay)
         return 1;
     paxi[dac_regoffs::delay] = delay;
     return 0;
@@ -116,7 +117,7 @@ u32 DacCtrl::get_delay() {
 // This will also command dac value to be written over SPI
 int DacCtrl::set_counts(enum SilayerSide silayer_side, enum DacChoice dac_choice, u32 counts) {
 
-    if (dac_max_values::input < counts) {
+    if (dac_values::max_input < counts) {
         return 1;
     }
 
@@ -138,6 +139,7 @@ int DacCtrl::set_counts(enum SilayerSide silayer_side, enum DacChoice dac_choice
     paxi[dac_regoffs::write] = 0;
     paxi[dac_regoffs::write] = 1;
     paxi[dac_regoffs::write] = 0;
+    usleep(dac_values::set_count_delay_us);
     return 0;
 }
 
