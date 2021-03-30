@@ -27,10 +27,14 @@ done
 
 echo "Setting up board IP; target IP: 10.10.0.$dip_switches"
 cp $SCRIPTDIR/interfaces_default $SCRIPTDIR/interfaces
-sed -i "s/10.10.0.20/10.10.0.$dip_switches/" interfaces
+sed -i "s/10.10.0.20/10.10.0.$dip_switches/" $SCRIPTDIR/interfaces
 
 cp $SCRIPTDIR/interfaces /etc/network/interfaces
 
 ifdown eth0; ifup eth0
+
+
+hostname si-layer-$dip_switches
+
 
 echo "Done!"

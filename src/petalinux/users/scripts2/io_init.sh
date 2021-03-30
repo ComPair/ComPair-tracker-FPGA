@@ -9,5 +9,6 @@ else
   
   /home/root/scripts/mio_init.sh
   /home/root/scripts/iic_gpio_init.sh
+  /home/root/scripts/iic_gpio_test.sh
   touch $INITLOCK
 fi
