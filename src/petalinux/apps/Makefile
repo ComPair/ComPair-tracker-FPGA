@@ -21,8 +21,11 @@ ctrl: lib
 lib: zynq-dirs
 	cd build-scripts && ./make-lib.sh $(SILAYER_IP)
 
+supervisord:
+	cd build-scripts && ./make-supervisord.sh $(SILAYER_IP)
+
 ## This will scp over the bps headers.
 zynq-dirs:
 	cd build-scripts && ./make-zynq-dirs.sh $(BUILD) $(SILAYER_IP)
 
-.PHONY: zynq-dirs lib ctrl server
+.PHONY: zmq loguru server ctrl lib supervisord zynq-dirs zynq-dirs
