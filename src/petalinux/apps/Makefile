@@ -1,5 +1,5 @@
 # BUILD = dbe_production
-SILAYER_IP = $(ZYNQIP) #10.10.0.11
+SILAYER_IP = $(ZYNQIP) 
 
 all: server
 
